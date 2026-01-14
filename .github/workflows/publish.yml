@@ -14,5 +14,6 @@ jobs:
 
       - name: Upadte site files
         run: |
+          cd ../public_html/Icarus
           git fetch origin
           git pull
