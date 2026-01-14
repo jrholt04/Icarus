@@ -16,4 +16,5 @@ jobs:
         run: |
           cd /home/Icarus/public_html/Icarus
           git fetch origin
-          git pull
+          git checkout main
+          git reset --hard origin/main
