@@ -3,14 +3,16 @@
 #   A github action to automatically pull our PR changes down onto the server
 on:
   push:
-    branches ["main"]:
+    branches: ["main"]:
 
 jobs:
   deploy:
     runs-on: [self-hosted, Icarus-prod]
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Upadte site files
-      run:
-        git fetch origin
-        git reset --hard origin/main
+        run: |
+          git fetch origin
+          git reset --hard origin/main
