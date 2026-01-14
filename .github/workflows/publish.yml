@@ -15,4 +15,4 @@ jobs:
       - name: Upadte site files
         run: |
           git fetch origin
-          git reset --hard origin/main
+          git pull
