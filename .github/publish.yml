@@ -1,0 +1,16 @@
+#File: publish.yml
+#Authors: Azalea Flynn, Erin Kendall, Jackson Holt 
+#   A github action to automatically pull our PR changes down onto the server
+on:
+  push:
+    branches ["main"]:
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, Icarus-prod]
+
+    steps:
+      - name: Upadte site files
+      run:
+        git fetch origin
+        git reset --hard origin/main
