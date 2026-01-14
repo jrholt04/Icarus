@@ -3,7 +3,7 @@
 #   A github action to automatically pull our PR changes down onto the server
 on:
   push:
-    branches: ["main"]:
+    branches: ["main"]
 
 jobs:
   deploy:
