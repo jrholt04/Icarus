@@ -1,0 +1,57 @@
+CREATE TABLE Books (
+    book_id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    lang_code CHAR(2) NOT NULL,
+    isbn INT,
+    pg_nums INT,
+    cover_img LONGBLOB,
+    rating INT
+);
+
+CREATE TABLE Users (
+    usr_id INT PRIMARY KEY AUTO_INCREMENT,
+    usr_name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    pswd VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE Authors (
+    auth_id INT PRIMARY KEY AUTO_INCREMENT,
+    fname VARCHAR(100),
+    lname VARCHAR(100) NOT NULL,
+    bio VARCHAR(1000),
+    Headshot LONGBLOB
+);
+
+CREATE TABLE FavAuthors (
+    usr_id INT NOT NULL,
+    auth_id INT NOT NULL,
+    PRIMARY KEY (usr_id, auth_id),
+    FOREIGN KEY (usr_id) REFERENCES Users(usr_id),
+    FOREIGN KEY (auth_id) REFERENCES Authors(auth_id)
+);
+
+CREATE TABLE ReadingLog (
+    usr_id INT NOT NULL,
+    book_id INT NOT NULL,
+    notes VARCHAR(1000),
+    PRIMARY KEY (usr_id, book_id),
+    FOREIGN KEY (usr_id) REFERENCES Users(usr_id),
+    FOREIGN KEY (book_id) REFERENCES Books(book_id)
+);
+
+CREATE TABLE Wishlist (
+    usr_id INT NOT NULL,
+    book_id INT NOT NULL,
+    PRIMARY KEY (usr_id, book_id),
+    FOREIGN KEY (usr_id) REFERENCES Users(usr_id),
+    FOREIGN KEY (book_id) REFERENCES Books(book_id)
+);
+
+CREATE TABLE BookAuth (
+   book_id INT NOT NULL,
+   auth_id INT NOT NULL,
+   PRIMARY KEY (auth_id, book_id),
+   FOREIGN KEY (book_id) REFERENCES  Books(book_id),
+   FOREIGN KEY (auth_id) REFERENCES Authors(auth_id) 
+);
