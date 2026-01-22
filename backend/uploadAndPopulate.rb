@@ -4,20 +4,11 @@
 # A Flynn, E Kendall, J Holt, Transy U
 # CS 4444, Winter 2025
 #
-# Ruby program to create and populate a table from a CSV file submitted through index.html
-# User submits the file, table name, and key(s) they want to use, and leaving the key blank indicates they want the key to be a unique id
-# If any of the key(s) entered are not present in the header of the CSV, the user is taken to a new form where they can choose from a
-# list of possible keys. Again, selecting nothing indicates they want the key to be a unique id
-# If the table name entered already exists in the database, the user is prompted to select a new table name
-# If the table name is invalid, the user is prompted to enter a valid table name
-# If there are duplicate keys, the user is informed where the error was and the table is deleted
-# This program does not check to ensure the file submitted is a .csv file, nor does it check whether the CSV file is empty
-# Sources:
-#   Hidden Input Type - https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/hidden - Accessed 5 March 2025
-#   Gsub in Ruby - https://ruby-doc.org/core-2.4.5/String.html#method-i-gsub - Accessed 5 March 2025
-#   Making Required Fields in Table - https://www.geeksforgeeks.org/how-to-perform-form-validation-for-a-required-field-in-html/ - Accessed 5 March 2025
-#   Show Tables - https://dev.mysql.com/doc/refman/8.4/en/show-tables.html - Accessed 7 March 2025
+# Ruby program to create and populate Icarus tables from a CSV file submitted through the arguments
 
+# Arguments: filename
+# CSV structure: header, columns separated by comma
+# CSV column order: bookID, title, authors, average_rating, isbn, isbn13, language_code, num_pages, ratings_count, text_reviews_count, publication_date, publisher
 
 $stdout.sync = true
 $stderr.reopen $stdout
@@ -29,6 +20,12 @@ require 'mysql2'
 require 'stringio'
 
 massInsertDB = Mysql2::Client.new(:host => '10.20.3.4', :username => 'Icarus', :password => 'B00kz!', :database => 'ss_icarus_db')
+
+booksFile = IO.readlines(ARGV[0])
+
+# Drop the header of the file
+booksFile = booksFile.drop(1)
+
 =begin
 massInsertCGI = CGI.new("html5") 
 uploadLocation = "/NFSHome/ekendall/public_html/UploadAndPopulate/Uploads/"
@@ -90,6 +87,8 @@ end
 =end
 
 # Change this to take in the name as args instead of HTML
+# SHOW COLUMNS FROM table - shows how the table was created
+=begin
 validTableName = true
 allTables = massInsertDB.query("SHOW TABLES;")
 allTables.each do |table|
@@ -97,6 +96,88 @@ allTables.each do |table|
     validTableName = false
   end
 end
+=end
+
+# Need to figure out whether the tables exist before deleting them
+# For now use this query: drop table Authors, BookAuth, Books, FavAuthors, ReadingLog, Wishlist;
+=begin
+# Delete tables
+massInsertDB.query("DROP TABLE FavAuthors;")
+massInsertDB.query("DROP TABLE ReadingLog;")
+massInsertDB.query("DROP TABLE Wishlist;")
+massInsertDB.query("DROP TABLE BookAuth;")
+massInsertDB.query("DROP TABLE Books;")
+massInsertDB.query("DROP TABLE Authors;")
+=end
+
+# Create tables
+massInsertDB.query(
+  "CREATE TABLE Books (
+    book_id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    lang_code CHAR(30) NOT NULL,
+    isbn CHAR(30),
+    pg_nums INT,
+    cover_img LONGBLOB,
+    rating FLOAT
+  );")
+
+# Maybe we don't want to delete the users table every time we run this?
+=begin
+massInsertDB.query(
+  "CREATE TABLE Users (
+    usr_id INT PRIMARY KEY AUTO_INCREMENT,
+    usr_name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    pswd VARCHAR(255) NOT NULL
+  );")
+=end
+
+massInsertDB.query(
+  "CREATE TABLE Authors (
+    auth_id INT PRIMARY KEY AUTO_INCREMENT,
+    fname VARCHAR(100),
+    lname VARCHAR(100) NOT NULL,
+    bio VARCHAR(1000),
+    headshot LONGBLOB
+  );")
+
+massInsertDB.query(
+  "CREATE TABLE FavAuthors (
+    usr_id INT NOT NULL,
+    auth_id INT NOT NULL,
+    PRIMARY KEY (usr_id, auth_id),
+    FOREIGN KEY (usr_id) REFERENCES Users(usr_id),
+    FOREIGN KEY (auth_id) REFERENCES Authors(auth_id)
+  );")
+
+massInsertDB.query(
+  "CREATE TABLE ReadingLog (
+    usr_id INT NOT NULL,
+    book_id INT NOT NULL,
+    notes VARCHAR(1000),
+    PRIMARY KEY (usr_id, book_id),
+    FOREIGN KEY (usr_id) REFERENCES Users(usr_id),
+    FOREIGN KEY (book_id) REFERENCES Books(book_id)
+  );")
+
+massInsertDB.query(
+  "CREATE TABLE Wishlist (
+    usr_id INT NOT NULL,
+    book_id INT NOT NULL,
+    PRIMARY KEY (usr_id, book_id),
+    FOREIGN KEY (usr_id) REFERENCES Users(usr_id),
+    FOREIGN KEY (book_id) REFERENCES Books(book_id)
+  );")
+
+massInsertDB.query(
+  "CREATE TABLE BookAuth (
+   book_id INT NOT NULL,
+   auth_id INT NOT NULL,
+   PRIMARY KEY (auth_id, book_id),
+   FOREIGN KEY (book_id) REFERENCES  Books(book_id),
+   FOREIGN KEY (auth_id) REFERENCES Authors(auth_id) 
+  );")
 
 =begin
 if (!validTableName and allKeysInTable)
@@ -127,6 +208,8 @@ end
 =end
 
 # Change this to work with the file and not worry about the HTML
+# Args done with argv
+=begin
 if (allKeysInTable and validTableName)
   puts "<!DOCTYPE html>"
   puts "<html lang=\"en\">" 
@@ -219,4 +302,70 @@ if (allKeysInTable and validTableName)
 
   puts "</body>"
   puts "</html>" 
+end
+=end
+
+# CSV column order: bookID, title, authors, average_rating, isbn, isbn13, language_code, num_pages, ratings_count, text_reviews_count, publication_date, publisher
+# Throwing away authors for now until we know what we want to do with them
+booksFile.each do |book|
+  splitBookRow = book.split(",")
+  title = splitBookRow[1].strip().gsub("'", "\\\\'")
+  allAuthors = splitBookRow[2].strip()
+  rating = splitBookRow[3].strip().to_f()
+  isbn = splitBookRow[4].strip().to_i()
+  lang_code = splitBookRow[6].strip()
+  pg_nums = splitBookRow[7].strip().to_i()
+
+  authors = allAuthors.split("/")
+  authors.each do |author|
+    authorSplit = author.split(" ")
+    # Figure out the first and last names of the author
+    # What if an author does not have exactly 2 names?
+  end
+
+  if (title == "")
+    puts "ERROR: Missing book title"
+    title = "MISSING BOOK TITLE"
+  end
+  if (isbn == 0)
+    puts "ERROR: Missing ISBN"
+    isbn = -1
+  end
+
+=begin
+  if (origSeqNumber == 0)
+    puts "NOTICE: No Original Sequence Number given"
+    origSeqNumber = -1
+  end
+  if (newSeqNumber == 0)
+    puts "NOTICE: No New Sequence Number given"
+    newSeqNumber = -1
+  end
+  if (status != "Completed" and status != "CASING" and status != "Sequence to do")
+    if (status == "")
+      puts "ERROR: Missing Status"
+      status = "Missing"
+    else
+      puts "ERROR: Status must be Completed, CASING, or Sequence to do"
+    end
+  end
+  if (date == "")
+    puts "ERROR: Missing Date"
+    date = "Missing"
+  end
+  if (month <= 0 or month > 12)
+    puts "ERROR: Month must be an integer between 1 and 12"
+    month = -1
+  end
+  if (year <= 0)
+    puts "ERROR: Year must be an integer and cannot be 0"
+    year = -1
+  end
+  if (researcher == "")
+    puts "NOTICE: No researcher claimed"
+    researcher = "Unclaimed"
+  end
+=end
+
+  massInsertDB.query("INSERT INTO Books (title, lang_code, isbn, pg_nums, rating) VALUES('" + title + "', '" + lang_code + "', '" + isbn.to_s() + "', '" + pg_nums.to_s() + "', '" + rating.to_s() + "');")
 end
