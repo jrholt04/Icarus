@@ -18,7 +18,7 @@
 #   Making Required Fields in Table - https://www.geeksforgeeks.org/how-to-perform-form-validation-for-a-required-field-in-html/ - Accessed 5 March 2025
 #   Show Tables - https://dev.mysql.com/doc/refman/8.4/en/show-tables.html - Accessed 7 March 2025
 
-=begin
+
 $stdout.sync = true
 $stderr.reopen $stdout
 
@@ -28,7 +28,8 @@ require 'cgi'
 require 'mysql2'
 require 'stringio'
 
-massInsertDB = Mysql2::Client.new(:host => '10.20.3.4', :username => 'dbms_ek', :password => 'ek_26_moorman', :database => 'dbms_ek_dbA')
+massInsertDB = Mysql2::Client.new(:host => '10.20.3.4', :username => 'Icarus', :password => 'B00kz!', :database => 'ss_icarus_db')
+=begin
 massInsertCGI = CGI.new("html5") 
 uploadLocation = "/NFSHome/ekendall/public_html/UploadAndPopulate/Uploads/"
 
@@ -86,7 +87,9 @@ if (massInsertCGI['originalName'] == "" and massInsertCGI['primaryKey'].to_s() !
     puts "</html>"
   end
 end
+=end
 
+# Change this to take in the name as args instead of HTML
 validTableName = true
 allTables = massInsertDB.query("SHOW TABLES;")
 allTables.each do |table|
@@ -95,6 +98,7 @@ allTables.each do |table|
   end
 end
 
+=begin
 if (!validTableName and allKeysInTable)
   puts "<!DOCTYPE html>"
   puts "<html lang=\"en\">"
@@ -120,7 +124,9 @@ if (!validTableName and allKeysInTable)
   puts "</body>"
   puts "</html>"
 end
+=end
 
+# Change this to work with the file and not worry about the HTML
 if (allKeysInTable and validTableName)
   puts "<!DOCTYPE html>"
   puts "<html lang=\"en\">" 
@@ -214,4 +220,3 @@ if (allKeysInTable and validTableName)
   puts "</body>"
   puts "</html>" 
 end
-=end
