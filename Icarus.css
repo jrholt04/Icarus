@@ -1,0 +1,77 @@
+/* File: index.html
+    Azalea Flynn, Erin Kendall, Jackson Holt Transy U 
+    Dr. Moorman, Icarus 
+*/
+
+/* Navigation Bar Styles */
+nav {
+    padding: 1.5% 4.0%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+a.logo {
+    color: black;
+    font-family: Impact, sans-serif;
+    font-size: 35px;
+    font-weight: bold;
+    text-decoration: none !important;
+}
+
+.nav-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 35px;
+}
+
+.nav-links li {
+    display: inline;
+}
+
+.nav-links a {
+    color: black;
+    text-decoration: none;
+    font-family: Arial, sans-serif; /* Need to change to Canva Sans */
+}
+
+.nav-links a:hover {
+    font-weight: bold;
+}
+
+body {
+    background-color: #f0f1f5;
+}
+
+/* Horizontal scrollable image list */
+.scroll-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    padding: 20px 40px;
+    scroll-behavior: smooth;
+}
+
+.image-item {
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.image-item img {
+    width: 200px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* suggestion header styles */
+h1 {
+    color: black;
+    font-family: Impact, sans-serif;
+    font-size: 30px;
+    font-weight: bold;
+    padding-left : 15%;
+}
