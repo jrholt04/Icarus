@@ -115,10 +115,11 @@ massInsertDB.query(
   "CREATE TABLE Books (
     book_id INT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(255) NOT NULL,
+    author VARCHAR(255) NOT NULL,
     lang_code CHAR(30) NOT NULL,
     isbn CHAR(30),
     pg_nums INT,
-    cover_img LONGBLOB,
+    cover_img VARCHAR(255),
     rating FLOAT
   );")
 
@@ -305,23 +306,28 @@ if (allKeysInTable and validTableName)
 end
 =end
 
-# CSV column order: bookID, title, authors, average_rating, isbn, isbn13, language_code, num_pages, ratings_count, text_reviews_count, publication_date, publisher
-# Throwing away authors for now until we know what we want to do with them
+# CSV column order: "bookId","title","series","author","rating","description","language","isbn","genres","characters","bookFormat","edition","pages","publisher","publishDate","firstPublishDate","awards","numRatings","ratingsByStars","likedPercent","setting","coverImg","bbeScore","bbeVotes","price"
+# Authors currently in Books table, will need to move
 booksFile.each do |book|
-  splitBookRow = book.split(",")
+  splitBookRow = book.split("\",\"")
   title = splitBookRow[1].strip().gsub("'", "\\\\'")
-  allAuthors = splitBookRow[2].strip()
-  rating = splitBookRow[3].strip().to_f()
-  isbn = splitBookRow[4].strip().to_i()
+  allAuthors = splitBookRow[3].strip()
+  rating = splitBookRow[4].strip().to_f()
+  #synopsis = splitBookRow[5].strip().gsub(["'"'"'], "'" => "\\\\'", '"' => '\\\\"')
+  #(/[eo]/, 'e' => 3, 'o' => '*')
   lang_code = splitBookRow[6].strip()
-  pg_nums = splitBookRow[7].strip().to_i()
+  isbn = splitBookRow[7].strip().to_i()
+  pg_nums = splitBookRow[12].strip().to_i()
+  cover_img = splitBookRow[21].strip()
 
+=begin
   authors = allAuthors.split("/")
   authors.each do |author|
     authorSplit = author.split(" ")
     # Figure out the first and last names of the author
     # What if an author does not have exactly 2 names?
   end
+=end
 
   if (title == "")
     puts "ERROR: Missing book title"
@@ -367,5 +373,5 @@ booksFile.each do |book|
   end
 =end
 
-  massInsertDB.query("INSERT INTO Books (title, lang_code, isbn, pg_nums, rating) VALUES('" + title + "', '" + lang_code + "', '" + isbn.to_s() + "', '" + pg_nums.to_s() + "', '" + rating.to_s() + "');")
+  massInsertDB.query("INSERT INTO Books (title, author, lang_code, isbn, pg_nums, cover_img, rating) VALUES('" + title + "', '" + allAuthors + "', '" + lang_code + "', '" + isbn.to_s() + "', '" + pg_nums.to_s() + "', '" + cover_img + "', '" + rating.to_s() + "');")
 end
