@@ -51,7 +51,7 @@ puts "    <body>"
 puts "        <nav>"
 puts "            <nav><a class=\"logo\" href=index.cgi>Icarus</a></nav>"
 puts "            <ul class=\"nav-links\">"
-puts "                <li><a href=\"#top-books\">Top Books</a></li>"
+puts "                <li><a href=index.cgi>Top Books</a></li>"
 puts "                <li><a href=\"#search\">Search</a></li>"
 puts "                <li><a href=\"#favorites\">Favorites</a></li>"
 puts "                <li><a href=\"#reading-log\">Reading Log</a></li>"
@@ -62,7 +62,7 @@ puts "        </nav>"
 puts "        <h1>Top in US</h1>"
 puts "        <div class=\"scroll-container\">"
                     topBooksUS.each do |book|
-                        img = book['cover_image']
+                        img = book['cover_img']
                         puts "            <a href=\"#\" class=\"image-item\">"
                         puts "                <img src=#{img} alt=\"#{book['title']}\">"
                         puts "            </a>"
@@ -71,7 +71,7 @@ puts "        </div>"
 puts "        <h1>Top Global</h1>"
 puts "        <div class=\"scroll-container\">"
                     topBooksGlobal.each do |book|
-                        img = book['cover_image']
+                        img = book['cover_img']
                         puts "            <a href=\"#\" class=\"image-item\">"
                         puts "                <img src=#{img} alt=\"#{book['title']}\">"
                         puts "            </a>"
