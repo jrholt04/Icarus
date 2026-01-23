@@ -62,16 +62,18 @@ puts "        </nav>"
 puts "        <h1>Top in US</h1>"
 puts "        <div class=\"scroll-container\">"
                     topBooksUS.each do |book|
+                        img = book['cover_image']
                         puts "            <a href=\"#\" class=\"image-item\">"
-                        puts "                <img src=\"#{book['cover_image']}\" alt=\"#{book['title']}\">"
+                        puts "                <img src=#{img} alt=\"#{book['title']}\">"
                         puts "            </a>"
                     end
 puts "        </div>"
 puts "        <h1>Top Global</h1>"
 puts "        <div class=\"scroll-container\">"
                     topBooksGlobal.each do |book|
+                        img = book['cover_image']
                         puts "            <a href=\"#\" class=\"image-item\">"
-                        puts "                <img src=\"#{book['cover_image']}\" alt=\"#{book['title']}\">"
+                        puts "                <img src=#{img} alt=\"#{book['title']}\">"
                         puts "            </a>"
                     end
 puts "        </div>"
