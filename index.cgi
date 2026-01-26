@@ -63,7 +63,7 @@ puts "        <h1>Top in US</h1>"
 puts "        <div class=\"scroll-container\">"
                     topBooksUS.each do |book|
                         img = book['cover_img']
-                        puts "            <a href=\"#\" class=\"image-item\">"
+                        puts "            <a href=\"frontend/book.cgi?book_id=#{book['book_id']}\" class=\"image-item\">"
                         puts "                <img src=#{img} alt=\"#{book['title']}\">"
                         puts "            </a>"
                     end
@@ -72,7 +72,7 @@ puts "        <h1>Top Global</h1>"
 puts "        <div class=\"scroll-container\">"
                     topBooksGlobal.each do |book|
                         img = book['cover_img']
-                        puts "            <a href=\"#\" class=\"image-item\">"
+                        puts "            <a href=\"frontend/book.cgi?book_id=#{book['book_id']}\" class=\"image-item\">"
                         puts "                <img src=#{img} alt=\"#{book['title']}\">"
                         puts "            </a>"
                     end
