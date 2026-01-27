@@ -18,6 +18,8 @@ puts "Content-type: text/html\r\n\r\n"
 require 'cgi'
 require 'mysql2'
 require 'stringio'
+require 'net/http'
+require 'json'
 
 massInsertDB = Mysql2::Client.new(:host => '10.20.3.4', :username => 'Icarus', :password => 'B00kz!', :database => 'ss_icarus_db')
 
@@ -27,8 +29,8 @@ booksFile = IO.readlines(ARGV[0])
 booksFile = booksFile.drop(1)
 
 # Google API to get the description of the book.
-def getTopBooksDescription(book)
-    uri = URI("https://www.googleapis.com/books/v1/volumes?q=#{book['title']}")
+def getTopBooksDescription(title)
+    uri = URI("https://www.googleapis.com/books/v1/volumes?q=#{title}")
     res = Net::HTTP.get_response(uri)
     data = JSON.parse(res.body) if res.is_a?(Net::HTTPSuccess)
     description = data.dig('items', 0, 'volumeInfo', 'description') if data
@@ -36,8 +38,6 @@ def getTopBooksDescription(book)
 end 
 
 # Need to figure out whether the tables exist before deleting them
-# For now use this query: drop table Authors, BookAuth, Books, FavAuthors, ReadingLog, Wishlist;
-=begin
 # Delete tables
 massInsertDB.query("DROP TABLE FavAuthors;")
 massInsertDB.query("DROP TABLE ReadingLog;")
@@ -45,7 +45,6 @@ massInsertDB.query("DROP TABLE Wishlist;")
 massInsertDB.query("DROP TABLE BookAuth;")
 massInsertDB.query("DROP TABLE Books;")
 massInsertDB.query("DROP TABLE Authors;")
-=end
 
 # Create tables
 massInsertDB.query(
@@ -114,8 +113,6 @@ booksFile.each do |book|
   title = splitBookRow[1].strip().gsub("'", "\\\\'")
   allAuthors = splitBookRow[3].strip()
   rating = splitBookRow[4].strip().to_f()
-  #synopsis = splitBookRow[5].strip().gsub(["'"'"'], "'" => "\\\\'", '"' => '\\\\"')
-  #(/[eo]/, 'e' => 3, 'o' => '*')
   lang_code = splitBookRow[6].strip()
   isbn = splitBookRow[7].strip().to_i()
   pg_nums = splitBookRow[12].strip().to_i()
@@ -130,14 +127,22 @@ booksFile.each do |book|
   end
 =end
 
+  description = getTopBooksDescription(title)
+  if description != nil
+    description = description.gsub("'", "\\\\'")
+    description = description.gsub('"', '\\\\"')
+  else
+    description = "No description given."
+  end
+
   if (title == "")
     puts "ERROR: Missing book title"
     title = "MISSING BOOK TITLE"
   end
   if (isbn == 0)
     puts "ERROR: Missing ISBN"
-    isbn = -1
+    isbn = 9999999999999
   end
 
-  massInsertDB.query("INSERT INTO Books (title, author, lang_code, isbn, pg_nums, cover_img, rating) VALUES('" + title + "', '" + allAuthors + "', '" + lang_code + "', '" + isbn.to_s() + "', '" + pg_nums.to_s() + "', '" + cover_img + "', '" + rating.to_s() + "');")
+  massInsertDB.query("INSERT INTO Books (title, author, lang_code, isbn, pg_nums, cover_img, rating, description) VALUES('" + title + "', '" + allAuthors + "', '" + lang_code + "', '" + isbn.to_s() + "', '" + pg_nums.to_s() + "', '" + cover_img + "', '" + rating.to_s() + "', '" + description + "');")
 end
