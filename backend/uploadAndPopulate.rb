@@ -26,6 +26,15 @@ booksFile = IO.readlines(ARGV[0])
 # Drop the header of the file
 booksFile = booksFile.drop(1)
 
+# Google API to get the description of the book.
+def getTopBooksDescription(book)
+    uri = URI("https://www.googleapis.com/books/v1/volumes?q=#{book['title']}")
+    res = Net::HTTP.get_response(uri)
+    data = JSON.parse(res.body) if res.is_a?(Net::HTTPSuccess)
+    description = data.dig('items', 0, 'volumeInfo', 'description') if data
+    return description
+end 
+
 =begin
 massInsertCGI = CGI.new("html5") 
 uploadLocation = "/NFSHome/ekendall/public_html/UploadAndPopulate/Uploads/"
@@ -120,7 +129,8 @@ massInsertDB.query(
     isbn CHAR(30),
     pg_nums INT,
     cover_img VARCHAR(255),
-    rating FLOAT
+    rating FLOAT,
+    description VARCHAR(5000)
   );")
 
 # Maybe we don't want to delete the users table every time we run this?
