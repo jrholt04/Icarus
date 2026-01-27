@@ -23,21 +23,11 @@ db = Mysql2::Client.new(
     :database=>'ss_icarus_db'
     )
 
-#this is the google api to get the desciription of the book.
-def getTopBooksDescritption(book)
-    uri = URI("https://www.googleapis.com/books/v1/volumes?q=#{book['title']}")
-    res = Net::HTTP.get_response(uri)
-    data = JSON.parse(res.body) if res.is_a?(Net::HTTPSuccess)
-    description = data.dig('items', 0, 'volumeInfo', 'description') if data
-    return description
-end 
-
 #get info from html forms
 cgi = CGI.new("html5")
 
 bookId = cgi['book_id']
 book = db.query("SELECT * FROM Books WHERE book_id = #{bookId};").first
-description = getTopBooksDescritption(book)
 
 if book.nil?
     puts "Content-type: text/html\n\n"
@@ -69,15 +59,15 @@ puts "            <div class=\"book-info\">"
 puts "                <div class=\"book-left\">"
 puts "                    <img src=\"#{book['cover_img']}\" alt=\"#{book['title']}\">"
                             if book['isbn'] == '9999999999999' # checks if isbn is placeholder
-                                puts "<div class=\"book-isbn\">isbn: N/A</div>"
+                                puts "<div class=\"book-isbn\">ISBN: N/A</div>"
                             else
-                                puts "<div class=\"book-isbn\">isbn: #{book['isbn']}</div>"
+                                puts "<div class=\"book-isbn\">ISBN: #{book['isbn']}</div>"
                             end
 puts "                    <div class=\"book-author\">by #{book['author']}</div>"
 puts "                </div>"
 puts "                <div class=\"book-right\">"
 puts "                    <h1 class=\"book-title\">#{book['title']}</h1>"
-puts "                    <div class=\"book-desc\">#{description}</div>"
+puts "                    <div class=\"book-desc\">#{book['description']}</div>"
 puts "                    <h1 class=\"logo\">Reviews</h1>"
 puts "                    <div class=\"book-desc\">#{book['rating']}/5</div>"
 puts "                    <h1 class=\"logo\">Borrow Or Buy</h1>"
