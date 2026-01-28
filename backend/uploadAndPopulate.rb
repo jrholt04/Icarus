@@ -8,7 +8,6 @@
 
 # Arguments: filename
 # CSV structure: header, columns separated by comma
-# CSV column order: bookID, title, authors, average_rating, isbn, isbn13, language_code, num_pages, ratings_count, text_reviews_count, publication_date, publisher
 
 $stdout.sync = true
 $stderr.reopen $stdout
@@ -30,12 +29,22 @@ booksFile = booksFile.drop(1)
 
 # Google API to get the description of the book.
 def getTopBooksDescription(title)
-    uri = URI("https://www.googleapis.com/books/v1/volumes?q=#{title}")
-    res = Net::HTTP.get_response(uri)
-    data = JSON.parse(res.body) if res.is_a?(Net::HTTPSuccess)
-    description = data.dig('items', 0, 'volumeInfo', 'description') if data
-    return description
+  uri = URI("https://www.googleapis.com/books/v1/volumes?q=#{title}")
+  res = Net::HTTP.get_response(uri)
+  data = JSON.parse(res.body) if res.is_a?(Net::HTTPSuccess)
+  description = data.dig('items', 0, 'volumeInfo', 'description') if data
+  return description
 end 
+
+# Google API to get the ISBN of the book.
+def getBookISBN(title)
+  uri = URI("https://www.googleapis.com/books/v1/volumes?q=#{title}")
+  res = Net::HTTP.get_response(uri)
+  data = JSON.parse(res.body) if res.is_a?(Net::HTTPSuccess)
+  isbn = data.dig('items', 0, 'volumeInfo', 'industryIdentifiers') if data
+  puts isbn
+  return isbn
+end
 
 # Need to figure out whether the tables exist before deleting them
 # Delete tables
@@ -134,6 +143,8 @@ booksFile.each do |book|
   else
     description = "No description given."
   end
+
+  #isbn = getBookISBN(title)
 
   if (title == "")
     puts "ERROR: Missing book title"
