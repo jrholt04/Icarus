@@ -26,51 +26,61 @@ db = Mysql2::Client.new(
 cgi = CGI.new("html5")
 
 #returns the top 15 fiction books from the new york times best sellers list
-def getTopFic()
-    books = []
-
+def getTopFic(db)
     uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-fiction.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
     res = Net::HTTP.get_response(uri)
     raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
     data = JSON.parse(res.body)
     ficBooks = data.dig("results", "books")
 
+    titles = "("
     ficBooks.each do |b|
-        books.push(db.query("SELECT * FROM books WHERE title = '#{b['title']}';"))
+        titles += "'#{b['title'].gsub("'", "''")}',"
     end
+    titles.chomp!(',')
+    titles += ")"
+
+    books = db.query("SELECT * FROM Books WHERE UPPER(title) IN #{titles};")
+
     return books
 end
 
 #returns the top 15 nonfiction books from the NYT best sellers list
-def getTopNonFic()
-    books = []
-
+def getTopNonFic(db)
     uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-nonfiction.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
     res = Net::HTTP.get_response(uri)
     raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
     data = JSON.parse(res.body)
     nonFicBooks = data.dig("results", "books")
 
+    titles = "("
     nonFicBooks.each do |b|
-        books.push(db.query("SELECT * FROM books WHERE title = '#{b['title']}';"))
+        titles += "'#{b['title'].gsub("'", "''")}',"
     end
+    titles.chomp!(',')
+    titles += ")"
+
+    books = db.query("SELECT * FROM Books WHERE UPPER(title) IN #{titles};")
 
     return books
 end
 
 #returns the top 15 self help books from the NYT best sellers list
-def getTopSelfHelp()
-    books = []
-
+def getTopSelfHelp(db)
     uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/advice-how-to-and-miscellaneous.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
     res = Net::HTTP.get_response(uri)
     raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
     data = JSON.parse(res.body)
     selfHelpBooks = data.dig("results", "books")
 
+    titles = "("
     selfHelpBooks.each do |b|
-        books.push(db.query("SELECT * FROM books WHERE title = '#{b['title']}';"))
+        titles += "'#{b['title'].gsub("'", "''")}',"
     end
+    titles.chomp!(',')
+    titles += ")"
+    
+    books = db.query("SELECT * FROM Books WHERE UPPER(title) IN #{titles};")
 
     return books
 end
@@ -81,9 +91,9 @@ def getTopBooksUser(bookData, userId)
 end
 
 
-topBooksFic= getTopFic()
-topBooksNonFic = getTopNonFic()
-topBooksSelfHelp = getTopSelfHelp()
+topBooksFic= getTopFic(db)
+topBooksNonFic = getTopNonFic(db)
+topBooksSelfHelp = getTopSelfHelp(db)
 puts "<!DOCTYPE html>"
 puts "<html>"
 puts "    <head>"
