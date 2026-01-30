@@ -13,6 +13,8 @@ print "Content-type: text/html\n\n"
 require 'mysql2'
 require 'cgi'
 require 'stringio'
+require 'net/http'
+require 'json'
 
 db = Mysql2::Client.new(
     :host=>'10.20.3.4',
@@ -23,14 +25,54 @@ db = Mysql2::Client.new(
 #get info from html forms
 cgi = CGI.new("html5")
 
-#returns the top 10 books in the US (THIS IS NOT DONE)
-def getTopBooksUS(bookData)
-    return bookData.first(10)
+#returns the top 15 fiction books from the new york times best sellers list
+def getTopFic()
+    books = []
+
+    uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-fiction.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
+    res = Net::HTTP.get_response(uri)
+    raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
+    data = JSON.parse(res.body)
+    ficBooks = data.dig("results", "books")
+
+    ficBooks.each do |b|
+        books.push(db.query("SELECT * FROM books WHERE title = '#{b['title']}';"))
+    end
+    return books
 end
 
-#returns the top 10 books globally (THIS IS NOT DONE)
-def getTopBooksGlobal(bookData)
-    return bookData.first(20).last(10)
+#returns the top 15 nonfiction books from the NYT best sellers list
+def getTopNonFic()
+    books = []
+
+    uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-nonfiction.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
+    res = Net::HTTP.get_response(uri)
+    raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
+    data = JSON.parse(res.body)
+    nonFicBooks = data.dig("results", "books")
+
+    nonFicBooks.each do |b|
+        books.push(db.query("SELECT * FROM books WHERE title = '#{b['title']}';"))
+    end
+
+    return books
+end
+
+#returns the top 15 self help books from the NYT best sellers list
+def getTopSelfHelp()
+    books = []
+
+    uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/advice-how-to-and-miscellaneous.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
+    res = Net::HTTP.get_response(uri)
+    raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
+    data = JSON.parse(res.body)
+    selfHelpBooks = data.dig("results", "books")
+
+    selfHelpBooks.each do |b|
+        books.push(db.query("SELECT * FROM books WHERE title = '#{b['title']}';"))
+    end
+
+    return books
 end
 
 #returns top 10 books for user (if they are signed in) (THIS IS NOT DONE)
@@ -38,9 +80,10 @@ def getTopBooksUser(bookData, userId)
 
 end
 
-bookData = db.query("Select * from Books;")
-topBooksUS = getTopBooksUS(bookData)
-topBooksGlobal = getTopBooksGlobal(bookData)
+
+topBooksFic= getTopFic()
+topBooksNonFic = getTopNonFic()
+topBooksSelfHelp = getTopSelfHelp()
 puts "<!DOCTYPE html>"
 puts "<html>"
 puts "    <head>"
@@ -59,18 +102,27 @@ puts "                <li><a href=\"#bts\">BTS</a></li>"
 puts "                <li><a href=\"#sign-in\">Sign In</a></li>"
 puts "            </ul>"
 puts "        </nav>"
-puts "        <h1>Top Global</h1>"
+puts "        <h1>Top Non Fiction</h1>"
 puts "        <div class=\"scroll-container\">"
-                    topBooksGlobal.each do |book|
+                    topBooksNonFic.each do |book|
                         img = book['cover_img']
                         puts "            <a href=\"frontend/book.cgi?book_id=#{book['book_id']}\" class=\"image-item\">"
                         puts "                <img src=#{img} alt=\"#{book['title']}\">"
                         puts "            </a>"
                     end
 puts "        </div>"
-puts "        <h1>Top US</h1>"
+puts "        <h1>Top Fiction</h1>"
 puts "        <div class=\"scroll-container\">"
-                    topBooksUS.each do |book|
+                    topBooksFic.each do |book|
+                        img = book['cover_img']
+                        puts "            <a href=\"frontend/book.cgi?book_id=#{book['book_id']}\" class=\"image-item\">"
+                        puts "                <img src=#{img} alt=\"#{book['title']}\">"
+                        puts "            </a>"
+                    end
+puts "        </div>"
+puts "        <h1>Top Self Help</h1>"
+puts "        <div class=\"scroll-container\">"
+                    topBooksSelfHelp.each do |book|
                         img = book['cover_img']
                         puts "            <a href=\"frontend/book.cgi?book_id=#{book['book_id']}\" class=\"image-item\">"
                         puts "                <img src=#{img} alt=\"#{book['title']}\">"
