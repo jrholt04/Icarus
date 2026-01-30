@@ -6,8 +6,7 @@
 #
 # Ruby program to add books from the NYT Bestseller lists to the Icarus database tables
 
-# Arguments: filename
-# CSV structure: header, columns separated by comma
+# NOTE: Does not check whether the books are already in the database
 
 $stdout.sync = true
 $stderr.reopen $stdout
@@ -39,3 +38,36 @@ nonFicBooks.each() do |book|
     icarusDB.query("INSERT INTO Books (title, author, lang_code, isbn, cover_img, description) VALUES('" + title + "', '" + author + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + description + "');")
 end
 
+uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-fiction.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
+res = Net::HTTP.get_response(uri)
+raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
+data = JSON.parse(res.body)
+fictionBooks = data.dig("results", "books")
+
+fictionBooks.each() do |book|
+    title = book["title"].gsub("'", "\\\\'")
+    author = book["author"]
+    isbn = book["primary_isbn13"]
+    coverImage = book["book_image"]
+    description = book["description"]
+    langCode = "english"
+
+    icarusDB.query("INSERT INTO Books (title, author, lang_code, isbn, cover_img, description) VALUES('" + title + "', '" + author + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + description + "');")
+end
+
+uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/advice-how-to-and-miscellaneous.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
+res = Net::HTTP.get_response(uri)
+raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
+data = JSON.parse(res.body)
+howToBooks = data.dig("results", "books")
+
+howToBooks.each() do |book|
+    title = book["title"].gsub("'", "\\\\'")
+    author = book["author"]
+    isbn = book["primary_isbn13"]
+    coverImage = book["book_image"]
+    description = book["description"]
+    langCode = "english"
+
+    icarusDB.query("INSERT INTO Books (title, author, lang_code, isbn, cover_img, description) VALUES('" + title + "', '" + author + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + description + "');")
+end
