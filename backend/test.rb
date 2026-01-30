@@ -28,6 +28,6 @@ puts titles
 books = db.query("SELECT * FROM Books WHERE UPPER(title) IN #{titles};")
 
 
-for b in book do
+for b in books do
     puts "title: " + b['title']
 end
