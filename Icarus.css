@@ -14,7 +14,7 @@ nav {
 a.logo {
     color: black;
     font-family: Impact, sans-serif;
-    font-size: 35px;
+    font-size: 45px;
     font-weight: bold;
     text-decoration: none !important;
 }
@@ -54,12 +54,18 @@ body {
     scroll-behavior: smooth;
 }
 
-.image-item {
-    flex-shrink: 0;
+.image-item-form {
+    display: inline-block;
+}
+
+.image-button {
+    background: none;
+    border: none;
+    padding: 0;
     cursor: pointer;
 }
 
-.image-item img {
+.image-button img {
     width: 200px;
     height: 300px;
     object-fit: cover;
@@ -73,7 +79,7 @@ h1 {
     font-family: Impact, sans-serif;
     font-size: 30px;
     font-weight: bold;
-    padding-left : 15%;
+    padding-left : 3%;
 }
 
 /* Book page styles */
@@ -98,8 +104,7 @@ h1 {
 }
 
 .book-author { 
-    margin-top: 10px; 
-    font-style: italic; 
+    margin-top: 10px;  
     color: #333; 
     font-size: large;
 }
@@ -124,4 +129,13 @@ h1 {
     margin-left: 15%;
     color: #222; 
     line-height: 1.4; 
+}
+
+.book-buy-borrow {
+    margin-left: 15%;
+    text-decoration: none; 
+    color: black;
+}
+.book-buy-borrow:hover {
+    font-weight: bold;
 }
