@@ -133,7 +133,7 @@ booksFile.each do |book|
     authorSplit = author.split(" ")
     cleanAuthor = ""
     authorSplit.each do |name|
-      if a[0] != "("
+      if a[0] != "(" && a[a.length() - 1] != ")"
         cleanAuthor = cleanAuthor + name + " "
       end
     end
