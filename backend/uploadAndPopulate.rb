@@ -127,14 +127,29 @@ booksFile.each do |book|
   pg_nums = splitBookRow[12].strip().to_i()
   cover_img = splitBookRow[21].strip()
 
-=begin
-  authors = allAuthors.split("/")
+
+  authors = allAuthors.split(",")
   authors.each do |author|
     authorSplit = author.split(" ")
-    # Figure out the first and last names of the author
-    # What if an author does not have exactly 2 names?
+    cleanAuthor = ""
+    authorSplit.each do |name|
+      if a[0] != "("
+        cleanAuthor = cleanAuthor + name + " "
+      end
+    end
+    cleanAuthor = cleanAuthor.strip()
+
+    authorInDB = massInsertDB.query("SELECT auth_id FROM Authors WHERE fname = " + cleanAuthor + ";")
+    isAuthor = 0
+    authorInDB.each do
+      isAuthor = 1
+    end
+
+    if isAuthor == 0
+      # Still need to get author description
+      massInsertDB.query("INSERT INTO Authors (fname) VALUES('" + cleanAuthor + "');")
+    end
   end
-=end
 
   description = getTopBooksDescription(title)
   if description != nil
