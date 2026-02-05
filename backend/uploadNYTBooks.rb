@@ -5,14 +5,11 @@
 # CS 4444, Winter 2025
 #
 # Ruby program to add books from the NYT Bestseller lists to the Icarus database tables
-# Also sets up a table to hold the books from each bestseller list
 
 # NOTE: Does not check whether the books are already in the database
 
 $stdout.sync = true
 $stderr.reopen $stdout
-
-puts "Content-type: text/html\r\n\r\n" 
 
 require 'cgi'
 require 'mysql2'
@@ -22,14 +19,68 @@ require 'json'
 
 icarusDB = Mysql2::Client.new(:host => '10.20.3.4', :username => 'Icarus', :password => 'B00kz!', :database => 'ss_icarus_db')
 
-# Delete and recreate table to hold the NYT Bestselling books
-icarusDB.query("DROP TABLE NYTBooks;")
-icarusDB.query(
-    "CREATE TABLE NYTBooks (
-    book_id INT PRIMARY KEY,
-    nyt_list ENUM('nonfiction', 'fiction', 'how-to'),
-    FOREIGN KEY (book_id) REFERENCES Books(book_id)
-    );")
+def populateNYTFiction(db)
+    uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-fiction.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
+    res = Net::HTTP.get_response(uri)
+    raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
+    data = JSON.parse(res.body)
+    ficBooks = data.dig("results", "books")
+
+    titles = "("
+    ficBooks.each do |b|
+        titles += "'#{b['title'].gsub("'", "''")}',"
+    end
+    titles.chomp!(',')
+    titles += ")"
+
+    books = db.query("SELECT * FROM Books WHERE UPPER(title) IN #{titles};")
+
+    for book in books do
+        db.query("INSERT INTO NewYorkBS (book_id, category) VALUES (#{book['book_id']}, 'Fiction');")
+    end
+end 
+
+def populateNYTNonFiction(db)
+    uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-nonfiction.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
+    res = Net::HTTP.get_response(uri)
+    raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
+    data = JSON.parse(res.body)
+    nonFicBooks = data.dig("results", "books")
+
+    titles = "("
+    nonFicBooks.each do |b|
+        titles += "'#{b['title'].gsub("'", "''")}',"
+    end
+    titles.chomp!(',')
+    titles += ")"
+
+    books = db.query("SELECT * FROM Books WHERE UPPER(title) IN #{titles};")
+
+    for book in books do
+        db.query("INSERT INTO NewYorkBS (book_id, category) VALUES (#{book['book_id']}, 'Non-Fiction');")
+    end
+end 
+
+def populateNYTSelfHelp(db)
+    uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/advice-how-to-and-miscellaneous.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
+    res = Net::HTTP.get_response(uri)
+    raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
+    data = JSON.parse(res.body)
+    selfHelpBooks = data.dig("results", "books")
+
+    titles = "("
+    selfHelpBooks.each do |b|
+        titles += "'#{b['title'].gsub("'", "''")}',"
+    end
+    titles.chomp!(',')
+    titles += ")"
+
+    books = db.query("SELECT * FROM Books WHERE UPPER(title) IN #{titles};")
+    
+    for book in books do
+        db.query("INSERT INTO NewYorkBS (book_id, category) VALUES (#{book['book_id']}, 'Self-Help');")
+    end
+end
 
 uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-nonfiction.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
 res = Net::HTTP.get_response(uri)
@@ -45,11 +96,7 @@ nonFicBooks.each() do |book|
     description = book["description"]
     langCode = "english"
 
-    #icarusDB.query("INSERT INTO Books (title, author, lang_code, isbn, cover_img, description) VALUES('" + title + "', '" + author + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + description + "');")
-    bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = " + isbn + ";")
-    bookID.each do |id|
-        icarusDB.query("INSERT INTO NYTBooks VALUES('" + id["book_id"].to_s() + "', 'nonfiction');")
-    end
+    icarusDB.query("INSERT INTO Books (title, author, lang_code, isbn, cover_img, description) VALUES('" + title + "', '" + author + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + description + "');")
 end
 
 uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-fiction.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
@@ -66,11 +113,7 @@ fictionBooks.each() do |book|
     description = book["description"]
     langCode = "english"
 
-    #icarusDB.query("INSERT INTO Books (title, author, lang_code, isbn, cover_img, description) VALUES('" + title + "', '" + author + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + description + "');")
-    bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = " + isbn + ";")
-    bookID.each do |id|
-        icarusDB.query("INSERT INTO NYTBooks VALUES('" + id["book_id"].to_s() + "', 'fiction');")
-    end
+    icarusDB.query("INSERT INTO Books (title, author, lang_code, isbn, cover_img, description) VALUES('" + title + "', '" + author + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + description + "');")
 end
 
 uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/advice-how-to-and-miscellaneous.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
@@ -87,9 +130,11 @@ howToBooks.each() do |book|
     description = book["description"]
     langCode = "english"
 
-    #icarusDB.query("INSERT INTO Books (title, author, lang_code, isbn, cover_img, description) VALUES('" + title + "', '" + author + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + description + "');")
-    bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = " + isbn + ";")
-    bookID.each do |id|
-        icarusDB.query("INSERT INTO NYTBooks VALUES('" + id["book_id"].to_s() + "', 'how-to');")
-    end
+    icarusDB.query("INSERT INTO Books (title, author, lang_code, isbn, cover_img, description) VALUES('" + title + "', '" + author + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + description + "');")
 end
+
+# Clear out the NewYorkBS table 
+icarusDB.query("DELETE FROM NewYorkBS;")
+populateNYTFiction(icarusDB)
+populateNYTNonFiction(icarusDB)
+populateNYTSelfHelp(icarusDB)
