@@ -64,6 +64,7 @@ massInsertDB.query(
     lang_code CHAR(30) NOT NULL,
     isbn CHAR(30),
     pg_nums INT,
+    publish_date CHAR(30),
     cover_img VARCHAR(255),
     rating FLOAT,
     description VARCHAR(5000)
@@ -72,8 +73,7 @@ massInsertDB.query(
 massInsertDB.query(
   "CREATE TABLE Authors (
     auth_id INT PRIMARY KEY AUTO_INCREMENT,
-    fname VARCHAR(100),
-    lname VARCHAR(100) NOT NULL,
+    name VARCHAR(100) NOT NULL,
     bio VARCHAR(1000),
     headshot LONGBLOB
   );")
@@ -126,6 +126,7 @@ booksFile.each do |book|
   isbn = splitBookRow[7].strip().to_i()
   pg_nums = splitBookRow[12].strip().to_i()
   cover_img = splitBookRow[21].strip()
+  publish_date = splitBookRow[14].strip()
 
 
   authors = allAuthors.split(",")
@@ -139,7 +140,7 @@ booksFile.each do |book|
     end
     cleanAuthor = cleanAuthor.strip()
 
-    authorInDB = massInsertDB.query("SELECT auth_id FROM Authors WHERE fname = " + cleanAuthor + ";")
+    authorInDB = massInsertDB.query("SELECT auth_id FROM Authors WHERE name = " + cleanAuthor + ";")
     isAuthor = 0
     authorInDB.each do
       isAuthor = 1
@@ -147,7 +148,7 @@ booksFile.each do |book|
 
     if isAuthor == 0
       # Still need to get author description
-      massInsertDB.query("INSERT INTO Authors (fname) VALUES('" + cleanAuthor + "');")
+      massInsertDB.query("INSERT INTO Authors (name) VALUES('" + cleanAuthor + "');")
     end
   end
 
@@ -170,5 +171,5 @@ booksFile.each do |book|
     isbn = 9999999999999
   end
 
-  massInsertDB.query("INSERT INTO Books (title, author, lang_code, isbn, pg_nums, cover_img, rating, description) VALUES('" + title + "', '" + allAuthors + "', '" + lang_code + "', '" + isbn.to_s() + "', '" + pg_nums.to_s() + "', '" + cover_img + "', '" + rating.to_s() + "', '" + description + "');")
+  massInsertDB.query("INSERT INTO Books (title, author, lang_code, isbn, pg_nums, publish_date, cover_img, rating, description) VALUES('" + title + "', '" + allAuthors + "', '" + lang_code + "', '" + isbn.to_s() + "', '" + pg_nums.to_s() + "', '" + publish_date + "', '" + cover_img + "', '" + rating.to_s() + "', '" + description + "');")
 end
