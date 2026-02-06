@@ -46,12 +46,45 @@ def getBookISBN(title)
   return isbn
 end
 
+# Put author(s) in Authors table and BookAuth table if they do not already exist
+def fillAuthorTable(db, allAuthors, book_id)
+  authors = allAuthors.split(",")
+  authors.each do |author|
+    authorSplit = author.split(" ")
+    cleanAuthor = ""
+    authorSplit.each do |name|
+      if name[0] != "(" && name[name.length() - 1] != ")"
+        cleanAuthor = cleanAuthor + name + " "
+      end
+    end
+    cleanAuthor = cleanAuthor.strip()
+
+    authorInDB = db.query("SELECT auth_id FROM Authors WHERE name = '" + cleanAuthor + "';")
+    isAuthor = 0
+    authorInDB.each do |a|
+      isAuthor = a
+    end
+
+    if isAuthor == 0
+      # Still need to get author description
+      db.query("INSERT INTO Authors (name) VALUES('" + cleanAuthor + "');")
+      authorID = db.query("SELECT auth_id FROM Authors WHERE name = '" + cleanAuthor + "';")
+      authorID.each do |id|
+        db.query("INSERT INTO BookAuth (book_id, auth_id) VALUES('" + book_id.to_s() + "', '" + id["auth_id"].to_s() + "');")
+      end
+    else
+      db.query("INSERT INTO BookAuth (book_id, auth_id) VALUES('" + book_id.to_s() + "', '" + isAuthor["auth_id"].to_s() + "');")
+    end
+  end
+end
+
 # Need to figure out whether the tables exist before deleting them
 # Delete tables
 massInsertDB.query("DROP TABLE FavAuthors;")
 massInsertDB.query("DROP TABLE ReadingLog;")
 massInsertDB.query("DROP TABLE Wishlist;")
 massInsertDB.query("DROP TABLE BookAuth;")
+massInsertDB.query("DROP TABLE NewYorkBS;")
 massInsertDB.query("DROP TABLE Books;")
 massInsertDB.query("DROP TABLE Authors;")
 
@@ -60,13 +93,13 @@ massInsertDB.query(
   "CREATE TABLE Books (
     book_id INT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(255) NOT NULL,
-    author VARCHAR(255) NOT NULL,
     lang_code CHAR(30) NOT NULL,
     isbn CHAR(30),
     pg_nums INT,
     publish_date CHAR(30),
     cover_img VARCHAR(255),
     rating FLOAT,
+    review VARCHAR(255),
     description VARCHAR(5000)
   );")
 
@@ -115,9 +148,18 @@ massInsertDB.query(
    FOREIGN KEY (auth_id) REFERENCES Authors(auth_id) 
   );")
 
+massInsertDB.query(
+  "CREATE TABLE NewYorkBS (
+  book_id INT,
+  category VARCHAR(100),
+  FOREIGN KEY (book_id) REFERENCES Books(book_id)
+);")
+
 # CSV column order: "bookId","title","series","author","rating","description","language","isbn","genres","characters","bookFormat","edition","pages","publisher","publishDate","firstPublishDate","awards","numRatings","ratingsByStars","likedPercent","setting","coverImg","bbeScore","bbeVotes","price"
 # Authors currently in Books table, will need to move
+bookID = 0
 booksFile.each do |book|
+  bookID = bookID + 1
   splitBookRow = book.split("\",\"")
   title = splitBookRow[1].strip().gsub("'", "\\\\'")
   allAuthors = splitBookRow[3].strip()
@@ -127,30 +169,6 @@ booksFile.each do |book|
   pg_nums = splitBookRow[12].strip().to_i()
   cover_img = splitBookRow[21].strip()
   publish_date = splitBookRow[14].strip()
-
-
-  authors = allAuthors.split(",")
-  authors.each do |author|
-    authorSplit = author.split(" ")
-    cleanAuthor = ""
-    authorSplit.each do |name|
-      if a[0] != "(" && a[a.length() - 1] != ")"
-        cleanAuthor = cleanAuthor + name + " "
-      end
-    end
-    cleanAuthor = cleanAuthor.strip()
-
-    authorInDB = massInsertDB.query("SELECT auth_id FROM Authors WHERE name = " + cleanAuthor + ";")
-    isAuthor = 0
-    authorInDB.each do
-      isAuthor = 1
-    end
-
-    if isAuthor == 0
-      # Still need to get author description
-      massInsertDB.query("INSERT INTO Authors (name) VALUES('" + cleanAuthor + "');")
-    end
-  end
 
   description = getTopBooksDescription(title)
   if description != nil
@@ -171,5 +189,6 @@ booksFile.each do |book|
     isbn = 9999999999999
   end
 
-  massInsertDB.query("INSERT INTO Books (title, author, lang_code, isbn, pg_nums, publish_date, cover_img, rating, description) VALUES('" + title + "', '" + allAuthors + "', '" + lang_code + "', '" + isbn.to_s() + "', '" + pg_nums.to_s() + "', '" + publish_date + "', '" + cover_img + "', '" + rating.to_s() + "', '" + description + "');")
+  massInsertDB.query("INSERT INTO Books (title, lang_code, isbn, pg_nums, publish_date, cover_img, rating, description) VALUES('" + title + "', '" + lang_code + "', '" + isbn.to_s() + "', '" + pg_nums.to_s() + "', '" + publish_date + "', '" + cover_img + "', '" + rating.to_s() + "', '" + description + "');")
+  fillAuthorTable(massInsertDB, allAuthors, bookID)
 end

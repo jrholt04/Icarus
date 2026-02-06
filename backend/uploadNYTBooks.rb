@@ -82,6 +82,26 @@ def populateNYTSelfHelp(db)
     end
 end
 
+# Put author(s) in Authors table and BookAuth table if they do not already exist
+def fillAuthorTable(db, author, book_id)
+    authorInDB = db.query("SELECT auth_id FROM Authors WHERE name = '" + author + "';")
+    isAuthor = 0
+    authorInDB.each do |a|
+      isAuthor = a
+    end
+
+    if isAuthor == 0
+      # Still need to get author description
+      db.query("INSERT INTO Authors (name) VALUES('" + author + "');")
+      authorID = db.query("SELECT auth_id FROM Authors WHERE name = '" + author + "';")
+      authorID.each do |id|
+        db.query("INSERT INTO BookAuth (book_id, auth_id) VALUES('" + book_id.to_s() + "', '" + id["auth_id"].to_s() + "');")
+      end
+    else
+      db.query("INSERT INTO BookAuth (book_id, auth_id) VALUES('" + book_id.to_s() + "', '" + isAuthor["auth_id"].to_s() + "');")
+    end
+end
+
 uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-nonfiction.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
 res = Net::HTTP.get_response(uri)
 raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
@@ -94,9 +114,14 @@ nonFicBooks.each() do |book|
     isbn = book["primary_isbn13"]
     coverImage = book["book_image"]
     description = book["description"]
+    review = book["book_review_link"]
     langCode = "english"
 
-    icarusDB.query("INSERT INTO Books (title, author, lang_code, isbn, cover_img, description) VALUES('" + title + "', '" + author + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + description + "');")
+    icarusDB.query("INSERT INTO Books (title, lang_code, isbn, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
+    bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
+    bookID.each do |book|
+        fillAuthorTable(icarusDB, author, book["book_id"])
+    end
 end
 
 uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-fiction.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
@@ -111,9 +136,14 @@ fictionBooks.each() do |book|
     isbn = book["primary_isbn13"]
     coverImage = book["book_image"]
     description = book["description"]
+    review = book["book_review_link"]
     langCode = "english"
 
-    icarusDB.query("INSERT INTO Books (title, author, lang_code, isbn, cover_img, description) VALUES('" + title + "', '" + author + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + description + "');")
+    icarusDB.query("INSERT INTO Books (title, lang_code, isbn, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
+    bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
+    bookID.each do |book|
+        fillAuthorTable(icarusDB, author, book["book_id"])
+    end
 end
 
 uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/advice-how-to-and-miscellaneous.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
@@ -128,13 +158,20 @@ howToBooks.each() do |book|
     isbn = book["primary_isbn13"]
     coverImage = book["book_image"]
     description = book["description"]
+    review = book["book_review_link"]
     langCode = "english"
 
-    icarusDB.query("INSERT INTO Books (title, author, lang_code, isbn, cover_img, description) VALUES('" + title + "', '" + author + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + description + "');")
+    icarusDB.query("INSERT INTO Books (title, lang_code, isbn, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
+    bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
+    bookID.each do |book|
+        fillAuthorTable(icarusDB, author, book["book_id"])
+    end
 end
 
 # Clear out the NewYorkBS table 
 icarusDB.query("DELETE FROM NewYorkBS;")
 populateNYTFiction(icarusDB)
+sleep(120)
 populateNYTNonFiction(icarusDB)
+sleep(120)
 populateNYTSelfHelp(icarusDB)
