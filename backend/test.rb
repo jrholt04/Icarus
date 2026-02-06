@@ -40,3 +40,14 @@ author = data.dig("knowledge_graph", "description")
 
 puts author
 =end
+
+# Google API to get the ISBN of the book.
+def getBookPublishDate(title)
+  uri = URI("https://www.googleapis.com/books/v1/volumes?q=#{title}")
+  res = Net::HTTP.get_response(uri)
+  data = JSON.parse(res.body) if res.is_a?(Net::HTTPSuccess)
+  publishDate = data.dig('items', 0, 'volumeInfo', 'publishedDate') if data
+  return publishDate
+end
+
+getBookPublishDate("Hunger Games")

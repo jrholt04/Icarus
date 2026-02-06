@@ -82,6 +82,15 @@ def populateNYTSelfHelp(db)
     end
 end
 
+# Google API to get the published date of the book.
+def getBookPublishDate(title)
+  uri = URI("https://www.googleapis.com/books/v1/volumes?q=#{title}")
+  res = Net::HTTP.get_response(uri)
+  data = JSON.parse(res.body) if res.is_a?(Net::HTTPSuccess)
+  publishDate = data.dig('items', 0, 'volumeInfo', 'publishedDate') if data
+  return publishDate
+end
+
 # Put author(s) in Authors table and BookAuth table if they do not already exist
 def fillAuthorTable(db, author, book_id)
     authorInDB = db.query("SELECT auth_id FROM Authors WHERE name = '" + author + "';")
@@ -116,8 +125,9 @@ nonFicBooks.each() do |book|
     description = book["description"]
     review = book["book_review_link"]
     langCode = "english"
+    publishDate = getBookPublishDate(title)
 
-    icarusDB.query("INSERT INTO Books (title, lang_code, isbn, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
+    icarusDB.query("INSERT INTO Books (title, lang_code, isbn, publish_date, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + publishDate.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
     bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
     bookID.each do |book|
         fillAuthorTable(icarusDB, author, book["book_id"])
@@ -138,8 +148,9 @@ fictionBooks.each() do |book|
     description = book["description"]
     review = book["book_review_link"]
     langCode = "english"
+    publishDate = getBookPublishDate(title)
 
-    icarusDB.query("INSERT INTO Books (title, lang_code, isbn, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
+    icarusDB.query("INSERT INTO Books (title, lang_code, isbn, publish_date, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + publishDate.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
     bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
     bookID.each do |book|
         fillAuthorTable(icarusDB, author, book["book_id"])
@@ -160,8 +171,9 @@ howToBooks.each() do |book|
     description = book["description"]
     review = book["book_review_link"]
     langCode = "english"
+    publishDate = getBookPublishDate(title)
 
-    icarusDB.query("INSERT INTO Books (title, lang_code, isbn, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
+    icarusDB.query("INSERT INTO Books (title, lang_code, isbn, publish_date, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + publishDate.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
     bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
     bookID.each do |book|
         fillAuthorTable(icarusDB, author, book["book_id"])
