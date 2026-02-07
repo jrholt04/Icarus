@@ -1,4 +1,4 @@
-CREATE TABLE Books (
+CREATE TABLE Books ( 
     book_id INT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(255) NOT NULL,
     lang_code CHAR(2) NOT NULL,

@@ -1,0 +1,141 @@
+/* File: index.html
+    Azalea Flynn, Erin Kendall, Jackson Holt Transy U 
+    Dr. Moorman, Icarus 
+*/
+
+/* Navigation Bar Styles */
+nav {
+    padding: 1.5% 4.0%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+a.logo {
+    color: black;
+    font-family: Impact, sans-serif;
+    font-size: 45px;
+    font-weight: bold;
+    text-decoration: none !important;
+}
+
+.nav-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 35px;
+}
+
+.nav-links li {
+    display: inline;
+}
+
+.nav-links a {
+    color: black;
+    text-decoration: none;
+    font-family: Arial, sans-serif; /* Need to change to Canva Sans */
+}
+
+.nav-links a:hover {
+    font-weight: bold;
+}
+
+body {
+    background-color: #f0f1f5;
+}
+
+/* Horizontal scrollable image list */
+.scroll-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    padding: 20px 40px;
+    scroll-behavior: smooth;
+}
+
+.image-item-form {
+    display: inline-block;
+}
+
+.image-button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.image-button img {
+    width: 200px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* suggestion header styles */
+h1 {
+    color: black;
+    font-family: Impact, sans-serif;
+    font-size: 30px;
+    font-weight: bold;
+    padding-left : 3%;
+}
+
+/* Book page styles */
+.book-info { 
+    display: flex; 
+    gap: 24px; 
+    align-items: flex-start; 
+    padding: 24px 40px; 
+}
+
+.book-left {
+     width: 400px; 
+     flex: 0 0 400px;
+}
+
+.book-left img { 
+    width: 100%; 
+    height: 100%; 
+    display: block; 
+    border-radius: 6px; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08); 
+}
+
+.book-author { 
+    margin-top: 10px;  
+    color: #333; 
+    font-size: large;
+}
+
+.book-isbn { 
+    margin-top: 10px;  
+    color: #333; 
+    font-size: large;
+}
+
+.book-right {
+    flex: 1;
+}
+
+.book-title { 
+    margin: 0 0 8px 0; 
+    font-size: 26px;
+    font-style: italic; 
+}
+
+.book-desc {
+    margin-left: 15%;
+    color: #222; 
+    line-height: 1.4; 
+}
+
+.book-buy-borrow {
+    margin-left: 15%;
+    text-decoration: none; 
+    color: black;
+}
+.book-buy-borrow:hover {
+    font-weight: bold;
+}
