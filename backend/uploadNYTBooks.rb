@@ -115,7 +115,7 @@ def fillAuthorTable(db, author, book_id)
     end
 end
 
-uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-nonfiction.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
+uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-nonfiction.json?api-key=#{NYT_API_KEY}")
 res = Net::HTTP.get_response(uri)
 raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
 data = JSON.parse(res.body)
@@ -138,7 +138,7 @@ nonFicBooks.each() do |book|
     end
 end
 
-uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-fiction.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
+uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-fiction.json?api-key=#{NYT_API_KEY}")
 res = Net::HTTP.get_response(uri)
 raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
 data = JSON.parse(res.body)
@@ -161,7 +161,7 @@ fictionBooks.each() do |book|
     end
 end
 
-uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/advice-how-to-and-miscellaneous.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
+uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/advice-how-to-and-miscellaneous.json?api-key=#{NYT_API_KEY}")
 res = Net::HTTP.get_response(uri)
 raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
 data = JSON.parse(res.body)
