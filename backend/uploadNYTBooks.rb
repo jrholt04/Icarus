@@ -32,7 +32,7 @@ def populateNYTFiction(db)
 
     titles = "("
     ficBooks.each do |b|
-    titles += "'#{b['title'].gsub("'", "''")}',"
+        titles += "'#{b['title'].gsub("'", "''")}',"
     end
     titles.chomp!(',')
     titles += ")"
@@ -53,7 +53,7 @@ def populateNYTNonFiction(db)
 
     titles = "("
     nonFicBooks.each do |b|
-    titles += "'#{b['title'].gsub("'", "''")}',"
+        titles += "'#{b['title'].gsub("'", "''")}',"
     end
     titles.chomp!(',')
     titles += ")"
@@ -74,7 +74,7 @@ def populateNYTSelfHelp(db)
 
     titles = "("
     selfHelpBooks.each do |b|
-    titles += "'#{b['title'].gsub("'", "''")}',"
+        titles += "'#{b['title'].gsub("'", "''")}',"
     end
     titles.chomp!(',')
     titles += ")"
@@ -86,60 +86,108 @@ def populateNYTSelfHelp(db)
     end
 end
 
+# Google API to get the published date of the book.
+def getBookPublishDate(title)
+  uri = URI("https://www.googleapis.com/books/v1/volumes?q=#{title}")
+  res = Net::HTTP.get_response(uri)
+  data = JSON.parse(res.body) if res.is_a?(Net::HTTPSuccess)
+  publishDate = data.dig('items', 0, 'volumeInfo', 'publishedDate') if data
+  return publishDate
+end
+
+# Put author(s) in Authors table and BookAuth table if they do not already exist
+def fillAuthorTable(db, author, book_id)
+    authorInDB = db.query("SELECT auth_id FROM Authors WHERE name = '" + author + "';")
+    isAuthor = 0
+    authorInDB.each do |a|
+      isAuthor = a
+    end
+
+    if isAuthor == 0
+      # Still need to get author description
+      db.query("INSERT INTO Authors (name) VALUES('" + author + "');")
+      authorID = db.query("SELECT auth_id FROM Authors WHERE name = '" + author + "';")
+      authorID.each do |id|
+        db.query("INSERT INTO BookAuth (book_id, auth_id) VALUES('" + book_id.to_s() + "', '" + id["auth_id"].to_s() + "');")
+      end
+    else
+      db.query("INSERT INTO BookAuth (book_id, auth_id) VALUES('" + book_id.to_s() + "', '" + isAuthor["auth_id"].to_s() + "');")
+    end
+end
+
+uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-nonfiction.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
+res = Net::HTTP.get_response(uri)
+raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
+data = JSON.parse(res.body)
+nonFicBooks = data.dig("results", "books")
+
+nonFicBooks.each() do |book|
+    title = book["title"].gsub("'", "\\\\'")
+    author = book["author"]
+    isbn = book["primary_isbn13"]
+    coverImage = book["book_image"]
+    description = book["description"]
+    review = book["book_review_link"]
+    langCode = "english"
+    publishDate = getBookPublishDate(title)
+
+    icarusDB.query("INSERT INTO Books (title, lang_code, isbn, publish_date, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + publishDate.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
+    bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
+    bookID.each do |book|
+        fillAuthorTable(icarusDB, author, book["book_id"])
+    end
+end
+
+uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-fiction.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
+res = Net::HTTP.get_response(uri)
+raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
+data = JSON.parse(res.body)
+fictionBooks = data.dig("results", "books")
+
+fictionBooks.each() do |book|
+    title = book["title"].gsub("'", "\\\\'")
+    author = book["author"]
+    isbn = book["primary_isbn13"]
+    coverImage = book["book_image"]
+    description = book["description"]
+    review = book["book_review_link"]
+    langCode = "english"
+    publishDate = getBookPublishDate(title)
+
+    icarusDB.query("INSERT INTO Books (title, lang_code, isbn, publish_date, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + publishDate.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
+    bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
+    bookID.each do |book|
+        fillAuthorTable(icarusDB, author, book["book_id"])
+    end
+end
+
+uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/advice-how-to-and-miscellaneous.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
+res = Net::HTTP.get_response(uri)
+raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
+data = JSON.parse(res.body)
+howToBooks = data.dig("results", "books")
+
+howToBooks.each() do |book|
+    title = book["title"].gsub("'", "\\\\'")
+    author = book["author"]
+    isbn = book["primary_isbn13"]
+    coverImage = book["book_image"]
+    description = book["description"]
+    review = book["book_review_link"]
+    langCode = "english"
+    publishDate = getBookPublishDate(title)
+
+    icarusDB.query("INSERT INTO Books (title, lang_code, isbn, publish_date, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + publishDate.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
+    bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
+    bookID.each do |book|
+        fillAuthorTable(icarusDB, author, book["book_id"])
+    end
+end
+
 # Clear out the NewYorkBS table 
 icarusDB.query("DELETE FROM NewYorkBS;")
 populateNYTFiction(icarusDB)
+sleep(120)
 populateNYTNonFiction(icarusDB)
+sleep(120)
 populateNYTSelfHelp(icarusDB)
-
-# uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-nonfiction.json?api-key=")
-# res = Net::HTTP.get_response(uri)
-# raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
-# data = JSON.parse(res.body)
-# nonFicBooks = data.dig("results", "books")
-
-# nonFicBooks.each() do |book|
-#     title = book["title"].gsub("'", "\\\\'")
-#     author = book["author"]
-#     isbn = book["primary_isbn13"]
-#     coverImage = book["book_image"]
-#     description = book["description"]
-#     langCode = "english"
-
-#     icarusDB.query("INSERT INTO Books (title, author, lang_code, isbn, cover_img, description) VALUES('" + title + "', '" + author + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + description + "');")
-# end
-
-# uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-fiction.json?api-key=")
-# res = Net::HTTP.get_response(uri)
-# raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
-# data = JSON.parse(res.body)
-# fictionBooks = data.dig("results", "books")
-
-# fictionBooks.each() do |book|
-#     title = book["title"].gsub("'", "\\\\'")
-#     author = book["author"]
-#     isbn = book["primary_isbn13"]
-#     coverImage = book["book_image"]
-#     description = book["description"]
-#     langCode = "english"
-
-#     icarusDB.query("INSERT INTO Books (title, author, lang_code, isbn, cover_img, description) VALUES('" + title + "', '" + author + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + description + "');")
-# end
-
-# uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/advice-how-to-and-miscellaneous.json?api-key=")
-# res = Net::HTTP.get_response(uri)
-# raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
-# data = JSON.parse(res.body)
-# howToBooks = data.dig("results", "books")
-
-# howToBooks.each() do |book|
-#     title = book["title"].gsub("'", "\\\\'")
-#     author = book["author"]
-#     isbn = book["primary_isbn13"]
-#     coverImage = book["book_image"]
-#     description = book["description"]
-#     langCode = "english"
-
-#     icarusDB.query("INSERT INTO Books (title, author, lang_code, isbn, cover_img, description) VALUES('" + title + "', '" + author + "', '" + langCode + "', '" + isbn.to_s() + "', '" + coverImage + "', '" + description + "');")
-# end
-
