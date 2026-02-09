@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 #File: book.cgi
-#Azalea Fylnn, Erin Kendall, Jackson Holt, Transy U
+#Azalea Flynn, Erin Kendall, Jackson Holt, Transy U
 #Dr. Moorman, Icarus
         
 #   This is the book page for Icarus
@@ -25,6 +25,18 @@ cgi = CGI.new("html5")
 
 bookId = cgi['book_id']
 book = db.query("SELECT * FROM Books WHERE book_id = #{bookId};").first
+
+# Get authors
+authorIDs = db.query("SELECT auth_id FROM BookAuth WHERE book_id = #{bookId};")
+authorString = ""
+authorIDs.each do |author|
+    authorDBQuery = db.query("SELECT name FROM Authors WHERE auth_id = #{author["auth_id"]};").first
+    if authorString == ""
+        authorString = authorString + authorDBQuery["name"]
+    else
+        authorString = authorString + ", " + authorDBQuery["name"]
+    end
+end
 
 if book.nil?
     puts "Content-type: text/html\n\n"
@@ -60,7 +72,7 @@ puts "                    <img src=\"#{book['cover_img']}\" alt=\"#{book['title'
                             else
                                 puts "<div class=\"book-isbn\">ISBN: #{book['isbn']}</div>"
                             end
-puts "                    <div class=\"book-author\">by #{book['author']}</div>"
+puts "                    <div class=\"book-author\">by #{authorString}</div>"
 puts "                </div>"
 puts "                <div class=\"book-right\">"
 puts "                    <h1 class=\"book-title\">#{book['title']}</h1>"
