@@ -20,7 +20,9 @@ require 'stringio'
 require 'net/http'
 require 'json'
 
-massInsertDB = Mysql2::Client.new(:host => '10.20.3.4', :username => 'Icarus', :password => 'B00kz!', :database => 'ss_icarus_db')
+require_relative '../env_loader'
+
+massInsertDB = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.fetch('ICARUS_DB_USER'), :password => ENV.fetch('ICARUS_DB_PASSWORD'), :database => ENV.fetch('ICARUS_DB_NAME'))
 
 booksFile = IO.readlines(ARGV[0])
 
