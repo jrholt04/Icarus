@@ -1,33 +1,53 @@
+#!/usr/bin/ruby
+
+# File to test ruby code
+
+$stdout.sync = true
+$stderr.reopen $stdout
+
 require 'cgi'
 require 'mysql2'
 require 'stringio'
 require 'net/http'
 require 'json'
-db = Mysql2::Client.new(
-    :host=>'10.20.3.4',
-    :username=>'Icarus',
-    :password=>'B00kz!',
-    :database=>'ss_icarus_db'
-    )
 
-# books = {}
+icarusDB = Mysql2::Client.new(:host => '10.20.3.4', :username => 'Icarus', :password => 'B00kz!', :database => 'ss_icarus_db')
 
-uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-nonfiction.json?api-key=klviqNxHeAn1sJLagvrTmACJIaYZ6aPRLv6hMCABttZcAcuF")
+
+authors = icarusDB.query("SELECT auth_id FROM Authors;")
+numAuthors = 0
+authors.each do |a|
+    numAuthors = a
+end
+puts numAuthors["auth_id"]
+
+weirdAuthor = "Lydia (Goodreads Author)"
+authorNames = weirdAuthor.split(" ")
+cleanName = ""
+authorNames.each do |name|
+    if name[0] != "(" && name[name.length() -1] != ")"
+        cleanName = cleanName + name + " "
+    end
+end
+puts cleanName
+
+=begin
+uri = URI("https://serpapi.com/search.json?engine=google&q=suzanne+collins")
 res = Net::HTTP.get_response(uri)
 raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
 data = JSON.parse(res.body)
-nonFicBooks = data.dig("results", "books")
+author = data.dig("knowledge_graph", "description")
 
-titles = "("
-nonFicBooks.each do |b|
-    titles += "'#{b['title'].gsub("'", "''")}',"
+puts author
+=end
+
+# Google API to get the ISBN of the book.
+def getBookPublishDate(title)
+  uri = URI("https://www.googleapis.com/books/v1/volumes?q=#{title}")
+  res = Net::HTTP.get_response(uri)
+  data = JSON.parse(res.body) if res.is_a?(Net::HTTPSuccess)
+  publishDate = data.dig('items', 0, 'volumeInfo', 'publishedDate') if data
+  return publishDate
 end
-titles.chomp!(',')
-titles += ")"
-puts titles
-books = db.query("SELECT * FROM Books WHERE UPPER(title) IN #{titles};")
 
-
-for b in books do
-    puts "title: " + b['title']
-end
+getBookPublishDate("Hunger Games")
