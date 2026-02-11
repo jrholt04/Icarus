@@ -11,28 +11,15 @@ require 'stringio'
 require 'net/http'
 require 'json'
 
-icarusDB = Mysql2::Client.new(:host => '10.20.3.4', :username => 'Icarus', :password => 'B00kz!', :database => 'ss_icarus_db')
+require_relative '../env_loader'
 
+NYT_API_KEY = ENV.fetch('NYT_API_KEY')
 
-authors = icarusDB.query("SELECT auth_id FROM Authors;")
-numAuthors = 0
-authors.each do |a|
-    numAuthors = a
-end
-puts numAuthors["auth_id"]
+db = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.fetch('ICARUS_DB_USER'), :password => ENV.fetch('ICARUS_DB_PASSWORD'), :database => ENV.fetch('ICARUS_DB_NAME'))
 
-weirdAuthor = "Lydia (Goodreads Author)"
-authorNames = weirdAuthor.split(" ")
-cleanName = ""
-authorNames.each do |name|
-    if name[0] != "(" && name[name.length() -1] != ")"
-        cleanName = cleanName + name + " "
-    end
-end
-puts cleanName
+# books = {}
 
-=begin
-uri = URI("https://serpapi.com/search.json?engine=google&q=suzanne+collins")
+uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-nonfiction.json?api-key=#{NYT_API_KEY}")
 res = Net::HTTP.get_response(uri)
 raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
 data = JSON.parse(res.body)

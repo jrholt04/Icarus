@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 #File: book.cgi
-#Azalea Fylnn, Erin Kendall, Jackson Holt, Transy U
+#Azalea Flynn, Erin Kendall, Jackson Holt, Transy U
 #Dr. Moorman, Icarus
         
 #   This is the book page for Icarus
@@ -16,18 +16,27 @@ require 'stringio'
 require 'net/http'
 require 'json'
 
-db = Mysql2::Client.new(
-    :host=>'10.20.3.4',
-    :username=>'Icarus',
-    :password=>'B00kz!',
-    :database=>'ss_icarus_db'
-    )
+require_relative '../env_loader'
+
+db = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.fetch('ICARUS_DB_USER'), :password => ENV.fetch('ICARUS_DB_PASSWORD'), :database => ENV.fetch('ICARUS_DB_NAME'))
 
 #get info from html forms
 cgi = CGI.new("html5")
 
 bookId = cgi['book_id']
 book = db.query("SELECT * FROM Books WHERE book_id = #{bookId};").first
+
+# Get authors
+authorIDs = db.query("SELECT auth_id FROM BookAuth WHERE book_id = #{bookId};")
+authorString = ""
+authorIDs.each do |author|
+    authorDBQuery = db.query("SELECT name FROM Authors WHERE auth_id = #{author["auth_id"]};").first
+    if authorString == ""
+        authorString = authorString + authorDBQuery["name"]
+    else
+        authorString = authorString + ", " + authorDBQuery["name"]
+    end
+end
 
 if book.nil?
     puts "Content-type: text/html\n\n"
@@ -63,7 +72,7 @@ puts "                    <img src=\"#{book['cover_img']}\" alt=\"#{book['title'
                             else
                                 puts "<div class=\"book-isbn\">ISBN: #{book['isbn']}</div>"
                             end
-puts "                    <div class=\"book-author\">by #{book['author']}</div>"
+puts "                    <div class=\"book-author\">by #{authorString}</div>"
 puts "                </div>"
 puts "                <div class=\"book-right\">"
 puts "                    <h1 class=\"book-title\">#{book['title']}</h1>"
