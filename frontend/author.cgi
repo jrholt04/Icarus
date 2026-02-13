@@ -20,6 +20,8 @@ db = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.f
 #get info from html forms
 cgi = CGI.new("html5")
 
+sort = cgi['sort'] || 'title'
+
 authId = cgi['auth_id'] 
 
 author = db.query("SELECT * FROM Authors WHERE auth_id = #{authId};").first
@@ -52,11 +54,33 @@ puts "                <div class=\"author-section\">"
 puts "                    <p class=\"author-bio\">#{author['bio']}</p>"
 puts "                </div>"
 puts "                <h1 class=\"author-titles\">Published Books</h1>"
+puts "                <div class=\"author-sort-links\">"
+puts "                    <form action=\"author.cgi\" method=\"POST\" class=\"author-sort-form\">"
+puts "                        <input type=\"hidden\" name=\"auth_id\" value=\"#{authId}\">"
+puts "                        <input type=\"hidden\" name=\"sort\" value=\"title\">"
+puts "                        <button type=\"submit\" class=\"author-sort-button\">A-Z</button>"
+puts "                    </form>"
+puts "                    <form action=\"author.cgi\" method=\"POST\" class=\"author-sort-form\">"
+puts "                        <input type=\"hidden\" name=\"auth_id\" value=\"#{authId}\">"
+puts "                        <input type=\"hidden\" name=\"sort\" value=\"pub_date\">"
+puts "                        <button type=\"submit\" class=\"author-sort-button\">Pub Date</button>"
+puts "                    </form>"
+puts "                </div>"
 puts "                <div class=\"author-books\">"
-                        db.query("SELECT b.*
-                                FROM BookAuth ba
-                                JOIN Books b ON b.book_id = ba.book_id
-                                WHERE ba.auth_id = #{authId};").each do |book|
+                        if sort == 'pub_date'
+                            books = db.query("SELECT b.*
+                                        FROM BookAuth ba
+                                        JOIN Books b ON b.book_id = ba.book_id
+                                        WHERE ba.auth_id = #{authId}
+                                        ORDER BY b.publish_date DESC;")
+                        else 
+                            books = db.query("SELECT b.*
+                                    FROM BookAuth ba
+                                    JOIN Books b ON b.book_id = ba.book_id
+                                    WHERE ba.auth_id = #{authId}
+                                    ORDER BY b.title ASC;")
+                        end
+                        books.each do |book|
                             img = book['cover_img']
 puts "                      <form action=\"book.cgi\" method=\"POST\" class=\"image-item-form\">"
 puts "                          <input type=\"hidden\" name=\"book_id\" value=\"#{book['book_id']}\">"

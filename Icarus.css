@@ -207,6 +207,29 @@ a.logo {
     font-family: Arial, sans-serif;
 }
 
+.author-sort-links {
+    display: flex;
+    gap: 12px;
+    margin: 0 0 16px 25px;
+}
+
+.author-sort-button {
+    color: #000;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    text-decoration: underline;
+}
+
+.author-sort-button:hover {
+    font-weight: bold;
+}
+
+
 .image-button-author {
     margin-left: 25px;
     background: none;
