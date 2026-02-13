@@ -52,6 +52,20 @@ puts "                <div class=\"author-section\">"
 puts "                    <p class=\"author-bio\">#{author['bio']}</p>"
 puts "                </div>"
 puts "                <h1 class=\"author-titles\">Published Books</h1>"
+puts "                <div class=\"author-books\">"
+                        db.query("SELECT b.*
+                                FROM BookAuth ba
+                                JOIN Books b ON b.book_id = ba.book_id
+                                WHERE ba.auth_id = #{authId};").each do |book|
+                            img = book['cover_img']
+puts "                      <form action=\"book.cgi\" method=\"POST\" class=\"image-item-form\">"
+puts "                          <input type=\"hidden\" name=\"book_id\" value=\"#{book['book_id']}\">"
+puts "                              <button type=\"submit\" class=\"image-button\">"
+puts "                                  <img class=\"image-button-author\" src=\"#{img}\" alt=\"#{book['title']}\">"
+puts "                              </button>"
+puts "                      </form>"
+                        end
+puts "                </div>"
 puts "            </div>"
 puts "        </main>"
 puts "    </body>"

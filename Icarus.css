@@ -192,7 +192,7 @@ a.logo {
     min-width: 240px;
 }
 
-.author-titless {
+.author-titles {
     margin: 0 0 16px 0;
 }
 
@@ -205,4 +205,12 @@ a.logo {
     color: #222;
     line-height: 1.5;
     font-family: Arial, sans-serif;
+}
+
+.image-button .image-button-author{ 
+    width: 50px;
+    height: 75px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
