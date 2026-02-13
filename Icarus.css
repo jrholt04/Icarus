@@ -4,6 +4,18 @@
 */
 
 /* Navigation Bar Styles */
+body {
+    background-color: #f0f1f5;
+}
+
+h1 {
+    color: black;
+    font-family: sans-serif;
+    font-size: 30px;
+    font-weight: bold;
+    padding-left : 3%;
+}
+
 nav {
     padding: 1.5% 4.0%;
     display: flex;
@@ -34,15 +46,11 @@ a.logo {
 .nav-links a {
     color: black;
     text-decoration: none;
-    font-family: Arial, sans-serif; /* Need to change to Canva Sans */
+    font-family: sans-serif; /* Need to change to Canva Sans */
 }
 
 .nav-links a:hover {
     font-weight: bold;
-}
-
-body {
-    background-color: #f0f1f5;
 }
 
 /* Horizontal scrollable image list */
@@ -71,14 +79,6 @@ body {
     object-fit: cover;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-h1 {
-    color: black;
-    font-family: Impact, sans-serif;
-    font-size: 30px;
-    font-weight: bold;
-    padding-left : 3%;
 }
 
 /* Book page styles */
@@ -194,8 +194,6 @@ h1 {
 
 .author-titless {
     margin: 0 0 16px 0;
-    font-size: 32px;
-    font-family: Impact, sans-serif;
 }
 
 .author-section {
