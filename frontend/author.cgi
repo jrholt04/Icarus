@@ -60,8 +60,8 @@ puts "                <div class=\"author-books\">"
                             img = book['cover_img']
 puts "                      <form action=\"book.cgi\" method=\"POST\" class=\"image-item-form\">"
 puts "                          <input type=\"hidden\" name=\"book_id\" value=\"#{book['book_id']}\">"
-puts "                              <button type=\"submit\" class=\"image-button\">"
-puts "                                  <img class=\"image-button-author\" src=\"#{img}\" alt=\"#{book['title']}\">"
+puts "                              <button type=\"submit\" class=\"image-button-author\">"
+puts "                                  <img src=\"#{img}\" alt=\"#{book['title']}\">"
 puts "                              </button>"
 puts "                      </form>"
                         end
