@@ -110,7 +110,7 @@ massInsertDB.query(
     auth_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
     bio VARCHAR(1000),
-    headshot LONGBLOB
+    headshot VARCHAR(510)
   );")
 
 massInsertDB.query(
