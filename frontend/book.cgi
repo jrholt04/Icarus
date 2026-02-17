@@ -28,15 +28,7 @@ book = db.query("SELECT * FROM Books WHERE book_id = #{bookId};").first
 
 # Get authors
 authorIDs = db.query("SELECT auth_id FROM BookAuth WHERE book_id = #{bookId};")
-authorString = ""
-authorIDs.each do |author|
-    authorDBQuery = db.query("SELECT name FROM Authors WHERE auth_id = #{author["auth_id"]};").first
-    if authorString == ""
-        authorString = authorString + authorDBQuery["name"]
-    else
-        authorString = authorString + ", " + authorDBQuery["name"]
-    end
-end
+
 
 if book.nil?
     puts "Content-type: text/html\n\n"
@@ -72,7 +64,17 @@ puts "                    <img src=\"#{book['cover_img']}\" alt=\"#{book['title'
                             else
                                 puts "<div class=\"book-isbn\">ISBN: #{book['isbn']}</div>"
                             end
-puts "                    <div class=\"book-author\">by #{authorString}</div>"
+puts "                    <div class=\"book-author\">by " 
+puts "                      <form action=\"author.cgi\" method=\"POST\" >"
+                                authorIDs.each do |author|
+puts "                          <input type=\"hidden\" name=\"auth_id\" value=#{author['auth_id']}>"
+puts "                              <button type=\"submit\">"
+                                    authorDBQuery = db.query("SELECT name FROM Authors WHERE auth_id = #{author["auth_id"]};").first
+puts                                    "<a>#{authorDBQuery['name']} </a>"
+puts "                              </button>"
+                                end 
+puts "                      </form>"
+puts                      "</div>"
 puts "                </div>"
 puts "                <div class=\"book-right\">"
 puts "                    <h1 class=\"book-title\">#{book['title']}</h1>"
@@ -80,8 +82,10 @@ puts "                    <div class=\"book-desc\">#{book['description']}</div>"
 puts "                    <h1 class=\"logo\">Reviews</h1>"
 puts "                    <div class=\"book-desc\">#{book['rating']}/5</div>"
 puts "                    <h1 class=\"logo\">Borrow Or Buy</h1>"
-puts "                    <a class=\"book-buy-borrow\" href=\"https://www.amazon.com/s?k=#{book['isbn']}\">Amazon</a></br>"
-puts "                    <a class=\"book-buy-borrow\" href=\"https://www.worldcat.org/search?q=#{book['isbn']}\">Library</a>"
+puts "                    <div class=\"book-buy-borrow-list\">"
+puts "                        <p><a class=\"book-buy-borrow\" href=\"https://www.amazon.com/s?k=#{book['isbn']}\">Amazon</a></p>"
+puts "                        <p><a class=\"book-buy-borrow\" href=\"https://www.worldcat.org/search?q=#{book['isbn']}\">Library</a></p>"
+puts "                    </div>"
 puts "                    <h1 class=\"logo\">Notes</h1>"
 puts "                </div>"
 puts "            </div>"

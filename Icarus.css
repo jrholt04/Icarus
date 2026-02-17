@@ -4,6 +4,18 @@
 */
 
 /* Navigation Bar Styles */
+body {
+    background-color: #f0f1f5;
+}
+
+h1 {
+    color: black;
+    font-family: Impact, sans-serif;
+    font-size: 30px;
+    font-weight: bold;
+    padding-left : 3%;
+}
+
 nav {
     padding: 1.5% 4.0%;
     display: flex;
@@ -34,15 +46,11 @@ a.logo {
 .nav-links a {
     color: black;
     text-decoration: none;
-    font-family: Arial, sans-serif; /* Need to change to Canva Sans */
+    font-family: sans-serif; /* Need to change to Canva Sans */
 }
 
 .nav-links a:hover {
     font-weight: bold;
-}
-
-body {
-    background-color: #f0f1f5;
 }
 
 /* Horizontal scrollable image list */
@@ -73,15 +81,6 @@ body {
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-/* suggestion header styles */
-h1 {
-    color: black;
-    font-family: Impact, sans-serif;
-    font-size: 30px;
-    font-weight: bold;
-    padding-left : 3%;
-}
-
 /* Book page styles */
 .book-info { 
     display: flex; 
@@ -109,6 +108,27 @@ h1 {
     font-size: large;
 }
 
+.book-author form,
+.book-author button,
+.book-author a {
+    display: inline;
+}
+
+.book-author button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: blue;
+}
+
+.book-author button a {
+    text-decoration: underline;
+}
+
+.book-author button:hover a {
+    font-weight: bold;
+}
+
 .book-isbn { 
     margin-top: 10px;  
     color: #333; 
@@ -132,10 +152,96 @@ h1 {
 }
 
 .book-buy-borrow {
-    margin-left: 15%;
-    text-decoration: none; 
-    color: black;
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 0;
+    padding: 1% 2%;
+    border: black solid 1px;
+    border-radius: 30px;
+    color: white;
+    background-color: black;
 }
-.book-buy-borrow:hover {
+
+.book-buy-borrow-list p {
+    margin: 0 0 2% 15%;
+}
+/* Author page styles */
+.author-page {
+    display: flex;
+    align-items: flex-start;
+    gap: 40px;
+    padding: 24px 40px;
+}
+
+.author-left {
+    flex: 0 0 45%;
+    max-width: 520px;
+}
+
+.author-photo {
+    width: min(45vw, 520px);
+    height: min(45vw, 520px);
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+}
+
+.author-right {
+    flex: 1;
+    min-width: 240px;
+}
+
+.author-titles {
+    margin: 0 0 16px 0;
+}
+
+.author-section {
+    margin-bottom: 20px;
+}
+
+.author-bio {
+    margin-left: 6%;
+    color: #222;
+    line-height: 1.5;
+    font-family: Arial, sans-serif;
+}
+
+.author-sort-links {
+    display: flex;
+    gap: 12px;
+    margin: 0 0 16px 25px;
+}
+
+.author-sort-button {
+    color: #000;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    text-decoration: underline;
+}
+
+.author-sort-button:hover {
     font-weight: bold;
+}
+
+
+.image-button-author {
+    margin-left: 25px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.image-button-author img {
+    width: 50px;
+    height: 75px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
