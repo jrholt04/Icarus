@@ -35,7 +35,6 @@ allAuthors.each do |author|
     end
 
     authorFirstName = author["name"].split(" ").first()
-    puts authorFirstName
     authorBio = ""
     bioStart = false
     authorInfo.split(" ").each do |word|  
