@@ -35,6 +35,7 @@ def getTopBooksDescription(title)
   res = Net::HTTP.get_response(uri)
   data = JSON.parse(res.body) if res.is_a?(Net::HTTPSuccess)
   description = data.dig('items', 0, 'volumeInfo', 'description') if data
+  sleep(1)
   return description
 end 
 
@@ -110,7 +111,7 @@ massInsertDB.query(
     auth_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
     bio VARCHAR(1000),
-    headshot LONGBLOB
+    headshot VARCHAR(255)
   );")
 
 massInsertDB.query(
