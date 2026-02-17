@@ -92,6 +92,7 @@ def getBookPublishDate(title)
   res = Net::HTTP.get_response(uri)
   data = JSON.parse(res.body) if res.is_a?(Net::HTTPSuccess)
   publishDate = data.dig('items', 0, 'volumeInfo', 'publishedDate') if data
+  sleep(10)
   return publishDate
 end
 
@@ -120,6 +121,7 @@ res = Net::HTTP.get_response(uri)
 raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
 data = JSON.parse(res.body)
 nonFicBooks = data.dig("results", "books")
+sleep(10)
 
 nonFicBooks.each() do |book|
     title = book["title"].gsub("'", "\\\\'")
@@ -143,6 +145,7 @@ res = Net::HTTP.get_response(uri)
 raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
 data = JSON.parse(res.body)
 fictionBooks = data.dig("results", "books")
+sleep(10)
 
 fictionBooks.each() do |book|
     title = book["title"].gsub("'", "\\\\'")
@@ -166,6 +169,7 @@ res = Net::HTTP.get_response(uri)
 raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
 data = JSON.parse(res.body)
 howToBooks = data.dig("results", "books")
+sleep(10)
 
 howToBooks.each() do |book|
     title = book["title"].gsub("'", "\\\\'")
@@ -186,6 +190,7 @@ end
 
 # Clear out the NewYorkBS table 
 icarusDB.query("DELETE FROM NewYorkBS;")
+sleep(120)
 populateNYTFiction(icarusDB)
 sleep(120)
 populateNYTNonFiction(icarusDB)
