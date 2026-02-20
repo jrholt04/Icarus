@@ -23,6 +23,9 @@ allAuthors = icarusDB.query("SELECT * FROM Authors")
 
 allAuthors.each do |author|
     authorName = author["name"].tr("ÀÁÂÃÄÅàáâãäåĀāĂăĄąÇçĆćĈĉĊċČčÐðĎďĐđÈÉÊËèéêëễĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħÌÍÎÏìíîïĨĩĪīĬĭĮįİıĴĵĶķĸĹĺĻļĽľĿŀŁłÑñŃńŅņŇňŉŊŋÒÓÔÕÖØòóôõöøŌōŎŏŐőŔŕŖŗŘřŚśŜŝŞşŠšſŢţŤťŦŧÙÚÛÜùúûüŨũŪūŬŭŮůŰűŲųŴŵÝýÿŶŷŸŹźŻżŽž", "AAAAAAaaaaaaAaAaAaCcCcCcCcCcDdDdDdEEEEeeeeeEeEeEeEeEeGgGgGgGgHhHhIIIIiiiiIiIiIiIiIiJjKkkLlLlLlLlLlNnNnNnNnnNnOOOOOOooooooOoOoOoRrRrRrSsSsSsSssTtTtTtUUUUuuuuUuUuUuUuUuUuWwYyyYyYZzZzZz")
+    authorName = authorName.gsub(".", "._")
+    authorName = authorName.gsub(" ", "_")
+    authorName = authorName.gsub("__", "_")
     uri = URI("https://en.wikipedia.org/w/api.php?action=parse&page=#{authorName}&prop=wikitext&section=0&format=json")
     res = Net::HTTP.get_response(uri)
     raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
@@ -38,7 +41,7 @@ allAuthors.each do |author|
     authorBio = ""
     bioStart = false
     authorInfo.split(" ").each do |word|  
-        if word == "'''" + authorFirstName
+        if word[0,3] == "'''" 
             bioStart = true
         end
         if bioStart == true
@@ -83,11 +86,17 @@ allAuthors.each do |author|
     end
 
     # Removes any extraneous symbols leftover after cleaning
+    cleanBio = cleanBio.gsub(/\!--.*?--\>/, "")
+    cleanBio = cleanBio.gsub("&nbsp;", " ")
+    cleanBio = cleanBio.gsub("/ref>", "")
+    cleanBio = cleanBio.gsub("nowiki/>", "")
     cleanBio = cleanBio.gsub("'", "")
     cleanBio = cleanBio.gsub("]", "")
     cleanBio = cleanBio.gsub("{", "")
     cleanBio = cleanBio.gsub("}", "")
-    cleanBio = cleanBio.gsub("/ref>", "")
+    cleanBio = cleanBio.gsub("( ; ", "(")
+    cleanBio = cleanBio.gsub("(; ", "(")
+    cleanBio = cleanBio.gsub("(; ", "(")
 
     icarusDB.query("UPDATE Authors SET bio = '" + cleanBio[0,1000] + "' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
     sleep(1)
