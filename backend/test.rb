@@ -40,18 +40,18 @@ end
 getBookPublishDate("Hunger Games")
 =end
 
-uri = URI("https://en.wikipedia.org/w/api.php?action=parse&page=J. R. R. Tolkien&prop=wikitext&section=0&format=json")
+uri = URI("https://en.wikipedia.org/w/api.php?action=parse&page=Jerry Spinelli&prop=wikitext&section=0&format=json")
 res = Net::HTTP.get_response(uri)
 raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
 data = JSON.parse(res.body)
 authorInfo = data.dig("parse", "wikitext", "*")
-#puts authorInfo
+puts authorInfo
 #puts authorInfo.class()
 
 authorBio = ""
 bioStart = false
 authorInfo.split(" ").each do |word|  
-  if word == "'''John"
+  if word[0,3] == "'''"
     bioStart = true
   end
   if bioStart == true
@@ -101,11 +101,17 @@ splitBio.each do |bioPiece|
     cleanBio = cleanBio + bioPiece
   end
 end
+cleanBio = cleanBio.gsub(/\!--.*?--\>/, "")
+cleanBio = cleanBio.gsub("&nbsp;", " ")
+cleanBio = cleanBio.gsub("/ref>", "")
+cleanBio = cleanBio.gsub("nowiki/>", "")
 cleanBio = cleanBio.gsub("'", "")
 cleanBio = cleanBio.gsub("]", "")
 cleanBio = cleanBio.gsub("{", "")
 cleanBio = cleanBio.gsub("}", "")
-cleanBio = cleanBio.gsub("/ref>", "")
+cleanBio = cleanBio.gsub("( ; ", "(")
+cleanBio = cleanBio.gsub("(; ", "(")
+cleanBio = cleanBio.gsub("(; ", "(")
 puts cleanBio
 
 #puts authorBio
