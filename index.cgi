@@ -82,7 +82,9 @@ puts "                <li><a href=\"#sign-in\">Sign In</a></li>"
 puts "            </ul>"
 puts "        </nav>"
 puts "        <h1>Top Non Fiction This Week</h1>"
-puts "        <div class=\"scroll-container\">"
+puts "        <div class=\"scroll-wrapper\">"
+puts "            <button class=\"scroll-btn scroll-left\" data-target=\"non-fic-scroll\" aria-label=\"Scroll left\">&#8249;</button>"
+puts "            <div id=\"non-fic-scroll\" class=\"scroll-container\">"
                     topBooksNonFic.each do |book|
                         img = book['cover_img']
 puts "                      <form action=\"frontend/book.cgi\" method=\"POST\" class=\"image-item-form\">"
@@ -92,9 +94,13 @@ puts "                                  <img src=\"#{img}\" alt=\"#{book['title'
 puts "                              </button>"
 puts "                      </form>"
                     end
+puts "            </div>"
+puts "            <button class=\"scroll-btn scroll-right\" data-target=\"non-fic-scroll\" aria-label=\"Scroll right\">&#8250;</button>"
 puts "        </div>"
 puts "        <h1>Top Fiction This Week</h1>"
-puts "        <div class=\"scroll-container\">"
+puts "        <div class=\"scroll-wrapper\">"
+puts "            <button class=\"scroll-btn scroll-left\" data-target=\"fic-scroll\" aria-label=\"Scroll left\">&#8249;</button>"
+puts "            <div id=\"fic-scroll\" class=\"scroll-container\">"
                     topBooksFic.each do |book|
                         img = book['cover_img']
 puts "                      <form action=\"frontend/book.cgi\" method=\"POST\" class=\"image-item-form\">"
@@ -104,9 +110,13 @@ puts "                                  <img src=\"#{img}\" alt=\"#{book['title'
 puts "                              </button>"
 puts "                      </form>"
                     end
+puts "            </div>"
+puts "            <button class=\"scroll-btn scroll-right\" data-target=\"fic-scroll\">&#8250;</button>"
 puts "        </div>"
 puts "        <h1>Top Self Help This Week</h1>"
-puts "        <div class=\"scroll-container\">"
+puts "        <div class=\"scroll-wrapper\">"
+puts "            <button class=\"scroll-btn scroll-left\" data-target=\"selfhelp-scroll\">&#8249;</button>"
+puts "            <div id=\"selfhelp-scroll\" class=\"scroll-container\">"
                     topBooksSelfHelp.each do |book|
                         img = book['cover_img']
 puts "                      <form action=\"frontend/book.cgi\" method=\"POST\" class=\"image-item-form\">"
@@ -116,7 +126,22 @@ puts "                                  <img src=\"#{img}\" alt=\"#{book['title'
 puts "                              </button>"
 puts "                      </form>"
                     end
+puts "            </div>"
+puts "            <button class=\"scroll-btn scroll-right\" data-target=\"selfhelp-scroll\" aria-label=\"Scroll right\">&#8250;</button>"
 puts "        </div>"
+puts "<script>"
+puts "  // Adapted from: https://stackoverflow.com/questions/74209391/how-can-i-make-a-nav-scrolling-horizontally-with-buttons-when-media-queries-kick"
+puts "  document.querySelectorAll('.scroll-btn').forEach(function(btn) {"
+puts "    btn.addEventListener('click', function() {"
+puts "      var targetId = btn.getAttribute('data-target');"
+puts "      var scroller = document.getElementById(targetId);"
+puts "      if (!scroller) return;"
+puts "      var direction = btn.classList.contains('scroll-right') ? 1 : -1;"
+puts "      var amount = Math.max(260, Math.floor(scroller.clientWidth * 0.8));"
+puts "      scroller.scrollBy({ left: direction * amount, behavior: 'smooth' });"
+puts "    });"
+puts "  });"
+puts "</script>"
 puts "    </body>"
 puts "</html>"
 
