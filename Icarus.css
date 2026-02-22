@@ -53,40 +53,63 @@ a.logo {
     font-weight: bold;
 }
 
-/* Horizontal scrollable image list */
+/* Horizontal scrollable image list - Adapted from: https://raddy.dev/blog/netflix-carousel-using-css/ */
+html {
+    scroll-behavior: smooth;
+}
+
+.carousel-wrapper {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+    overflow: hidden;
+    scroll-behavior: smooth;
+}
+
+.carousel-section {
+    width: 100%;
+    position: relative;
+    margin: 20px 0;
+}
+
 .scroll-container {
     display: flex;
     overflow-x: auto;
-    gap: 20px;
+    gap: 90px;
     padding: 20px 40px;
     scroll-behavior: smooth;
 }
 
-.scroll-wrapper {
+.arrow-btn {
+    position: absolute;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 3em;
+    background: rgba(0,0,0,0.5);
+    width: 50px;
+    height: 100%;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 0 20px;
-}
-
-.scroll-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: 1px solid #000;
-    background: #f0f1f5;
-    color: #000;
-    font-size: 24px;
-    line-height: 32px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+    z-index: 10;
+    top: 0;
+    text-decoration: none;
 }
 
-.scroll-btn:hover {
-    font-weight: bold;
+.left-arrow {
+    left: 0;
+    background: linear-gradient(-90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%);
+}
+
+.right-arrow {
+    right: 0;
+    background: linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%);
+}
+
+.arrow-btn:hover {
+    background: rgba(0,0,0,0.8);
 }
 
 .image-item-form {

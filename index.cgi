@@ -92,66 +92,80 @@ puts "                <li><a href=\"#sign-in\">Sign In</a></li>"
 puts "            </ul>"
 puts "        </nav>"
 puts "        <h1>Top Non Fiction This Week</h1>"
-puts "        <div class=\"scroll-wrapper\">"
-puts "            <button class=\"scroll-btn scroll-left\" data-target=\"non-fic-scroll\" aria-label=\"Scroll left\">&#8249;</button>"
-puts "            <div id=\"non-fic-scroll\" class=\"scroll-container\">"
-                    topBooksNonFic.each do |book|
-                        img = book['cover_img']
+puts "        <div class=\"carousel-wrapper\">"
+                    nonfic_books = topBooksNonFic.to_a
+                    nonfic_pages = (nonfic_books.size / 5.0).ceil
+                    nonfic_books.each_slice(5).with_index do |books_chunk, idx|
+                        section_id = "nonfic-page#{idx + 1}"
+                        prev_id = idx == 0 ? "nonfic-page#{nonfic_pages}" : "nonfic-page#{idx}"
+                        next_id = idx == nonfic_pages - 1 ? "nonfic-page1" : "nonfic-page#{idx + 2}"
+puts "            <section id=\"#{section_id}\" class=\"carousel-section\">"
+puts "                <a href=\"##{prev_id}\" class=\"arrow-btn left-arrow\">&#8249;</a>"
+puts "                <div class=\"scroll-container\">"
+                        books_chunk.each do |book|
+                            img = book['cover_img']
 puts "                      <form action=\"frontend/book.cgi\" method=\"POST\" class=\"image-item-form\">"
 puts "                          <input type=\"hidden\" name=\"book_id\" value=\"#{book['book_id']}\">"
 puts "                              <button type=\"submit\" class=\"image-button\">"
 puts "                                  <img src=\"#{img}\" alt=\"#{book['title']}\">"
 puts "                              </button>"
 puts "                      </form>"
+                        end
+puts "                </div>"
+puts "                <a href=\"##{next_id}\" class=\"arrow-btn right-arrow\">&#8250;</a>"
+puts "            </section>"
                     end
-puts "            </div>"
-puts "            <button class=\"scroll-btn scroll-right\" data-target=\"non-fic-scroll\" aria-label=\"Scroll right\">&#8250;</button>"
 puts "        </div>"
 puts "        <h1>Top Fiction This Week</h1>"
-puts "        <div class=\"scroll-wrapper\">"
-puts "            <button class=\"scroll-btn scroll-left\" data-target=\"fic-scroll\" aria-label=\"Scroll left\">&#8249;</button>"
-puts "            <div id=\"fic-scroll\" class=\"scroll-container\">"
-                    topBooksFic.each do |book|
-                        img = book['cover_img']
+puts "        <div class=\"carousel-wrapper\">"
+                    fic_books = topBooksFic.to_a
+                    fic_pages = (fic_books.size / 5.0).ceil
+                    fic_books.each_slice(5).with_index do |books_chunk, idx|
+                        section_id = "fic-page#{idx + 1}"
+                        prev_id = idx == 0 ? "fic-page#{fic_pages}" : "fic-page#{idx}"
+                        next_id = idx == fic_pages - 1 ? "fic-page1" : "fic-page#{idx + 2}"
+puts "            <section id=\"#{section_id}\" class=\"carousel-section\">"
+puts "                <a href=\"##{prev_id}\" class=\"arrow-btn left-arrow\">&#8249;</a>"
+puts "                <div class=\"scroll-container\">"
+                        books_chunk.each do |book|
+                            img = book['cover_img']
 puts "                      <form action=\"frontend/book.cgi\" method=\"POST\" class=\"image-item-form\">"
 puts "                          <input type=\"hidden\" name=\"book_id\" value=\"#{book['book_id']}\">"
 puts "                              <button type=\"submit\" class=\"image-button\">"
 puts "                                  <img src=\"#{img}\" alt=\"#{book['title']}\">"
 puts "                              </button>"
 puts "                      </form>"
+                        end
+puts "                </div>"
+puts "                <a href=\"##{next_id}\" class=\"arrow-btn right-arrow\">&#8250;</a>"
+puts "            </section>"
                     end
-puts "            </div>"
-puts "            <button class=\"scroll-btn scroll-right\" data-target=\"fic-scroll\">&#8250;</button>"
 puts "        </div>"
 puts "        <h1>Top Self Help This Week</h1>"
-puts "        <div class=\"scroll-wrapper\">"
-puts "            <button class=\"scroll-btn scroll-left\" data-target=\"selfhelp-scroll\">&#8249;</button>"
-puts "            <div id=\"selfhelp-scroll\" class=\"scroll-container\">"
-                    topBooksSelfHelp.each do |book|
-                        img = book['cover_img']
+puts "        <div class=\"carousel-wrapper\">"
+                    selfhelp_books = topBooksSelfHelp.to_a
+                    selfhelp_pages = (selfhelp_books.size / 5.0).ceil
+                    selfhelp_books.each_slice(5).with_index do |books_chunk, idx|
+                        section_id = "selfhelp-page#{idx + 1}"
+                        prev_id = idx == 0 ? "selfhelp-page#{selfhelp_pages}" : "selfhelp-page#{idx}"
+                        next_id = idx == selfhelp_pages - 1 ? "selfhelp-page1" : "selfhelp-page#{idx + 2}"
+puts "            <section id=\"#{section_id}\" class=\"carousel-section\">"
+puts "                <a href=\"##{prev_id}\" class=\"arrow-btn left-arrow\">&#8249;</a>"
+puts "                <div class=\"scroll-container\">"
+                        books_chunk.each do |book|
+                            img = book['cover_img']
 puts "                      <form action=\"frontend/book.cgi\" method=\"POST\" class=\"image-item-form\">"
 puts "                          <input type=\"hidden\" name=\"book_id\" value=\"#{book['book_id']}\">"
 puts "                              <button type=\"submit\" class=\"image-button\">"
 puts "                                  <img src=\"#{img}\" alt=\"#{book['title']}\">"
 puts "                              </button>"
 puts "                      </form>"
+                        end
+puts "                </div>"
+puts "                <a href=\"##{next_id}\" class=\"arrow-btn right-arrow\">&#8250;</a>"
+puts "            </section>"
                     end
-puts "            </div>"
-puts "            <button class=\"scroll-btn scroll-right\" data-target=\"selfhelp-scroll\" aria-label=\"Scroll right\">&#8250;</button>"
 puts "        </div>"
-puts "<script>"
-puts "  // Adapted from: https://stackoverflow.com/questions/74209391/how-can-i-make-a-nav-scrolling-horizontally-with-buttons-when-media-queries-kick"
-puts "  document.querySelectorAll('.scroll-btn').forEach(function(btn) {"
-puts "    btn.addEventListener('click', function() {"
-puts "      var targetId = btn.getAttribute('data-target');"
-puts "      var scroller = document.getElementById(targetId);"
-puts "      if (!scroller) return;"
-puts "      var direction = btn.classList.contains('scroll-right') ? 1 : -1;"
-puts "      var amount = Math.max(260, Math.floor(scroller.clientWidth * 0.8));"
-puts "      scroller.scrollBy({ left: direction * amount, behavior: 'smooth' });"
-puts "    });"
-puts "  });"
-puts "</script>"
 puts "    </body>"
 puts "</html>"
 
