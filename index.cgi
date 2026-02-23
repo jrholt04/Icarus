@@ -93,16 +93,16 @@ puts "            </ul>"
 puts "        </nav>"
 puts "        <h1>Top Non Fiction This Week</h1>"
 puts "        <div class=\"carousel-wrapper\">"
-                    nonfic_books = topBooksNonFic.to_a
-                    nonfic_pages = (nonfic_books.size / 5.0).ceil
-                    nonfic_books.each_slice(5).with_index do |books_chunk, idx|
-                        section_id = "nonfic-page#{idx + 1}"
-                        prev_id = idx == 0 ? "nonfic-page#{nonfic_pages}" : "nonfic-page#{idx}"
-                        next_id = idx == nonfic_pages - 1 ? "nonfic-page1" : "nonfic-page#{idx + 2}"
-puts "            <section id=\"#{section_id}\" class=\"carousel-section\">"
-puts "                <a href=\"##{prev_id}\" class=\"arrow-btn left-arrow\">&#8249;</a>"
+                    nonficBooks = topBooksNonFic.to_a
+                    nonficPages = (nonficBooks.size / 5.0).ceil
+                    nonficBooks.each_slice(5).with_index do |booksChunk, idx|
+                        sectionId = "nonfic-page#{idx + 1}"
+                        prevId = idx == 0 ? "nonfic-page#{nonficPages}" : "nonfic-page#{idx}"
+                        nextId = idx == nonficPages - 1 ? "nonfic-page1" : "nonfic-page#{idx + 2}"
+puts "            <section id=\"#{sectionId}\" class=\"carousel-section\">"
+puts "                <a href=\"##{prevId}\" class=\"arrow-btn left-arrow\">&#8249;</a>"
 puts "                <div class=\"scroll-container\">"
-                        books_chunk.each do |book|
+                        booksChunk.each do |book|
                             img = book['cover_img']
 puts "                      <form action=\"frontend/book.cgi\" method=\"POST\" class=\"image-item-form\">"
 puts "                          <input type=\"hidden\" name=\"book_id\" value=\"#{book['book_id']}\">"
@@ -112,22 +112,22 @@ puts "                              </button>"
 puts "                      </form>"
                         end
 puts "                </div>"
-puts "                <a href=\"##{next_id}\" class=\"arrow-btn right-arrow\">&#8250;</a>"
+puts "                <a href=\"##{nextId}\" class=\"arrow-btn right-arrow\">&#8250;</a>"
 puts "            </section>"
                     end
 puts "        </div>"
 puts "        <h1>Top Fiction This Week</h1>"
 puts "        <div class=\"carousel-wrapper\">"
-                    fic_books = topBooksFic.to_a
-                    fic_pages = (fic_books.size / 5.0).ceil
-                    fic_books.each_slice(5).with_index do |books_chunk, idx|
-                        section_id = "fic-page#{idx + 1}"
-                        prev_id = idx == 0 ? "fic-page#{fic_pages}" : "fic-page#{idx}"
-                        next_id = idx == fic_pages - 1 ? "fic-page1" : "fic-page#{idx + 2}"
-puts "            <section id=\"#{section_id}\" class=\"carousel-section\">"
-puts "                <a href=\"##{prev_id}\" class=\"arrow-btn left-arrow\">&#8249;</a>"
+                    ficBooks = topBooksFic.to_a
+                    ficPages = (ficBooks.size / 5.0).ceil
+                    ficBooks.each_slice(5).with_index do |booksChunk, idx|
+                        sectionId = "fic-page#{idx + 1}"
+                        prevId = idx == 0 ? "fic-page#{ficPages}" : "fic-page#{idx}"
+                        nextId = idx == ficPages - 1 ? "fic-page1" : "fic-page#{idx + 2}"
+puts "            <section id=\"#{sectionId}\" class=\"carousel-section\">"
+puts "                <a href=\"##{prevId}\" class=\"arrow-btn left-arrow\">&#8249;</a>"
 puts "                <div class=\"scroll-container\">"
-                        books_chunk.each do |book|
+                        booksChunk.each do |book|
                             img = book['cover_img']
 puts "                      <form action=\"frontend/book.cgi\" method=\"POST\" class=\"image-item-form\">"
 puts "                          <input type=\"hidden\" name=\"book_id\" value=\"#{book['book_id']}\">"
@@ -137,22 +137,22 @@ puts "                              </button>"
 puts "                      </form>"
                         end
 puts "                </div>"
-puts "                <a href=\"##{next_id}\" class=\"arrow-btn right-arrow\">&#8250;</a>"
+puts "                <a href=\"##{nextId}\" class=\"arrow-btn right-arrow\">&#8250;</a>"
 puts "            </section>"
                     end
 puts "        </div>"
 puts "        <h1>Top Self Help This Week</h1>"
 puts "        <div class=\"carousel-wrapper\">"
-                    selfhelp_books = topBooksSelfHelp.to_a
-                    selfhelp_pages = (selfhelp_books.size / 5.0).ceil
-                    selfhelp_books.each_slice(5).with_index do |books_chunk, idx|
-                        section_id = "selfhelp-page#{idx + 1}"
-                        prev_id = idx == 0 ? "selfhelp-page#{selfhelp_pages}" : "selfhelp-page#{idx}"
-                        next_id = idx == selfhelp_pages - 1 ? "selfhelp-page1" : "selfhelp-page#{idx + 2}"
-puts "            <section id=\"#{section_id}\" class=\"carousel-section\">"
-puts "                <a href=\"##{prev_id}\" class=\"arrow-btn left-arrow\">&#8249;</a>"
+                    selfhelpBooks = topBooksSelfHelp.to_a
+                    selfhelpPages = (selfhelpBooks.size / 5.0).ceil
+                    selfhelpBooks.each_slice(5).with_index do |booksChunk, idx|
+                        sectionId = "selfhelp-page#{idx + 1}"
+                        prevId = idx == 0 ? "selfhelp-page#{selfhelpPages}" : "selfhelp-page#{idx}"
+                        nextId = idx == selfhelpPages - 1 ? "selfhelp-page1" : "selfhelp-page#{idx + 2}"
+puts "            <section id=\"#{sectionId}\" class=\"carousel-section\">"
+puts "                <a href=\"##{prevId}\" class=\"arrow-btn left-arrow\">&#8249;</a>"
 puts "                <div class=\"scroll-container\">"
-                        books_chunk.each do |book|
+                        booksChunk.each do |book|
                             img = book['cover_img']
 puts "                      <form action=\"frontend/book.cgi\" method=\"POST\" class=\"image-item-form\">"
 puts "                          <input type=\"hidden\" name=\"book_id\" value=\"#{book['book_id']}\">"
@@ -162,7 +162,7 @@ puts "                              </button>"
 puts "                      </form>"
                         end
 puts "                </div>"
-puts "                <a href=\"##{next_id}\" class=\"arrow-btn right-arrow\">&#8250;</a>"
+puts "                <a href=\"##{nextId}\" class=\"arrow-btn right-arrow\">&#8250;</a>"
 puts "            </section>"
                     end
 puts "        </div>"
