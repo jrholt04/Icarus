@@ -19,6 +19,18 @@ require_relative '../env_loader'
 
 icarusDB = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.fetch('ICARUS_DB_USER'), :password => ENV.fetch('ICARUS_DB_PASSWORD'), :database => ENV.fetch('ICARUS_DB_NAME'))
 
+def noBio(db, a)
+    authorBooksList = ""
+    authorBooks = db.query("SELECT b.* FROM BookAuth ba JOIN Books b ON b.book_id = ba.book_id WHERE ba.auth_id = '" + a["auth_id"].to_s() + "' ORDER BY b.publish_date DESC;")
+    authorBooks.each do |book|
+        authorBooksList = authorBooksList + book["title"] + ", "
+    end
+    authorBooksList = authorBooksList.strip()
+    authorBooksList = authorBooksList.gsub("'", "\\\\'")
+    authorBooksList[authorBooksList.length()] = "."
+    db.query("UPDATE Authors SET bio = '" + a["name"] + " authored or contributed to " + authorBooksList + "' WHERE auth_id = '" + a["auth_id"].to_s() + "';")
+end
+
 allAuthors = icarusDB.query("SELECT * FROM Authors")
 
 allAuthors.each do |author|
@@ -32,20 +44,8 @@ allAuthors.each do |author|
     data = JSON.parse(res.body)
     authorInfo = data.dig("parse", "wikitext", "*")
 
-    puts
-    puts authorInfo
-    puts
-
     if authorInfo.nil?
-        authorBooksList = ""
-        authorBooks = icarusDB.query("SELECT b.* FROM BookAuth ba JOIN Books b ON b.book_id = ba.book_id WHERE ba.auth_id = '" + author["auth_id"].to_s() + "' ORDER BY b.publish_date DESC;")
-        authorBooks.each do |book|
-            authorBooksList = authorBooksList + book["title"] + ", "
-        end
-        authorBooksList = authorBooksList.strip()
-        authorBooksList[authorBooksList.length() - 1] = "."
-        authorBooksList = authorBooksList.gsub("'", "\\\\'")
-        icarusDB.query("UPDATE Authors SET bio = '" + author["name"] + " is the author of " + authorBooksList + ".' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
+        noBio(icarusDB, author)
         next
     end
 
@@ -61,25 +61,10 @@ allAuthors.each do |author|
         authorInfo = data.dig("parse", "wikitext", "*")
     end
 
-    #if authorInfo.nil?
-    #    icarusDB.query("UPDATE Authors SET bio = 'No Biography Found' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
-    #    next
-    #end
     if authorInfo.nil?
-        authorBooksList = ""
-        authorBooks = icarusDB.query("SELECT b.* FROM BookAuth ba JOIN Books b ON b.book_id = ba.book_id WHERE ba.auth_id = '" + author["auth_id"].to_s() + "' ORDER BY b.publish_date DESC;")
-        authorBooks.each do |book|
-            authorBooksList = authorBooksList + book["title"] + ", "
-        end
-        authorBooksList = authorBooksList.strip()
-        authorBooksList[authorBooksList.length() - 1] = "."
-        icarusDB.query("UPDATE Authors SET bio = '" + author["name"] + " is the author of " + authorBooksList + ".' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
+        noBio(icarusDB, author)
         next
     end
-
-    #puts 
-    #puts authorInfo
-    #puts
 
     authorFirstName = author["name"].split(" ").first()
     authorBio = ""
@@ -96,10 +81,10 @@ allAuthors.each do |author|
     # Removes any instances of {{ }}
     authorBio = authorBio.gsub(/\{\{.*?\}\}/, "")
 
-    #if authorBio.nil?
-    #    icarusDB.query("UPDATE Authors SET bio = 'No Biography Found' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
-    #    next
-    #end
+    if authorInfo.nil?
+        noBio(icarusDB, author)
+        next
+    end
 
     # Remove links
     unlinkedBio = ""
@@ -141,6 +126,11 @@ allAuthors.each do |author|
     cleanBio = cleanBio.gsub("( ; ", "(")
     cleanBio = cleanBio.gsub("(; ", "(")
     cleanBio = cleanBio.gsub("(; ", "(")
+
+    if authorInfo.nil?
+        noBio(icarusDB, author)
+        next
+    end
 
     icarusDB.query("UPDATE Authors SET bio = '" + cleanBio[0,1000] + "' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
     sleep(1)
