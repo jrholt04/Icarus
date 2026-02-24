@@ -32,10 +32,54 @@ allAuthors.each do |author|
     data = JSON.parse(res.body)
     authorInfo = data.dig("parse", "wikitext", "*")
 
+    puts
+    puts authorInfo
+    puts
+
     if authorInfo.nil?
-        icarusDB.query("UPDATE Authors SET bio = 'No Biography Found' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
+        authorBooksList = ""
+        authorBooks = icarusDB.query("SELECT b.* FROM BookAuth ba JOIN Books b ON b.book_id = ba.book_id WHERE ba.auth_id = '" + author["auth_id"].to_s() + "' ORDER BY b.publish_date DESC;")
+        authorBooks.each do |book|
+            authorBooksList = authorBooksList + book["title"] + ", "
+        end
+        authorBooksList = authorBooksList.strip()
+        authorBooksList[authorBooksList.length() - 1] = "."
+        authorBooksList = authorBooksList.gsub("'", "\\\\'")
+        icarusDB.query("UPDATE Authors SET bio = '" + author["name"] + " is the author of " + authorBooksList + ".' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
         next
     end
+
+    # Check if the page is ambiguous
+    ambiguousText = /may refer to/
+    ambiguousAuthor = authorInfo.split("[[")
+    if ambiguousText.match(ambiguousAuthor[0])
+        sleep(1)
+        uri = URI("https://en.wikipedia.org/w/api.php?action=parse&page=#{authorName}_(author)&prop=wikitext&section=0&format=json")
+        res = Net::HTTP.get_response(uri)
+        raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
+        data = JSON.parse(res.body)
+        authorInfo = data.dig("parse", "wikitext", "*")
+    end
+
+    #if authorInfo.nil?
+    #    icarusDB.query("UPDATE Authors SET bio = 'No Biography Found' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
+    #    next
+    #end
+    if authorInfo.nil?
+        authorBooksList = ""
+        authorBooks = icarusDB.query("SELECT b.* FROM BookAuth ba JOIN Books b ON b.book_id = ba.book_id WHERE ba.auth_id = '" + author["auth_id"].to_s() + "' ORDER BY b.publish_date DESC;")
+        authorBooks.each do |book|
+            authorBooksList = authorBooksList + book["title"] + ", "
+        end
+        authorBooksList = authorBooksList.strip()
+        authorBooksList[authorBooksList.length() - 1] = "."
+        icarusDB.query("UPDATE Authors SET bio = '" + author["name"] + " is the author of " + authorBooksList + ".' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
+        next
+    end
+
+    #puts 
+    #puts authorInfo
+    #puts
 
     authorFirstName = author["name"].split(" ").first()
     authorBio = ""
@@ -50,12 +94,12 @@ allAuthors.each do |author|
     end
 
     # Removes any instances of {{ }}
-    authorBio = authorBio.gsub!(/\{\{.*?\}\}/, "")
+    authorBio = authorBio.gsub(/\{\{.*?\}\}/, "")
 
-    if authorBio.nil?
-        icarusDB.query("UPDATE Authors SET bio = 'No Biography Found' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
-        next
-    end
+    #if authorBio.nil?
+    #    icarusDB.query("UPDATE Authors SET bio = 'No Biography Found' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
+    #    next
+    #end
 
     # Remove links
     unlinkedBio = ""

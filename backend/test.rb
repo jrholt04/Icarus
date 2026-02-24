@@ -11,13 +11,14 @@ require 'stringio'
 require 'net/http'
 require 'json'
 
-=begin
+
 require_relative '../env_loader'
 
 NYT_API_KEY = ENV.fetch('NYT_API_KEY')
 
 db = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.fetch('ICARUS_DB_USER'), :password => ENV.fetch('ICARUS_DB_PASSWORD'), :database => ENV.fetch('ICARUS_DB_NAME'))
 
+=begin
 # books = {}
 
 uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-nonfiction.json?api-key=#{NYT_API_KEY}")
@@ -40,13 +41,40 @@ end
 getBookPublishDate("Hunger Games")
 =end
 
-uri = URI("https://en.wikipedia.org/w/api.php?action=parse&page=Jerry Spinelli&prop=wikitext&section=0&format=json")
+name = "sdfghsldfkjk"
+
+uri = URI("https://en.wikipedia.org/w/api.php?action=parse&page=#{name}&prop=wikitext&section=0&format=json")
 res = Net::HTTP.get_response(uri)
 raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
 data = JSON.parse(res.body)
 authorInfo = data.dig("parse", "wikitext", "*")
-puts authorInfo
+#puts authorInfo
 #puts authorInfo.class()
+
+if authorInfo.nil?
+  authorBooksList = ""
+  authorBooks = db.query("SELECT b.* FROM BookAuth ba JOIN Books b ON b.book_id = ba.book_id WHERE ba.auth_id = '1' ORDER BY b.publish_date DESC;")
+  authorBooks.each do |book|
+    authorBooksList = authorBooksList + book["title"] + ", "
+  end
+  authorBooksList = authorBooksList.strip()
+  authorBooksList[authorBooksList.length() - 1] = "."
+  puts authorBooksList
+  return
+  #icarusDB.query("UPDATE Authors SET bio = '" + author["name"] + " is the author of " + authorBooksList + ".' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
+end
+
+# Check if the page is ambiguous
+ambiguousText = /may refer to/
+ambiguousAuthor = authorInfo.split("[[")
+if ambiguousText.match(ambiguousAuthor[0])
+  sleep(1)
+  uri = URI("https://en.wikipedia.org/w/api.php?action=parse&page=#{name}_(author)&prop=wikitext&section=0&format=json")
+  res = Net::HTTP.get_response(uri)
+  raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
+  data = JSON.parse(res.body)
+  authorInfo = data.dig("parse", "wikitext", "*")
+end
 
 authorBio = ""
 bioStart = false
@@ -59,7 +87,7 @@ authorInfo.split(" ").each do |word|
   end
 end
 puts authorBio
-authorBio = authorBio.gsub!(/\{\{.*?\}\}/, "")
+authorBio = authorBio.gsub(/\{\{.*?\}\}/, "")
 puts
 puts
 #authorBio = authorBio.gsub("'", "")
@@ -115,3 +143,4 @@ cleanBio = cleanBio.gsub("(; ", "(")
 puts cleanBio
 
 #puts authorBio
+
