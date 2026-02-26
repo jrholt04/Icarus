@@ -41,17 +41,17 @@ end
 getBookPublishDate("Hunger Games")
 =end
 
-name = "sdfghsldfkjk"
+name = "Fyodor Dostoyevsky"
 
 uri = URI("https://en.wikipedia.org/w/api.php?action=parse&page=#{name}&prop=wikitext&section=0&format=json")
 res = Net::HTTP.get_response(uri)
 raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
 data = JSON.parse(res.body)
 authorInfo = data.dig("parse", "wikitext", "*")
-#puts authorInfo
+puts authorInfo
 #puts authorInfo.class()
 
-if authorInfo.nil?
+if authorInfo.strip().nil?
   authorBooksList = ""
   authorBooks = db.query("SELECT b.* FROM BookAuth ba JOIN Books b ON b.book_id = ba.book_id WHERE ba.auth_id = '1' ORDER BY b.publish_date DESC;")
   authorBooks.each do |book|
@@ -68,13 +68,40 @@ end
 ambiguousText = /may refer to/
 ambiguousAuthor = authorInfo.split("[[")
 if ambiguousText.match(ambiguousAuthor[0])
-  sleep(1)
+  sleep(2)
   uri = URI("https://en.wikipedia.org/w/api.php?action=parse&page=#{name}_(author)&prop=wikitext&section=0&format=json")
   res = Net::HTTP.get_response(uri)
   raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
   data = JSON.parse(res.body)
   authorInfo = data.dig("parse", "wikitext", "*")
 end
+
+# Check if the author is being redirected
+redirectText = /#REDIRECT/
+numBrackets = 0
+correctedAuthorName = ""
+if redirectText.match(authorInfo)
+  # If there is a redirect, find the correct author name 
+  authorInfo.split("").each do |char|
+    if char == "[" or char == "]"
+      numBrackets = numBrackets + 1
+    end
+    if numBrackets == 2 and char != "["
+      correctedAuthorName = correctedAuthorName + char
+    end
+    if numBrackets > 2
+      break
+    end
+  end
+  # Redirect to the correct Wikipedia page
+  sleep(2)
+  uri = URI("https://en.wikipedia.org/w/api.php?action=parse&page=#{correctedAuthorName}&prop=wikitext&section=0&format=json")
+  res = Net::HTTP.get_response(uri)
+  raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
+  data = JSON.parse(res.body)
+  authorInfo = data.dig("parse", "wikitext", "*")
+end
+puts correctedAuthorName
 
 authorBio = ""
 bioStart = false
@@ -141,6 +168,24 @@ cleanBio = cleanBio.gsub("( ; ", "(")
 cleanBio = cleanBio.gsub("(; ", "(")
 cleanBio = cleanBio.gsub("(; ", "(")
 puts cleanBio
+puts cleanBio.class()
+
+if cleanBio.strip().nil? or cleanBio.strip() == ""
+  authorBooksList = ""
+  authorBooks = db.query("SELECT b.* FROM BookAuth ba JOIN Books b ON b.book_id = ba.book_id WHERE ba.auth_id = '1' ORDER BY b.publish_date DESC;")
+  authorBooks.each do |book|
+    authorBooksList = authorBooksList + book["title"] + ", "
+  end
+  authorBooksList = authorBooksList.strip()
+  authorBooksList[authorBooksList.length() - 1] = "."
+  puts authorBooksList
+  return
+  #icarusDB.query("UPDATE Authors SET bio = '" + author["name"] + " is the author of " + authorBooksList + ".' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
+end
 
 #puts authorBio
 
+#Barbara A. Mowat
+#C.M. Woodhouse
+
+puts URI.encode_www_form_component("Emily_Brontë")

@@ -27,33 +27,34 @@ def noBio(db, a)
     end
     authorBooksList = authorBooksList.strip()
     authorBooksList = authorBooksList.gsub("'", "\\\\'")
-    authorBooksList[authorBooksList.length()] = "."
+    authorBooksList[authorBooksList.length() - 1] = "."
     db.query("UPDATE Authors SET bio = '" + a["name"] + " authored or contributed to " + authorBooksList + "' WHERE auth_id = '" + a["auth_id"].to_s() + "';")
 end
 
 allAuthors = icarusDB.query("SELECT * FROM Authors")
 
 allAuthors.each do |author|
-    authorName = author["name"].tr("ÀÁÂÃÄÅàáâãäåĀāĂăĄąÇçĆćĈĉĊċČčÐðĎďĐđÈÉÊËèéêëễĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħÌÍÎÏìíîïĨĩĪīĬĭĮįİıĴĵĶķĸĹĺĻļĽľĿŀŁłÑñŃńŅņŇňŉŊŋÒÓÔÕÖØòóôõöøŌōŎŏŐőŔŕŖŗŘřŚśŜŝŞşŠšſŢţŤťŦŧÙÚÛÜùúûüŨũŪūŬŭŮůŰűŲųŴŵÝýÿŶŷŸŹźŻżŽž", "AAAAAAaaaaaaAaAaAaCcCcCcCcCcDdDdDdEEEEeeeeeEeEeEeEeEeGgGgGgGgHhHhIIIIiiiiIiIiIiIiIiJjKkkLlLlLlLlLlNnNnNnNnnNnOOOOOOooooooOoOoOoRrRrRrSsSsSsSssTtTtTtUUUUuuuuUuUuUuUuUuUuWwYyyYyYZzZzZz")
-    authorName = authorName.gsub(".", "._")
+    authorName = author["name"].gsub(".", "._")
     authorName = authorName.gsub(" ", "_")
     authorName = authorName.gsub("__", "_")
+    authorName = URI.encode_www_form_component(authorName)
     uri = URI("https://en.wikipedia.org/w/api.php?action=parse&page=#{authorName}&prop=wikitext&section=0&format=json")
     res = Net::HTTP.get_response(uri)
     raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
     data = JSON.parse(res.body)
     authorInfo = data.dig("parse", "wikitext", "*")
 
+    # If there is no Wikipedia page, default to the generic author bio and move to the next author
     if authorInfo.nil?
         noBio(icarusDB, author)
         next
     end
 
-    # Check if the page is ambiguous
+    # Check if the page is ambiguous and redirect if necessary
     ambiguousText = /may refer to/
     ambiguousAuthor = authorInfo.split("[[")
     if ambiguousText.match(ambiguousAuthor[0])
-        sleep(1)
+        sleep(2)
         uri = URI("https://en.wikipedia.org/w/api.php?action=parse&page=#{authorName}_(author)&prop=wikitext&section=0&format=json")
         res = Net::HTTP.get_response(uri)
         raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
@@ -61,11 +62,40 @@ allAuthors.each do |author|
         authorInfo = data.dig("parse", "wikitext", "*")
     end
 
+    # Check if the author is being redirected
+    redirectText = /#REDIRECT/
+    numBrackets = 0
+    correctedAuthorName = ""
+    if redirectText.match(authorInfo)
+        # If there is a redirect, find the correct author name (contained within the first double set of square brackets)
+        authorInfo.split("").each do |char|
+            if char == "[" or char == "]"
+                numBrackets = numBrackets + 1
+            end
+            if numBrackets == 2 and char != "["
+                correctedAuthorName = correctedAuthorName + char
+            end
+            if numBrackets > 2
+                break
+            end
+        end
+        # Redirect to the correct Wikipedia page
+        sleep(2)
+        correctedAuthorName = URI.encode_www_form_component(correctedAuthorName)
+        uri = URI("https://en.wikipedia.org/w/api.php?action=parse&page=#{correctedAuthorName}&prop=wikitext&section=0&format=json")
+        res = Net::HTTP.get_response(uri)
+        raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
+        data = JSON.parse(res.body)
+        authorInfo = data.dig("parse", "wikitext", "*")
+    end
+
+    # If either redirect does not find a Wikipedia page, set default bio
     if authorInfo.nil?
         noBio(icarusDB, author)
         next
     end
 
+    # Cut out any miscelaneous WikiText at the beginning of the bio
     authorFirstName = author["name"].split(" ").first()
     authorBio = ""
     bioStart = false
@@ -81,7 +111,7 @@ allAuthors.each do |author|
     # Removes any instances of {{ }}
     authorBio = authorBio.gsub(/\{\{.*?\}\}/, "")
 
-    if authorInfo.nil?
+    if authorBio.nil?
         noBio(icarusDB, author)
         next
     end
@@ -127,11 +157,12 @@ allAuthors.each do |author|
     cleanBio = cleanBio.gsub("(; ", "(")
     cleanBio = cleanBio.gsub("(; ", "(")
 
-    if authorInfo.nil?
+    # If, after cleaning, the bio is empty, set default bio
+    if cleanBio.strip() == ""
         noBio(icarusDB, author)
         next
     end
 
-    icarusDB.query("UPDATE Authors SET bio = '" + cleanBio[0,1000] + "' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
-    sleep(1)
+    icarusDB.query("UPDATE Authors SET bio = '" + cleanBio[0,10000] + "' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
+    sleep(2)
 end
