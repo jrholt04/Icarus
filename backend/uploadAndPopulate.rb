@@ -110,8 +110,8 @@ massInsertDB.query(
   "CREATE TABLE Authors (
     auth_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
-    bio VARCHAR(1000),
-    headshot VARCHAR(510)
+    bio VARCHAR(10000),
+    headshot VARCHAR(511)
   );")
 
 massInsertDB.query(
