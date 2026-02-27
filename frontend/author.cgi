@@ -12,6 +12,8 @@ print "Content-type: text/html\n\n"
 
 require 'mysql2'
 require 'cgi'
+require 'net/http'
+require 'json'
 
 require_relative '../env_loader'
 
@@ -25,6 +27,30 @@ sort = cgi['sort'] || 'title'
 authId = cgi['auth_id'] 
 
 author = db.query("SELECT * FROM Authors WHERE auth_id = #{authId};").first
+author_name = author['name']
+hardcover_img_url = nil
+
+hardcover_key = ENV['HARDCOVER_API_KEY']
+if hardcover_key && !hardcover_key.empty?
+    query = <<~GRAPHQL
+    {
+        authors(where: { name: { _eq: "#{author_name}" }, image_id: { _is_null: false } }, limit: 1) {
+            image { url }
+        }
+    }
+    GRAPHQL
+
+    uri = URI('https://api.hardcover.app/v1/graphql')
+    req = Net::HTTP::Post.new(uri)
+    req['content-type'] = 'application/json'
+    req['authorization'] = hardcover_key
+    req.body = { query: query }.to_json
+
+    res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(req) }
+    
+    payload = JSON.parse(res.body)
+    hardcover_img_url = payload.dig('data', 'authors', 0, 'image', 'url') || '../defaultAuth.png'
+end
 
 puts "<!DOCTYPE html>"
 puts "<html>"
@@ -56,7 +82,7 @@ puts "            </ul>"
 puts "        </nav>"
 puts "        <main class=\"author-page\">"
 puts "            <div class=\"author-left\">"
-puts "                <img class=\"author-photo\" alt=\"Author photo\" src=\"#{author['headshot']}\">"
+puts "                <img class=\"author-photo\" alt=\"Author photo\" src=\"#{hardcover_img_url}\" data-author-name=\"#{author_name}\">"
 puts "            </div>"
 puts "            <div class=\"author-right\">"
 puts "                <h1 class=\"author-titles\">#{author['name']}</h1>"
