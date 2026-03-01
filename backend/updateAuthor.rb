@@ -19,24 +19,83 @@ require_relative '../env_loader'
 
 icarusDB = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.fetch('ICARUS_DB_USER'), :password => ENV.fetch('ICARUS_DB_PASSWORD'), :database => ENV.fetch('ICARUS_DB_NAME'))
 
+def noBio(db, a)
+    authorBooksList = ""
+    authorBooks = db.query("SELECT b.* FROM BookAuth ba JOIN Books b ON b.book_id = ba.book_id WHERE ba.auth_id = '" + a["auth_id"].to_s() + "' ORDER BY b.publish_date DESC;")
+    authorBooks.each do |book|
+        authorBooksList = authorBooksList + book["title"] + ", "
+    end
+    authorBooksList = authorBooksList.strip()
+    authorBooksList = authorBooksList.gsub("'", "\\\\'")
+    authorBooksList[authorBooksList.length() - 1] = "."
+    db.query("UPDATE Authors SET bio = '" + a["name"] + " authored or contributed to " + authorBooksList + "' WHERE auth_id = '" + a["auth_id"].to_s() + "';")
+end
+
 allAuthors = icarusDB.query("SELECT * FROM Authors")
 
 allAuthors.each do |author|
-    authorName = author["name"].tr("ÀÁÂÃÄÅàáâãäåĀāĂăĄąÇçĆćĈĉĊċČčÐðĎďĐđÈÉÊËèéêëễĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħÌÍÎÏìíîïĨĩĪīĬĭĮįİıĴĵĶķĸĹĺĻļĽľĿŀŁłÑñŃńŅņŇňŉŊŋÒÓÔÕÖØòóôõöøŌōŎŏŐőŔŕŖŗŘřŚśŜŝŞşŠšſŢţŤťŦŧÙÚÛÜùúûüŨũŪūŬŭŮůŰűŲųŴŵÝýÿŶŷŸŹźŻżŽž", "AAAAAAaaaaaaAaAaAaCcCcCcCcCcDdDdDdEEEEeeeeeEeEeEeEeEeGgGgGgGgHhHhIIIIiiiiIiIiIiIiIiJjKkkLlLlLlLlLlNnNnNnNnnNnOOOOOOooooooOoOoOoRrRrRrSsSsSsSssTtTtTtUUUUuuuuUuUuUuUuUuUuWwYyyYyYZzZzZz")
-    authorName = authorName.gsub(".", "._")
+    authorName = author["name"].gsub(".", "._")
     authorName = authorName.gsub(" ", "_")
     authorName = authorName.gsub("__", "_")
+    authorName = URI.encode_www_form_component(authorName)
     uri = URI("https://en.wikipedia.org/w/api.php?action=parse&page=#{authorName}&prop=wikitext&section=0&format=json")
     res = Net::HTTP.get_response(uri)
     raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
     data = JSON.parse(res.body)
     authorInfo = data.dig("parse", "wikitext", "*")
 
+    # If there is no Wikipedia page, default to the generic author bio and move to the next author
     if authorInfo.nil?
-        icarusDB.query("UPDATE Authors SET bio = 'No Biography Found' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
+        noBio(icarusDB, author)
         next
     end
 
+    # Check if the page is ambiguous and redirect if necessary
+    ambiguousText = /may refer to/
+    ambiguousAuthor = authorInfo.split("[[")
+    if ambiguousText.match(ambiguousAuthor[0])
+        sleep(2)
+        uri = URI("https://en.wikipedia.org/w/api.php?action=parse&page=#{authorName}_(author)&prop=wikitext&section=0&format=json")
+        res = Net::HTTP.get_response(uri)
+        raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
+        data = JSON.parse(res.body)
+        authorInfo = data.dig("parse", "wikitext", "*")
+    end
+
+    # Check if the author is being redirected
+    redirectText = /#REDIRECT/
+    numBrackets = 0
+    correctedAuthorName = ""
+    if redirectText.match(authorInfo)
+        # If there is a redirect, find the correct author name (contained within the first double set of square brackets)
+        authorInfo.split("").each do |char|
+            if char == "[" or char == "]"
+                numBrackets = numBrackets + 1
+            end
+            if numBrackets == 2 and char != "["
+                correctedAuthorName = correctedAuthorName + char
+            end
+            if numBrackets > 2
+                break
+            end
+        end
+        # Redirect to the correct Wikipedia page
+        sleep(2)
+        correctedAuthorName = URI.encode_www_form_component(correctedAuthorName)
+        uri = URI("https://en.wikipedia.org/w/api.php?action=parse&page=#{correctedAuthorName}&prop=wikitext&section=0&format=json")
+        res = Net::HTTP.get_response(uri)
+        raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
+        data = JSON.parse(res.body)
+        authorInfo = data.dig("parse", "wikitext", "*")
+    end
+
+    # If either redirect does not find a Wikipedia page, set default bio
+    if authorInfo.nil?
+        noBio(icarusDB, author)
+        next
+    end
+
+    # Cut out any miscelaneous WikiText at the beginning of the bio
     authorFirstName = author["name"].split(" ").first()
     authorBio = ""
     bioStart = false
@@ -50,10 +109,10 @@ allAuthors.each do |author|
     end
 
     # Removes any instances of {{ }}
-    authorBio = authorBio.gsub!(/\{\{.*?\}\}/, "")
+    authorBio = authorBio.gsub(/\{\{.*?\}\}/, "")
 
     if authorBio.nil?
-        icarusDB.query("UPDATE Authors SET bio = 'No Biography Found' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
+        noBio(icarusDB, author)
         next
     end
 
@@ -98,6 +157,12 @@ allAuthors.each do |author|
     cleanBio = cleanBio.gsub("(; ", "(")
     cleanBio = cleanBio.gsub("(; ", "(")
 
-    icarusDB.query("UPDATE Authors SET bio = '" + cleanBio[0,1000] + "' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
-    sleep(1)
+    # If, after cleaning, the bio is empty, set default bio
+    if cleanBio.strip() == ""
+        noBio(icarusDB, author)
+        next
+    end
+
+    icarusDB.query("UPDATE Authors SET bio = '" + cleanBio[0,10000] + "' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
+    sleep(2)
 end
