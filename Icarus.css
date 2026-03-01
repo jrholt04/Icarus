@@ -75,7 +75,8 @@ html {
 .scroll-container {
     display: flex;
     overflow-x: auto;
-    gap: 90px;
+    justify-content: space-between;
+    gap: clamp(12px, 3vw, 120px);
     padding: 20px 40px;
     scroll-behavior: smooth;
 }
