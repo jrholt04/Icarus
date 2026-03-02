@@ -3,7 +3,7 @@
 #Azalea Flynn, Erin Kendall, Jackson Holt, Transy U
 #Dr. Moorman, Icarus
         
-#   This is the book page for Icarus
+#   This is the author page for Icarus
 
 $stdout.sync = true 
 $stderr.reopen $stdout 
@@ -12,6 +12,8 @@ print "Content-type: text/html\n\n"
 
 require 'mysql2'
 require 'cgi'
+require 'net/http'
+require 'json'
 
 require_relative '../env_loader'
 
@@ -25,6 +27,9 @@ sort = cgi['sort'] || 'title'
 authId = cgi['auth_id'] 
 
 author = db.query("SELECT * FROM Authors WHERE auth_id = #{authId};").first
+
+headshot = author && author['headshot']
+headshotUrl = headshot.nil? || headshot.strip.empty? ? '../defaultAuth.png' : headshot
 
 puts "<!DOCTYPE html>"
 puts "<html>"
@@ -56,7 +61,7 @@ puts "            </ul>"
 puts "        </nav>"
 puts "        <main class=\"author-page\">"
 puts "            <div class=\"author-left\">"
-puts "                <img class=\"author-photo\" alt=\"Author photo\" src=\"#{author['headshot']}\">"
+puts "                <img class=\"author-photo\" alt=\"Author photo\" src=\"#{headshotUrl}\">"
 puts "            </div>"
 puts "            <div class=\"author-right\">"
 puts "                <h1 class=\"author-titles\">#{author['name']}</h1>"
