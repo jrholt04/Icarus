@@ -23,7 +23,7 @@ def noBio(db, a)
     authorBooksList = ""
     authorBooks = db.query("SELECT b.* FROM BookAuth ba JOIN Books b ON b.book_id = ba.book_id WHERE ba.auth_id = '" + a["auth_id"].to_s() + "' ORDER BY b.publish_date DESC;")
     authorBooks.each do |book|
-        authorBooksList = authorBooksList + book["title"] + ", "
+        authorBooksList = authorBooksList + "<i>" + book["title"].gsub(/\w+/) { |word| word.capitalize } + "</i>, "
     end
     authorBooksList = authorBooksList.strip()
     authorBooksList = authorBooksList.gsub("'", "\\\\'")
@@ -34,6 +34,7 @@ end
 allAuthors = icarusDB.query("SELECT * FROM Authors")
 
 allAuthors.each do |author|
+    puts author["bio"]
     authorName = author["name"].gsub(".", "._")
     authorName = authorName.gsub(" ", "_")
     authorName = authorName.gsub("__", "_")
@@ -143,6 +144,21 @@ allAuthors.each do |author|
             cleanBio = cleanBio + bioPiece
         end
     end
+
+    # If there are book titles in the bio, adds a italics tags to either side of them
+    italicsBio = ""
+    cleanBio.split(" ").each do |word|  
+        if word[0,2] == "''" and word[0,3] != "'''" and /''/.match(word[2,word.length()])
+            italicsBio = italicsBio + "<i>" + word + "</i> "
+        elsif word[0,2] == "''" and word[0,3] != "'''"
+            italicsBio = italicsBio + "<i>" + word + " "
+        elsif /''/.match(word) and !/'''/.match(word)
+            italicsBio = italicsBio + word + "</i> "
+        else
+            italicsBio = italicsBio + word + " "
+        end
+    end
+    cleanBio = italicsBio
 
     # Removes any extraneous symbols leftover after cleaning
     cleanBio = cleanBio.gsub(/\!--.*?--\>/, "")
