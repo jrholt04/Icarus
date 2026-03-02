@@ -197,7 +197,7 @@ html {
 }
 
 .book-desc {
-    margin-left: 15%;
+    margin-left: 3%;
     color: #222; 
     line-height: 1.4; 
 }
@@ -206,15 +206,23 @@ html {
     text-decoration: none;
     display: inline-block;
     margin-bottom: 0;
-    padding: 1% 2%;
+    padding: 10px 18px;
+    font-size: 16px;
     border: black solid 1px;
     border-radius: 30px;
     color: white;
     background-color: black;
 }
 
+.book-buy-borrow-list {
+    margin-left: 3%;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
 .book-buy-borrow-list p {
-    margin: 0 0 2% 15%;
+    margin: 0 0 12px 0;
 }
 /* Author page styles */
 .author-page {
