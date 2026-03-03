@@ -116,6 +116,14 @@ def fillAuthorTable(db, author, book_id)
     end
 end
 
+def findExistingBookId(db, isbn)
+    existing = db.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
+    existing.each do |row|
+        return row["book_id"]
+    end
+    nil
+end
+
 uri = URI("https://api.nytimes.com/svc/books/v3/lists/current/combined-print-and-e-book-nonfiction.json?api-key=#{NYT_API_KEY}")
 res = Net::HTTP.get_response(uri)
 raise "HTTP #{res.code}" unless res.is_a?(Net::HTTPSuccess)
@@ -153,6 +161,15 @@ nonFicBooks.each() do |book|
         else
             fillAuthorTable(icarusDB, author, book["book_id"])
         end
+    existingBookId = findExistingBookId(icarusDB, isbn)
+    if existingBookId
+        fillAuthorTable(icarusDB, author, existingBookId)
+    else
+        icarusDB.query("INSERT INTO Books (title, lang_code, isbn, publish_date, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + publishDate.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
+        bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
+        bookID.each do |book|
+            fillAuthorTable(icarusDB, author, book["book_id"])
+        end
     end
 end
 
@@ -173,14 +190,18 @@ fictionBooks.each() do |book|
     langCode = "english"
     publishDate = getBookPublishDate(title)
 
-    icarusDB.query("INSERT INTO Books (title, lang_code, isbn, publish_date, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + publishDate.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
-    bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
-
+    existingBookId = findExistingBookId(icarusDB, isbn)
+    if existingBookId
+        fillAuthorTable(icarusDB, author, existingBookId)
+    else
+        icarusDB.query("INSERT INTO Books (title, lang_code, isbn, publish_date, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + publishDate.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
+        bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
+    
     # Fill in the author's table, checking for multiple authors
     wordAnd = /\sand\s/
     wordWith = /\swith\s/
     bookID.each do |book|
-        if wordAnd.match(author)
+            if wordAnd.match(author)
             authors = author.split(" and ")
             authors.each do |a|
                 fillAuthorTable(icarusDB, a, book["book_id"])
@@ -192,6 +213,7 @@ fictionBooks.each() do |book|
             end
         else
             fillAuthorTable(icarusDB, author, book["book_id"])
+        end
         end
     end
 end
@@ -213,14 +235,18 @@ howToBooks.each() do |book|
     langCode = "english"
     publishDate = getBookPublishDate(title)
 
-    icarusDB.query("INSERT INTO Books (title, lang_code, isbn, publish_date, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + publishDate.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
-    bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
-    
+    existingBookId = findExistingBookId(icarusDB, isbn)
+    if existingBookId
+        fillAuthorTable(icarusDB, author, existingBookId)
+    else
+        icarusDB.query("INSERT INTO Books (title, lang_code, isbn, publish_date, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + publishDate.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
+        bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
+        
     # Fill in the author's table, checking for multiple authors
     wordAnd = /\sand\s/
     wordWith = /\swith\s/
     bookID.each do |book|
-        if wordAnd.match(author)
+            if wordAnd.match(author)
             authors = author.split(" and ")
             authors.each do |a|
                 fillAuthorTable(icarusDB, a, book["book_id"])
@@ -232,6 +258,7 @@ howToBooks.each() do |book|
             end
         else
             fillAuthorTable(icarusDB, author, book["book_id"])
+        end
         end
     end
 end

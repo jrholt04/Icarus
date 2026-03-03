@@ -61,7 +61,6 @@ puts "                <li><a href=../index.cgi>Top Books</a></li>"
 puts "                <li><a href=\"#search\">Search</a></li>"
 puts "                <li><a href=\"#favorites\">Favorites</a></li>"
 puts "                <li><a href=\"#reading-log\">Reading Log</a></li>"
-puts "                <li><a href=\"#bts\">BTS</a></li>"
 puts "                <li><a href=\"#sign-in\">Sign In</a></li>"
 puts "            </ul>"
 puts "        </nav>"
@@ -75,22 +74,20 @@ puts "                    <img src=\"#{book['cover_img']}\" alt=\"#{book['title'
                                 puts "<div class=\"book-isbn\">ISBN: #{book['isbn']}</div>"
                             end
 puts "                    <div class=\"book-author\">by " 
-puts "                      <form action=\"author.cgi\" method=\"POST\" >"
                                 authorIDs.each do |author|
-puts "                          <input type=\"hidden\" name=\"auth_id\" value=#{author['auth_id']}>"
+                                authorDBQuery = db.query("SELECT auth_id, name FROM Authors WHERE auth_id = #{author["auth_id"]};").first
+puts "                      <form action=\"author.cgi\" method=\"POST\" >"
+puts "                          <input type=\"hidden\" name=\"auth_id\" value=#{authorDBQuery['auth_id']}>"
 puts "                              <button type=\"submit\">"
-                                    authorDBQuery = db.query("SELECT name FROM Authors WHERE auth_id = #{author["auth_id"]};").first
 puts                                    "<a>#{authorDBQuery['name']} </a>"
 puts "                              </button>"
-                                end 
 puts "                      </form>"
+                                end 
 puts                      "</div>"
 puts "                </div>"
 puts "                <div class=\"book-right\">"
 puts "                    <h1 class=\"book-title\">#{book['title']}</h1>"
 puts "                    <div class=\"book-desc\">#{book['description']}</div>"
-puts "                    <h1 class=\"logo\">Reviews</h1>"
-puts "                    <div class=\"book-desc\">#{book['rating']}/5</div>"
 puts "                    <h1 class=\"logo\">Borrow Or Buy</h1>"
 puts "                    <div class=\"book-buy-borrow-list\">"
 puts "                        <p><a class=\"book-buy-borrow\" href=\"https://www.amazon.com/s?k=#{book['isbn']}\">Amazon</a></p>"
