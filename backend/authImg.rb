@@ -76,11 +76,13 @@ for author in authors
             payload = JSON.parse(res.body)
 
             contributers = payload.dig('data', 'authors')
-            for contributers in contributers
-                if contributers['name'].to_s.include?(author['name'].to_s) #if the authors name is present in the contributers name, this excludes the extra spaces from hardcase.
-                    imgUrl = contributers.dig('image', 'url')
-                    db.query("UPDATE Authors SET headshot = '#{imgUrl}' WHERE auth_id = #{author['auth_id']};")
-                    break
+            if contributers
+                for contributers in contributers
+                    if contributers['name'].to_s.include?(author['name'].to_s) #if the authors name is present in the contributers name, this excludes the extra spaces from hardcase.
+                        imgUrl = contributers.dig('image', 'url')
+                        db.query("UPDATE Authors SET headshot = '#{imgUrl}' WHERE auth_id = #{author['auth_id']};")
+                        break
+                    end
                 end
             end
         else 
