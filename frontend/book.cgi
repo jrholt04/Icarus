@@ -74,15 +74,15 @@ puts "                    <img src=\"#{book['cover_img']}\" alt=\"#{book['title'
                                 puts "<div class=\"book-isbn\">ISBN: #{book['isbn']}</div>"
                             end
 puts "                    <div class=\"book-author\">by " 
-puts "                      <form action=\"author.cgi\" method=\"POST\" >"
                                 authorIDs.each do |author|
-puts "                          <input type=\"hidden\" name=\"auth_id\" value=#{author['auth_id']}>"
+                                authorDBQuery = db.query("SELECT auth_id, name FROM Authors WHERE auth_id = #{author["auth_id"]};").first
+puts "                      <form action=\"author.cgi\" method=\"POST\" >"
+puts "                          <input type=\"hidden\" name=\"auth_id\" value=#{authorDBQuery['auth_id']}>"
 puts "                              <button type=\"submit\">"
-                                    authorDBQuery = db.query("SELECT name FROM Authors WHERE auth_id = #{author["auth_id"]};").first
 puts                                    "<a>#{authorDBQuery['name']} </a>"
 puts "                              </button>"
-                                end 
 puts "                      </form>"
+                                end 
 puts                      "</div>"
 puts "                </div>"
 puts "                <div class=\"book-right\">"
