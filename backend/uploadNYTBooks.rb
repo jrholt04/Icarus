@@ -141,6 +141,26 @@ nonFicBooks.each() do |book|
     langCode = "english"
     publishDate = getBookPublishDate(title)
 
+    icarusDB.query("INSERT INTO Books (title, lang_code, isbn, publish_date, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + publishDate.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
+    bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
+    
+    # Fill in the author's table, checking for multiple authors
+    wordAnd = /\sand\s/
+    wordWith = /\swith\s/
+    bookID.each do |book|
+        if wordAnd.match(author)
+            authors = author.split(" and ")
+            authors.each do |a|
+                fillAuthorTable(icarusDB, a, book["book_id"])
+            end
+        elsif wordWith.match(author)
+            authors = author.split(" with ")
+            authors.each do |a|
+                fillAuthorTable(icarusDB, a, book["book_id"])
+            end
+        else
+            fillAuthorTable(icarusDB, author, book["book_id"])
+        end
     existingBookId = findExistingBookId(icarusDB, isbn)
     if existingBookId
         fillAuthorTable(icarusDB, author, existingBookId)
@@ -176,8 +196,24 @@ fictionBooks.each() do |book|
     else
         icarusDB.query("INSERT INTO Books (title, lang_code, isbn, publish_date, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + publishDate.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
         bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
-        bookID.each do |book|
+    
+    # Fill in the author's table, checking for multiple authors
+    wordAnd = /\sand\s/
+    wordWith = /\swith\s/
+    bookID.each do |book|
+            if wordAnd.match(author)
+            authors = author.split(" and ")
+            authors.each do |a|
+                fillAuthorTable(icarusDB, a, book["book_id"])
+            end
+        elsif wordWith.match(author)
+            authors = author.split(" with ")
+            authors.each do |a|
+                fillAuthorTable(icarusDB, a, book["book_id"])
+            end
+        else
             fillAuthorTable(icarusDB, author, book["book_id"])
+        end
         end
     end
 end
@@ -205,8 +241,24 @@ howToBooks.each() do |book|
     else
         icarusDB.query("INSERT INTO Books (title, lang_code, isbn, publish_date, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + publishDate.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
         bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
-        bookID.each do |book|
+        
+    # Fill in the author's table, checking for multiple authors
+    wordAnd = /\sand\s/
+    wordWith = /\swith\s/
+    bookID.each do |book|
+            if wordAnd.match(author)
+            authors = author.split(" and ")
+            authors.each do |a|
+                fillAuthorTable(icarusDB, a, book["book_id"])
+            end
+        elsif wordWith.match(author)
+            authors = author.split(" with ")
+            authors.each do |a|
+                fillAuthorTable(icarusDB, a, book["book_id"])
+            end
+        else
             fillAuthorTable(icarusDB, author, book["book_id"])
+        end
         end
     end
 end
