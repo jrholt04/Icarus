@@ -41,7 +41,8 @@ end
 getBookPublishDate("Hunger Games")
 =end
 
-name = "Fyodor Dostoyevsky"
+
+name = "Virginia Roberts Giuffre"
 
 uri = URI("https://en.wikipedia.org/w/api.php?action=parse&page=#{name}&prop=wikitext&section=0&format=json")
 res = Net::HTTP.get_response(uri)
@@ -51,11 +52,11 @@ authorInfo = data.dig("parse", "wikitext", "*")
 puts authorInfo
 #puts authorInfo.class()
 
-if authorInfo.strip().nil?
+if authorInfo.nil?
   authorBooksList = ""
-  authorBooks = db.query("SELECT b.* FROM BookAuth ba JOIN Books b ON b.book_id = ba.book_id WHERE ba.auth_id = '1' ORDER BY b.publish_date DESC;")
+  authorBooks = db.query("SELECT b.* FROM BookAuth ba JOIN Books b ON b.book_id = ba.book_id WHERE ba.auth_id = '579' ORDER BY b.publish_date DESC;")
   authorBooks.each do |book|
-    authorBooksList = authorBooksList + book["title"] + ", "
+    authorBooksList = authorBooksList + book["title"].gsub(/\w+/) { |word| word.capitalize } + ", "
   end
   authorBooksList = authorBooksList.strip()
   authorBooksList[authorBooksList.length() - 1] = "."
@@ -156,8 +157,28 @@ splitBio.each do |bioPiece|
     cleanBio = cleanBio + bioPiece
   end
 end
+
+italicsBio = ""
+cleanBio.split(" ").each do |word|  
+  if word[0,2] == "''" and word[0,3] != "'''" and /''/.match(word[2,word.length()])
+    italicsBio = italicsBio + "<i>" + word + "</i> "
+  elsif word[0,2] == "''" and word[0,3] != "'''"
+    italicsBio = italicsBio + "<i>" + word + " "
+  elsif /''/.match(word) and !/'''/.match(word)
+    italicsBio = italicsBio + word + "</i> "
+  else
+    italicsBio = italicsBio + word + " "
+  end
+end
+puts italicsBio
+puts
+puts
+cleanBio = italicsBio
+
 cleanBio = cleanBio.gsub(/\!--.*?--\>/, "")
 cleanBio = cleanBio.gsub("&nbsp;", " ")
+cleanBio = cleanBio.gsub("/ref>", "")
+cleanBio = cleanBio.gsub("/ref>", "")
 cleanBio = cleanBio.gsub("/ref>", "")
 cleanBio = cleanBio.gsub("nowiki/>", "")
 cleanBio = cleanBio.gsub("'", "")
@@ -170,11 +191,11 @@ cleanBio = cleanBio.gsub("(; ", "(")
 puts cleanBio
 puts cleanBio.class()
 
-if cleanBio.strip().nil? or cleanBio.strip() == ""
+if cleanBio.nil? or cleanBio.strip() == ""
   authorBooksList = ""
-  authorBooks = db.query("SELECT b.* FROM BookAuth ba JOIN Books b ON b.book_id = ba.book_id WHERE ba.auth_id = '1' ORDER BY b.publish_date DESC;")
+  authorBooks = db.query("SELECT b.* FROM BookAuth ba JOIN Books b ON b.book_id = ba.book_id WHERE ba.auth_id = '500' ORDER BY b.publish_date DESC;")
   authorBooks.each do |book|
-    authorBooksList = authorBooksList + book["title"] + ", "
+    authorBooksList = authorBooksList + book["title"].gsub(/\w+/) { |word| word.capitalize } + ", "
   end
   authorBooksList = authorBooksList.strip()
   authorBooksList[authorBooksList.length() - 1] = "."
@@ -189,3 +210,10 @@ end
 #C.M. Woodhouse
 
 puts URI.encode_www_form_component("Emily_Brontë")
+
+# First author of NYT id = 507
+# First book of NYT id = 447
+=begin
+authorBio = db.query("SELECT * FROM Authors WHERE auth_id = 580;").first()
+puts authorBio["bio"] != ""
+=end
