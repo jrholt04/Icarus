@@ -40,7 +40,7 @@ end
 
 getBookPublishDate("Hunger Games")
 =end
-
+=begin
 
 name = "Virginia Roberts Giuffre"
 
@@ -210,10 +210,12 @@ end
 #C.M. Woodhouse
 
 puts URI.encode_www_form_component("Emily_Brontë")
-
+=end
 # First author of NYT id = 507
 # First book of NYT id = 447
 =begin
 authorBio = db.query("SELECT * FROM Authors WHERE auth_id = 580;").first()
 puts authorBio["bio"] != ""
 =end
+
+puts db.query("SELECT * FROM Books WHERE title = 'dfghjk';").first().nil?()
