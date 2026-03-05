@@ -139,6 +139,12 @@ nonFicBooks.each() do |book|
     description = book["description"]
     review = book["book_review_link"]
     langCode = "english"
+
+    # Check if the book is already in the table
+    if !icarusDB.query("SELECT * FROM Books WHERE isbn = " + isbn.to_s() + ";").first().nil?
+        next
+    end
+
     publishDate = getBookPublishDate(title)
 
     icarusDB.query("INSERT INTO Books (title, lang_code, isbn, publish_date, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + publishDate.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
@@ -188,6 +194,12 @@ fictionBooks.each() do |book|
     description = book["description"]
     review = book["book_review_link"]
     langCode = "english"
+
+    # Check if the book is already in the table
+    if !icarusDB.query("SELECT * FROM Books WHERE isbn = " + isbn.to_s() + ";").first().nil?
+        next
+    end
+
     publishDate = getBookPublishDate(title)
 
     existingBookId = findExistingBookId(icarusDB, isbn)
@@ -233,6 +245,12 @@ howToBooks.each() do |book|
     description = book["description"]
     review = book["book_review_link"]
     langCode = "english"
+
+    # Check if the book is already in the table
+    if !icarusDB.query("SELECT * FROM Books WHERE isbn = " + isbn.to_s() + ";").first().nil?
+        next
+    end
+
     publishDate = getBookPublishDate(title)
 
     existingBookId = findExistingBookId(icarusDB, isbn)
