@@ -6,8 +6,6 @@
 #
 # Ruby program to add books from the NYT Bestseller lists to the Icarus database tables
 
-# NOTE: Does not check whether the books are already in the database
-
 $stdout.sync = true
 $stderr.reopen $stdout
 

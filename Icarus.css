@@ -142,8 +142,8 @@ html {
 }
 
 .book-left {
-     width: 400px; 
-     flex: 0 0 400px;
+    width: 400px; 
+    flex: 0 0 400px;
 }
 
 .book-left img { 
@@ -158,12 +158,14 @@ html {
     margin-top: 10px;  
     color: #333; 
     font-size: large;
+    font-family: Arial, sans-serif;
 }
 
 .book-author form,
 .book-author button,
 .book-author a {
     display: inline;
+    font-size: large;
 }
 
 .book-author button {
@@ -185,6 +187,7 @@ html {
     margin-top: 10px;  
     color: #333; 
     font-size: large;
+    font-family: Arial, sans-serif;
 }
 
 .book-right {
