@@ -1,7 +1,9 @@
 # frozen_string_literal: true
-
-# Loads environment variables from .env into ENV for local/dev usage.
-# Does not override already-set variables.
+#File: env_loader.rb
+#Azalea Flynn, Erin Kendall, Jackson Holt, Transy U
+#Dr. Moorman, Icarus
+#      Loads environment variables from .env into ENV for local/dev usage.
+#      Does not override already-set variables.
 
 def load_env!(path = File.join(__dir__, '.env'))
   return unless File.exist?(path)
