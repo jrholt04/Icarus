@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Icarus!</title>
+  <style>
+    /* base reset & styling (kept clean for functionality, but topnav remains messy) */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+      padding: 1.5rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* ---------- topnav – messy as first message, with additions ---------- */
+    .topnav {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+    }
+    .topnav a {
+      text-decoration: none;
+      font-weight: 600;
+      color: #1e293b;
+      border-bottom: 2px solid transparent;
+      padding-bottom: 2px;
+    }
+    /* hover effect (optional, not in original but keeps ux) */
+    .topnav a:hover { border-bottom-color: #3b82f6; }
+
+    /* signin button – black box, white text */
+    .signin-btn {
+      background-color: #0f172a;
+      color: white !important;
+      padding: 0.5rem 1.2rem;
+      border-radius: 40px;
+      font-weight: 600;
+      border: none;
+      cursor: default;
+      text-decoration: none;
+      border-bottom: none !important;
+      display: inline-block;
+      margin-left: 0.5rem;
+    }
+    .signin-btn:hover {
+      background-color: #1e293b;
+      border-bottom: none !important;
+    }
+
+    /* search & toggle */
+    .search-bar {
+      width: 100%;
+      margin: 1.5rem 0 1rem;
+    }
+    #searchInput {
+      width: 100%;
+      padding: 1rem 1.2rem;
+      font-size: 1.25rem;
+      border: 3px solid #cbd5e1;
+      border-radius: 60px;
+      outline: none;
+      background: white;
+    }
+    #searchInput:focus { border-color: #3b82f6; }
+
+    .toggle-container {
+      text-align: left;
+      margin: 1rem 0 2rem;
+      background: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 60px;
+      display: inline-block;
+      border: 1px solid #e2e8f0;
+    }
+    .toggle-container label {
+      margin-right: 2rem;
+      font-size: 1.2rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .toggle-container input[type="radio"] {
+      accent-color: #3b82f6;
+      width: 1.1rem;
+      height: 1.1rem;
+      margin-right: 0.4rem;
+    }
+
+    /* book list – thick black lines + image layout */
+    .book-list {
+      margin-top: 2rem;
+      border-top: 2px solid #cbd5e1;
+    }
+    .book-item {
+      display: flex;
+      gap: 1.5rem;
+      padding: 1.8rem 1rem;
+      border-bottom: 4px solid black;   /* thick black line */
+      transition: background 0.2s;
+      align-items: flex-start;
+    }
+    .book-item:hover { background: #f1f5f9; }
+
+    /* image placeholder */
+    .book-image {
+      flex-shrink: 0;
+      width: 100px;
+      height: 130px;
+      background: #cbd5e1;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #475569;
+      font-size: 0.9rem;
+      font-weight: 500;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    /* text content */
+    .book-content {
+      flex: 1;
+    }
+    .book-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      font-style: italic;
+      margin-bottom: 0.25rem;
+      color: #0f172a;
+    }
+    .book-synopsis {
+      font-size: 1rem;
+      color: #334155;
+      line-height: 1.5;
+      max-width: 700px;
+    }
+
+    .no-books-message {
+      text-align: center;
+      padding: 3rem;
+      font-size: 1.4rem;
+      color: #64748b;
+      border: 2px dashed #cbd5e1;
+      border-radius: 2rem;
+      margin-top: 2rem;
+    }
+    .filtered-out { display: none; }
+  </style>
+</head>
+
+<!-- ##### TOPNAV – exactly as first message (messy), but with Search highlighted via inline style ##### -->
+<h3 style="text-align:right;"> <!-- Topright navigation bar-->
+<div class="topnav">
+  <!-- empty active link (kept for messiness) -->
+  <a class="active"></a>
+  <a href="#">TopBooks</a>
+  <!-- Search is the current page – highlighted with inline style (keeps messy code) -->
+  <a href="#" style="border-bottom: 2px solid #3b82f6; color:#0f172a;">Search</a>
+  <a href="/favorites">Favorites</a>
+  <a href="/readinglog">Reading Log</a>
+  <a href="/behndthescenes">BTS</a>
+  <!-- signin button – black box at the very right -->
+  <span class="signin-btn">Sign In</span>
+</div>
+</h3>
+
+<body>  <!-- Topleft title of Icarus -->
+  <h1 style="text-align:left;">Icarus</h1> 
+</body>
+<br>   <!-- line break from original -->
+
+<!-- ========== SEARCH INTERFACE ========== -->
+<div class="search-bar">
+  <input type="search" id="searchInput" placeholder="Search by book title..." aria-label="Search">
+</div>
+
+<div class="toggle-container">
+  <label><input type="radio" name="searchType" value="author" id="authorRadio"> Author</label>
+  <label><input type="radio" name="searchType" value="book" id="bookRadio" checked> Book</label>
+</div>
+
+<!-- book list container (dynamically filled) -->
+<div class="book-list" id="bookList"></div>
+<div id="noResultsMessage" class="no-books-message" style="display: none;">📚 no matches — try again</div>
+
+<script>
+  (function() {
+    // ---------- book data ----------
+    const booksData = [
+      { title: "The Great Gatsby", author: "F. Scott Fitzgerald" },
+      { title: "To Kill a Mockingbird", author: "Harper Lee" },
+      { title: "1984", author: "George Orwell" },
+      { title: "Pride and Prejudice", author: "Jane Austen" },
+      { title: "The Catcher in the Rye", author: "J.D. Salinger" },
+      { title: "Dune", author: "Frank Herbert" },
+      { title: "Beloved", author: "Toni Morrison" },
+      { title: "The Hobbit", author: "J.R.R. Tolkien" },
+      { title: "Fahrenheit 451", author: "Ray Bradbury" }
+    ];
+
+    const bookListDiv = document.getElementById('bookList');
+    const searchInput = document.getElementById('searchInput');
+    const authorRadio = document.getElementById('authorRadio');
+    const bookRadio = document.getElementById('bookRadio');
+    const noResultsDiv = document.getElementById('noResultsMessage');
+
+    function renderBooks() {
+      const searchTerm = searchInput.value.trim().toLowerCase();
+      const mode = authorRadio.checked ? 'author' : 'book';
+
+      const filtered = booksData.filter(item => {
+        if (searchTerm === '') return true;
+        if (mode === 'author') {
+          return item.author.toLowerCase().includes(searchTerm);
+        } else {
+          return item.title.toLowerCase().includes(searchTerm);
+        }
+      });
+
+      bookListDiv.innerHTML = '';
+
+      if (filtered.length === 0) {
+        noResultsDiv.style.display = 'block';
+        return;
+      }
+      noResultsDiv.style.display = 'none';
+
+      filtered.forEach(book => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'book-item';
+
+        // image placeholder
+        const imgDiv = document.createElement('div');
+        imgDiv.className = 'book-image';
+        imgDiv.textContent = '📖';
+
+        // content
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'book-content';
+
+        const titleElem = document.createElement('div');
+        titleElem.className = 'book-title';
+        if (mode === 'author') {
+          titleElem.innerHTML = `<strong><em>${book.author}</em></strong>`;
+        } else {
+          titleElem.innerHTML = `<strong><em>${book.title}</em></strong>`;
+        }
+
+        const synopsisElem = document.createElement('p');
+        synopsisElem.className = 'book-synopsis';
+        synopsisElem.textContent = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
+
+        contentDiv.appendChild(titleElem);
+        contentDiv.appendChild(synopsisElem);
+
+        itemDiv.appendChild(imgDiv);
+        itemDiv.appendChild(contentDiv);
+        bookListDiv.appendChild(itemDiv);
+      });
+    }
+
+    function updatePlaceholder() {
+      if (authorRadio.checked) {
+        searchInput.placeholder = 'Search by author name...';
+      } else {
+        searchInput.placeholder = 'Search by book title...';
+      }
+    }
+
+    searchInput.addEventListener('input', renderBooks);
+    authorRadio.addEventListener('change', () => {
+      updatePlaceholder();
+      renderBooks();
+    });
+    bookRadio.addEventListener('change', () => {
+      updatePlaceholder();
+      renderBooks();
+    });
+
+    updatePlaceholder();
+    renderBooks();
+
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        searchInput.value = '';
+        renderBooks();
+      }
+    });
+  })();
+</script>
+
+<!-- noscript fallback (keeps it friendly) -->
+<noscript>
+  <div style="background:#fff3cd;padding:1rem;border-radius:12px;margin-top:1rem;">
+    JavaScript enables dynamic search. Below is a static preview.
+  </div>
+  <div class="book-list">
+    <div class="book-item">
+      <div class="book-image">📖</div>
+      <div class="book-content">
+        <div class="book-title"><strong><em>The Great Gatsby</em></strong></div>
+        <p class="book-synopsis">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      </div>
+    </div>
+    <div class="book-item">
+      <div class="book-image">📖</div>
+      <div class="book-content">
+        <div class="book-title"><strong><em>1984</em></strong></div>
+        <p class="book-synopsis">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      </div>
+    </div>
+  </div>
+</noscript>
+
+</html>
