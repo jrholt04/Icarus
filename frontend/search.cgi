@@ -1,0 +1,130 @@
+#!/usr/bin/ruby
+#File: search.cgi
+#Azalea Flynn, Erin Kendall, Jackson Holt, Transy U
+#Dr. Moorman, Icarus
+        
+#   This is the search page for Icarus
+
+$stdout.sync = true 
+$stderr.reopen $stdout 
+
+print "Content-type: text/html\n\n"
+
+require 'mysql2'
+require 'cgi'
+require 'stringio'
+require 'net/http'
+require 'json'
+
+require_relative '../env_loader'
+require_relative '../backend/search'
+
+db = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.fetch('ICARUS_DB_USER'), :password => ENV.fetch('ICARUS_DB_PASSWORD'), :database => ENV.fetch('ICARUS_DB_NAME'))
+
+#get info from html forms
+cgi = CGI.new("html5")
+
+searchType = cgi['searchType'] || 'books'
+searchQuery = cgi['searchQuery'] || ''
+searchResults = []
+searchPlaceholder = searchType == 'authors' ? 'Search for authors...' : 'Search for books...'
+
+
+if searchQuery && !searchQuery.strip.empty?
+  if searchType == 'authors'
+    searchResults = findAuthors(db, searchQuery).to_a
+  else
+    searchResults = findBooks(db, searchQuery).to_a
+  end
+end
+
+puts "<!DOCTYPE html>"
+puts "<html>"
+puts "    <head>"
+puts "        <title>Search</title>"
+puts "        <link rel=\"icon\" type=\"image/x-icon\" href=\"../favicon.ico\" id=\"favicon\" />"
+puts "        <link rel=\"stylesheet\" href=\"../Icarus.css\">"
+puts "        <script>"
+puts "            function updateFavicon() {"
+puts "                const favicon = document.getElementById('favicon');"
+puts "                const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;"
+puts "                favicon.href = isDark ? '../faviconwhite.ico' : '../favicon.ico';"
+puts "            }"
+puts "            updateFavicon();"
+puts "            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateFavicon);"
+puts "        </script>"
+puts "    </head>"
+puts "    <body>"
+puts "        <nav>"
+puts "            <nav><a class=\"logo\" href=../index.cgi>Icarus</a></nav>"
+puts "            <ul class=\"nav-links\">"
+puts "                <li><a href=../index.cgi>Top Books</a></li>"
+puts "                <li><a href=\"search.cgi\">Search</a></li>"
+puts "                <li><a href=\"#favorites\">Favorites</a></li>"
+puts "                <li><a href=\"#reading-log\">Reading Log</a></li>"
+puts "                <li><a href=\"#sign-in\">Sign In</a></li>"
+puts "            </ul>"
+puts "        </nav>"
+puts "        <div class=\"search-container\">"
+puts "            <form action=\"search.cgi\" method=\"POST\" class=\"search-form\">"
+puts "                <input type=\"hidden\" name=\"searchType\" value=\"#{searchType}\">"
+puts "                <input type=\"text\" name=\"searchQuery\" class=\"search-input\" placeholder=\"#{searchPlaceholder}\" value=\"#{searchQuery}\">"
+puts "                <button type=\"submit\" class=\"search-button\">Search</button>"
+puts "            </form>"
+puts "            <div class=\"search-mode-links\">"
+puts "                <a href=\"search.cgi?searchType=books\" class=\"search-mode-link#{searchType == 'books' ? ' active' : ''}\">Books</a>"
+puts "                <a href=\"search.cgi?searchType=authors\" class=\"search-mode-link#{searchType == 'authors' ? ' active' : ''}\">Authors</a>"
+puts "            </div>"
+
+if searchQuery
+    puts "            <div class=\"search-results\">"
+  if searchType == 'authors'
+    searchResults.each do |authorRecord|
+      headshotUrl = authorRecord['headshot'] && !authorRecord['headshot'].strip.empty? ? authorRecord['headshot'] : '../defaultAuth.png'
+      puts "                <div class=\"search-result-item\">"
+      puts "                    <form action=\"author.cgi\" method=\"POST\" style=\"display: contents;\">"
+      puts "                        <input type=\"hidden\" name=\"auth_id\" value=\"#{authorRecord['auth_id']}\">"
+      puts "                        <button type=\"submit\" style=\"border: none; background: none; padding: 0; cursor: pointer;\">"
+      puts "                            <img src=\"#{headshotUrl}\" alt=\"#{authorRecord['name']}\" class=\"search-result-image search-result-image-author\">"
+      puts "                        </button>"
+      puts "                    </form>"
+      puts "                    <div class=\"search-result-content\">"
+      puts "                        <div class=\"search-result-title search-result-title-author\">#{authorRecord['name']}</div>"
+      puts "                        <div class=\"search-result-description\">#{authorRecord['bio'] || ''}</div>"
+      puts "                    </div>"
+      puts "                </div>"
+    end
+  else
+    searchResults.each do |book|
+      puts "                <div class=\"search-result-item\">"
+      puts "                    <form action=\"book.cgi\" method=\"POST\" style=\"display: contents;\">"
+      puts "                        <input type=\"hidden\" name=\"book_id\" value=\"#{book['book_id']}\">"
+      puts "                        <button type=\"submit\" style=\"border: none; background: none; padding: 0; cursor: pointer;\">"
+      puts "                            <img src=\"#{book['cover_img']}\" alt=\"#{book['title']}\" class=\"search-result-image\">"
+      puts "                        </button>"
+      puts "                    </form>"
+      puts "                    <div class=\"search-result-content\">"
+      puts "                        <div class=\"search-result-title\">#{book['title']}</div>"
+      
+      authorIds = db.query("SELECT auth_id FROM BookAuth WHERE book_id = #{book['book_id']};")
+      authors = []
+      authorIds.each do |auth|
+        author = db.query("SELECT name FROM Authors WHERE auth_id = #{auth['auth_id']};").first
+        authors << author['name'] if author
+      end
+      
+      if authors.any?
+        puts "                        <div class=\"search-result-author\">by #{authors.join(', ')}</div>"
+      end
+      
+      puts "                        <div class=\"search-result-description\">#{book['description'] || ''}</div>"
+      puts "                    </div>"
+      puts "                </div>"
+    end
+  end
+  puts "            </div>"
+end
+
+puts "        </div>"
+puts "    </body>"
+puts "</html>"

@@ -24,7 +24,7 @@ db = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.f
 cgi = CGI.new("html5")
 
 bookId = cgi['book_id']
-book = db.query("SELECT * FROM BooksBackup WHERE book_id = #{bookId};").first
+book = db.query("SELECT * FROM Books WHERE book_id = #{bookId};").first
 
 # Get authors
 authorIDs = db.query("SELECT auth_id FROM BookAuth WHERE book_id = #{bookId};")
@@ -57,7 +57,7 @@ puts "        <nav>"
 puts "            <nav><a class=\"logo\" href=../index.cgi>Icarus</a></nav>"
 puts "            <ul class=\"nav-links\">"
 puts "                <li><a href=../index.cgi>Top Books</a></li>"
-puts "                <li><a href=\"#search\">Search</a></li>"
+puts "                <li><a href=\"../frontend/search.cgi\">Search</a></li>"
 puts "                <li><a href=\"#favorites\">Favorites</a></li>"
 puts "                <li><a href=\"#reading-log\">Reading Log</a></li>"
 puts "                <li><a href=\"#sign-in\">Sign In</a></li>"
