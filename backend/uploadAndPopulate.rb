@@ -12,8 +12,6 @@
 $stdout.sync = true
 $stderr.reopen $stdout
 
-puts "Content-type: text/html\r\n\r\n" 
-
 require 'cgi'
 require 'mysql2'
 require 'stringio'
@@ -22,8 +20,8 @@ require 'json'
 
 require_relative '../env_loader'
 
+HARDCOVER_API_KEY = ENV.fetch('HARDCOVER_API_KEY')
 massInsertDB = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.fetch('ICARUS_DB_USER'), :password => ENV.fetch('ICARUS_DB_PASSWORD'), :database => ENV.fetch('ICARUS_DB_NAME'))
-
 booksFile = IO.readlines(ARGV[0])
 
 # Drop the header of the file
@@ -31,12 +29,31 @@ booksFile = booksFile.drop(1)
 
 # Google API to get the description of the book.
 def getTopBooksDescription(title)
-  uri = URI("https://www.googleapis.com/books/v1/volumes?q=#{title}")
-  res = Net::HTTP.get_response(uri)
-  data = JSON.parse(res.body) if res.is_a?(Net::HTTPSuccess)
-  description = data.dig('items', 0, 'volumeInfo', 'description') if data
-  sleep(1)
-  return description
+    #checks and corrects names in all caps
+    if title == title.upcase
+        title = title.downcase().split.map(&:capitalize).join(' ')
+    end
+
+    query = <<~GRAPHQL
+    {
+        books(where: {title: {_eq: "#{title}"},description: {_is_null:false}}) {
+          description
+        }
+    }
+    GRAPHQL
+
+    uri = URI('https://api.hardcover.app/v1/graphql')
+    req = Net::HTTP::Post.new(uri)
+    req['content-type'] = 'application/json'
+    req['authorization'] = HARDCOVER_API_KEY
+    req.body = { query: query }.to_json
+
+    res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(req) }
+    last_request_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    
+    payload = JSON.parse(res.body)
+    description = payload.dig('data', 'books', 0, 'description') 
+    return description
 end 
 
 # Google API to get the ISBN of the book.
@@ -81,8 +98,8 @@ def fillAuthorTable(db, allAuthors, book_id)
   end
 end
 
-# Need to figure out whether the tables exist before deleting them
-# Delete tables
+Need to figure out whether the tables exist before deleting them
+Delete tables
 massInsertDB.query("DROP TABLE FavAuthors;")
 massInsertDB.query("DROP TABLE ReadingLog;")
 massInsertDB.query("DROP TABLE Wishlist;")
@@ -103,7 +120,7 @@ massInsertDB.query(
     cover_img VARCHAR(255),
     rating FLOAT,
     review VARCHAR(255),
-    description VARCHAR(5000)
+    description VARCHAR(6000)
   );")
 
 massInsertDB.query(

@@ -18,6 +18,53 @@ NYT_API_KEY = ENV.fetch('NYT_API_KEY')
 
 db = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.fetch('ICARUS_DB_USER'), :password => ENV.fetch('ICARUS_DB_PASSWORD'), :database => ENV.fetch('ICARUS_DB_NAME'))
 
+HARDCOVER_API_KEY = ENV.fetch('HARDCOVER_API_KEY')
+
+def getTopBooksDescription(title)
+    if title == title.upcase
+        title = title.downcase().split.map(&:capitalize).join(' ')
+    end
+
+    query = <<~GRAPHQL
+    {
+        books(where: {title: {_eq: "#{title}"},description: {_is_null:false}}) {
+          description
+        }
+    }
+    GRAPHQL
+
+    uri = URI('https://api.hardcover.app/v1/graphql')
+    req = Net::HTTP::Post.new(uri)
+    req['content-type'] = 'application/json'
+    req['authorization'] = HARDCOVER_API_KEY
+    req.body = { query: query }.to_json
+
+    res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(req) }
+    last_request_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    
+    payload = JSON.parse(res.body)
+    description = payload.dig('data', 'books', 0, 'description') 
+    return description
+end 
+
+db.query("SELECT * FROM BooksBackup").each do |book|
+  sleep(1)
+  puts book["title"]
+  description = getTopBooksDescription(book["title"])
+  if description.nil?
+    puts "No description found for #{book["title"]}"
+    if book["description"] == "" and book["description"].nil?
+      db.query("UPDATE BooksBackup SET description = 'No description found.' WHERE book_id = #{book["book_id"]};")
+    end
+  else
+    puts "Description found for #{book["title"]}"
+    if book["description"] == "" and book["description"].nil?
+      db.query("UPDATE BooksBackup SET description = '#{db.escape(description)}' WHERE book_id = #{book["book_id"]};")
+    end
+  end
+end
+
+
 =begin
 # books = {}
 
@@ -217,5 +264,3 @@ puts URI.encode_www_form_component("Emily_Brontë")
 authorBio = db.query("SELECT * FROM Authors WHERE auth_id = 580;").first()
 puts authorBio["bio"] != ""
 =end
-
-puts db.query("SELECT * FROM Books WHERE title = 'dfghjk';").first().nil?()

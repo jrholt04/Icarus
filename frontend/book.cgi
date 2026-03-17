@@ -29,7 +29,6 @@ book = db.query("SELECT * FROM Books WHERE book_id = #{bookId};").first
 # Get authors
 authorIDs = db.query("SELECT auth_id FROM BookAuth WHERE book_id = #{bookId};")
 
-
 if book.nil?
     puts "Content-type: text/html\n\n"
     puts "<!DOCTYPE html>"
@@ -58,7 +57,7 @@ puts "        <nav>"
 puts "            <nav><a class=\"logo\" href=../index.cgi>Icarus</a></nav>"
 puts "            <ul class=\"nav-links\">"
 puts "                <li><a href=../index.cgi>Top Books</a></li>"
-puts "                <li><a href=\"#search\">Search</a></li>"
+puts "                <li><a href=\"../frontend/search.cgi\">Search</a></li>"
 puts "                <li><a href=\"#favorites\">Favorites</a></li>"
 puts "                <li><a href=\"#reading-log\">Reading Log</a></li>"
 puts "                <li><a href=\"#sign-in\">Sign In</a></li>"

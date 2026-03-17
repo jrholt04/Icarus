@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-#File: book.cgi
+#File: authImg.rb
 #Azalea Flynn, Erin Kendall, Jackson Holt, Transy U
 #Dr. Moorman, Icarus
         
