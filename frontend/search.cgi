@@ -82,7 +82,7 @@ if searchQuery
     searchResults.each do |authorRecord|
       headshotUrl = authorRecord['headshot'] && !authorRecord['headshot'].strip.empty? ? authorRecord['headshot'] : '../defaultAuth.png'
       puts "                <div class=\"search-result-item\">"
-      puts "                    <form action=\"author.cgi\" method=\"POST\" style=\"display: contents;\">"
+      puts "                    <form action=\"author.cgi\" method=\"POST\">"
       puts "                        <input type=\"hidden\" name=\"auth_id\" value=\"#{authorRecord['auth_id']}\">"
       puts "                        <button type=\"submit\" style=\"border: none; background: none; padding: 0; cursor: pointer;\">"
       puts "                            <img src=\"#{headshotUrl}\" alt=\"#{authorRecord['name']}\" class=\"search-result-image search-result-image-author\">"
@@ -97,7 +97,7 @@ if searchQuery
   else
     searchResults.each do |book|
       puts "                <div class=\"search-result-item\">"
-      puts "                    <form action=\"book.cgi\" method=\"POST\" style=\"display: contents;\">"
+      puts "                    <form action=\"book.cgi\" method=\"POST\">"
       puts "                        <input type=\"hidden\" name=\"book_id\" value=\"#{book['book_id']}\">"
       puts "                        <button type=\"submit\" style=\"border: none; background: none; padding: 0; cursor: pointer;\">"
       puts "                            <img src=\"#{book['cover_img']}\" alt=\"#{book['title']}\" class=\"search-result-image\">"
