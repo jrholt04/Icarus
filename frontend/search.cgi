@@ -113,7 +113,7 @@ if searchQuery
         authors << author['name'] if author
       end
       
-      if authors.any?
+      if authors.length > 1
         puts "                        <div class=\"search-result-author\">by #{authors.join(', ')}</div>"
       end
       
