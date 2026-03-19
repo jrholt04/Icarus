@@ -72,8 +72,16 @@ puts "                <input type=\"text\" name=\"searchQuery\" class=\"search-i
 puts "                <button type=\"submit\" class=\"search-button\">Search</button>"
 puts "            </form>"
 puts "            <div class=\"search-mode-links\">"
-puts "                <a href=\"search.cgi?searchType=books\" class=\"search-mode-link#{searchType == 'books' ? ' active' : ''}\">Books</a>"
-puts "                <a href=\"search.cgi?searchType=authors\" class=\"search-mode-link#{searchType == 'authors' ? ' active' : ''}\">Authors</a>"
+puts "                <form action=\"search.cgi\" method=\"POST\" class=\"search-mode-form\">"
+puts "                    <input type=\"hidden\" name=\"searchType\" value=\"books\">"
+puts "                    <input type=\"hidden\" name=\"searchQuery\" value=\"#{searchQuery}\">"
+puts "                    <button type=\"submit\" class=\"search-mode-link#{searchType == 'books' ? ' active' : ''}\">Books</button>"
+puts "                </form>"
+puts "                <form action=\"search.cgi\" method=\"POST\" class=\"search-mode-form\">"
+puts "                    <input type=\"hidden\" name=\"searchType\" value=\"authors\">"
+puts "                    <input type=\"hidden\" name=\"searchQuery\" value=\"#{searchQuery}\">"
+puts "                    <button type=\"submit\" class=\"search-mode-link#{searchType == 'authors' ? ' active' : ''}\">Authors</button>"
+puts "                </form>"
 puts "            </div>"
 
 if searchQuery

@@ -328,7 +328,15 @@ html {
     margin-bottom: 14px;
 }
 
+.search-mode-form {
+    margin: 0;
+}
+
 .search-mode-link {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
     color: black;
     text-decoration: none;
     font-family: sans-serif;
@@ -408,10 +416,6 @@ html {
     width: 150px;
     height: 150px;
     border-radius: 50%;
-}
-
-.search-result-image:hover {
-    transform: scale(1.05);
 }
 
 .search-result-content {
