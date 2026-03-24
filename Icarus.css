@@ -53,6 +53,37 @@ a.logo {
     font-weight: bold;
 }
 
+.nav-post-form {
+    display: inline;
+    margin: 0;
+}
+
+.nav-post-button {
+    background: none;
+    border: none;
+    padding: 0;
+    color: black;
+    text-decoration: none;
+    font-family: sans-serif;
+    cursor: pointer;
+}
+
+.nav-post-button:hover {
+    font-weight: bold;
+}
+
+.nav-logo-button {
+    background: none;
+    border: none;
+    padding: 0;
+    color: black;
+    font-family: Impact, sans-serif;
+    font-size: 45px;
+    font-weight: bold;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+
 /* Horizontal scrollable image list - Adapted from: https://raddy.dev/blog/netflix-carousel-using-css/ */
 html {
     scroll-behavior: smooth;
