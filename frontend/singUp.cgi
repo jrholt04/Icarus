@@ -104,7 +104,7 @@ puts "        <form class=\"signin-form\" method=\"post\" action=\"singUp.cgi\">
 puts "            <label for=\"usrName\">Username:</label>"
 puts "            <input type=\"text\" id=\"usrName\" name=\"usrName\" value=\"#{CGI.escapeHTML(usr_name)}\" required>"
 puts "            <label for=\"email\">Email:</label>"
-puts "            <input type=\"email\" id=\"email\" name=\"email\" value=\"#{CGI.escapeHTML(email)}\" required>"
+puts "            <input type=\"email\" id=\"email\" name=\"email\" value=\"#{CGI.escapeHTML(email)}\" pattern=\"[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$\" title=\"Please enter a valid email address (e.g. user@example.com)\" required>"
 puts "            <label for=\"password\">Password:</label>"
 puts "            <input type=\"password\" id=\"password\" name=\"password\" required>"
 puts "            <input type=\"submit\" class=\"signin-submit\" value=\"Create Account\">"
