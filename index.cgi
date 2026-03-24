@@ -133,6 +133,9 @@ puts "                <div class=\"scroll-container\">"
                             img = book['cover_img']
 puts "                      <form action=\"frontend/book.cgi\" method=\"POST\" class=\"image-item-form\">"
 puts "                          <input type=\"hidden\" name=\"book_id\" value=\"#{book['book_id']}\">"
+                                if usrName != ""
+puts "                              <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+                                end
 puts "                              <button type=\"submit\" class=\"image-button\">"
 puts "                                  <img src=\"#{img}\" alt=\"#{book['title']}\">"
 puts "                              </button>"
@@ -158,6 +161,9 @@ puts "                <div class=\"scroll-container\">"
                             img = book['cover_img']
 puts "                      <form action=\"frontend/book.cgi\" method=\"POST\" class=\"image-item-form\">"
 puts "                          <input type=\"hidden\" name=\"book_id\" value=\"#{book['book_id']}\">"
+                                if usrName != ""
+puts "                              <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+                                end
 puts "                              <button type=\"submit\" class=\"image-button\">"
 puts "                                  <img src=\"#{img}\" alt=\"#{book['title']}\">"
 puts "                              </button>"
@@ -183,6 +189,9 @@ puts "                <div class=\"scroll-container\">"
                             img = book['cover_img']
 puts "                      <form action=\"frontend/book.cgi\" method=\"POST\" class=\"image-item-form\">"
 puts "                          <input type=\"hidden\" name=\"book_id\" value=\"#{book['book_id']}\">"
+                                if usrName != ""
+puts "                              <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+                                end
 puts "                              <button type=\"submit\" class=\"image-button\">"
 puts "                                  <img src=\"#{img}\" alt=\"#{book['title']}\">"
 puts "                              </button>"
