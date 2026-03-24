@@ -98,20 +98,23 @@ puts "            </ul>"
 puts "        </nav>"
 end
 
+puts "        <div class=\"signin-wrapper\">"
 puts "        <h1>Create Account</h1>"
-puts "        <form method=\"post\" action=\"singUp.cgi\">"
-puts "            <label for=\"usrName\">Usrname:</label><br>"
-puts "            <input type=\"text\" id=\"usrName\" name=\"usrName\" value=\"#{CGI.escapeHTML(usr_name)}\" required><br>"
-puts "            <label for=\"email\">Email:</label><br>"
-puts "            <input type=\"email\" id=\"email\" name=\"email\" value=\"#{CGI.escapeHTML(email)}\" required><br>"
-puts "            <label for=\"password\">Password:</label><br>"
-puts "            <input type=\"password\" id=\"password\" name=\"password\" required><br><br>"
-puts "            <input type=\"submit\" value=\"Create Account\">"
+puts "        <form class=\"signin-form\" method=\"post\" action=\"singUp.cgi\">"
+puts "            <label for=\"usrName\">Username:</label>"
+puts "            <input type=\"text\" id=\"usrName\" name=\"usrName\" value=\"#{CGI.escapeHTML(usr_name)}\" required>"
+puts "            <label for=\"email\">Email:</label>"
+puts "            <input type=\"email\" id=\"email\" name=\"email\" value=\"#{CGI.escapeHTML(email)}\" required>"
+puts "            <label for=\"password\">Password:</label>"
+puts "            <input type=\"password\" id=\"password\" name=\"password\" required>"
+puts "            <input type=\"submit\" class=\"signin-submit\" value=\"Create Account\">"
 puts "        </form>"
 
 if error_message
 	puts "        <p>#{CGI.escapeHTML(error_message)}</p>"
 end
+
+puts "        </div>"
 
 puts "    </body>"
 puts "</html>"

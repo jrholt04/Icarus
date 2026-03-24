@@ -94,19 +94,22 @@ puts "            </ul>"
 puts "        </nav>"
 end
 
+puts "        <div class=\"signin-wrapper\">"
 puts "        <h1>Sign In</h1>"
-puts "        <form method=\"post\" action=\"signIn.cgi\">"
-puts "            <label for=\"usrName\">Username:</label><br>"
-puts "            <input type=\"text\" id=\"usrName\" name=\"usrName\" value=\"#{CGI.escapeHTML(usr_name)}\" required><br>"
-puts "            <label for=\"password\">Password:</label><br>"
-puts "            <input type=\"password\" id=\"password\" name=\"password\" required><br><br>"
-puts "            <input type=\"submit\" value=\"Sign In\">"
+puts "        <form class=\"signin-form\" method=\"post\" action=\"signIn.cgi\">"
+puts "            <label for=\"usrName\">Username:</label>"
+puts "            <input type=\"text\" id=\"usrName\" name=\"usrName\" value=\"#{CGI.escapeHTML(usr_name)}\" required>"
+puts "            <label for=\"password\">Password:</label>"
+puts "            <input type=\"password\" id=\"password\" name=\"password\" required>"
+puts "            <input type=\"submit\" class=\"signin-submit\" value=\"Sign In\">"
 puts "        </form>"
 puts "        <p>Need an account? <a href=\"singUp.cgi\">Create one</a></p>"
 
 if error_message
 	puts "        <p>#{CGI.escapeHTML(error_message)}</p>"
 end
+
+puts "        </div>"
 
 puts "    </body>"
 puts "</html>"
