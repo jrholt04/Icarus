@@ -1,5 +1,5 @@
 #!/usr/bin/ruby
-#File: singIn.cgi
+#File: singUp.cgi
 #Azalea Flynn, Erin Kendall, Jackson Holt, Transy U
 #Dr. Moorman, Icarus
 
@@ -22,37 +22,41 @@ db = Mysql2::Client.new(
 )
 
 usr_name = cgi['usrName'].to_s.strip
+email = cgi['email'].to_s.strip
 password = cgi['password'].to_s
 error_message = nil
 
 if cgi.request_method == 'POST'
-	if usr_name.empty? || password.empty?
-		error_message = 'Please fill out username and password.'
-	elsif signIn(usr_name, password, db)
-		puts "<!DOCTYPE html>"
-		puts "<html>"
-		puts "  <head>"
-		puts "    <title>Redirecting...</title>"
-		puts "  </head>"
-		puts "  <body onload=\"document.getElementById('accountPostForm').submit();\">"
-		puts "    <form id=\"accountPostForm\" method=\"post\" action=\"account.cgi\">"
-		puts "      <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usr_name)}\">"
-		puts "    </form>"
-		puts "    <noscript>"
-		puts "      <button type=\"submit\" form=\"accountPostForm\">Continue to account</button>"
-		puts "    </noscript>"
-		puts "  </body>"
-		puts "</html>"
-		exit
+	if usr_name.empty? || email.empty? || password.empty?
+		error_message = 'Please fill out usrname, email, and password.'
 	else
-		error_message = 'Incorrect username or password.'
+		created = createUser(usr_name, password, email, db)
+		if created
+			puts "<!DOCTYPE html>"
+			puts "<html>"
+			puts "  <head>"
+			puts "    <title>Redirecting...</title>"
+			puts "  </head>"
+			puts "  <body onload=\"document.getElementById('accountPostForm').submit();\">"
+			puts "    <form id=\"accountPostForm\" method=\"post\" action=\"account.cgi\">"
+			puts "      <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usr_name)}\">"
+			puts "    </form>"
+			puts "    <noscript>"
+			puts "      <button type=\"submit\" form=\"accountPostForm\">Continue to account</button>"
+			puts "    </noscript>"
+			puts "  </body>"
+			puts "</html>"
+			exit
+		else
+			error_message = 'Username or email already exists.'
+		end
 	end
 end
 
 puts "<!DOCTYPE html>"
 puts "<html>"
 puts "    <head>"
-puts "        <title>Icarus - Sign In</title>"
+puts "        <title>Icarus - Sign Up</title>"
 puts "        <link rel=\"icon\" type=\"image/x-icon\" href=\"../favicon.ico\" id=\"favicon\" />"
 puts "        <link rel=\"stylesheet\" href=\"../Icarus.css\">"
 puts "    </head>"
@@ -67,15 +71,16 @@ puts "                <li><a href=\"account.cgi\">Account</a></li>"
 puts "            </ul>"
 puts "        </nav>"
 
-puts "        <h1>Sign In</h1>"
-puts "        <form method=\"post\" action=\"signIn.cgi\">"
-puts "            <label for=\"usrName\">Username:</label><br>"
+puts "        <h1>Create Account</h1>"
+puts "        <form method=\"post\" action=\"singUp.cgi\">"
+puts "            <label for=\"usrName\">Usrname:</label><br>"
 puts "            <input type=\"text\" id=\"usrName\" name=\"usrName\" value=\"#{CGI.escapeHTML(usr_name)}\" required><br>"
+puts "            <label for=\"email\">Email:</label><br>"
+puts "            <input type=\"email\" id=\"email\" name=\"email\" value=\"#{CGI.escapeHTML(email)}\" required><br>"
 puts "            <label for=\"password\">Password:</label><br>"
 puts "            <input type=\"password\" id=\"password\" name=\"password\" required><br><br>"
-puts "            <input type=\"submit\" value=\"Sign In\">"
+puts "            <input type=\"submit\" value=\"Create Account\">"
 puts "        </form>"
-puts "        <p>Need an account? <a href=\"singUp.cgi\">Create one</a></p>"
 
 if error_message
 	puts "        <p>#{CGI.escapeHTML(error_message)}</p>"
@@ -83,4 +88,3 @@ end
 
 puts "    </body>"
 puts "</html>"
-

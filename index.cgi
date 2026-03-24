@@ -23,6 +23,8 @@ db = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.f
 #get info from html forms
 cgi = CGI.new("html5")
 
+usr_name = cgi['usrName'].to_s.strip
+
 #returns the top 15 fiction books from the new york times best sellers list
 def getTopFic(db)
    books = db.query("
@@ -85,9 +87,8 @@ puts "            <nav><a class=\"logo\" href=index.cgi>Icarus</a></nav>"
 puts "            <ul class=\"nav-links\">"
 puts "                <li><a href=index.cgi>Top Books</a></li>"
 puts "                <li><a href=\"frontend/search.cgi\">Search</a></li>"
-puts "                <li><a href=\"#favorites\">Favorites</a></li>"
 puts "                <li><a href=\"#reading-log\">Reading Log</a></li>"
-puts "                <li><a href=\"frontend/signIn.cgi\">Sign In</a></li>"
+puts "                <li><a href=\"frontend/account.cgi\">Sign In</a></li>"
 puts "            </ul>"
 puts "        </nav>"
 puts "        <h1>Top Non Fiction This Week</h1>"

@@ -454,3 +454,18 @@ html {
     color: #999;
     font-size: 18px;
 }
+
+/* Sign In and Sign Up Page Styles */
+.sign-in-links {
+    color: black;
+    text-decoration: none;
+    font-family: sans-serif;
+    display: inline-block;
+    margin-left: 5%;
+}
+.sign-in-links:hover {
+    color: black;
+    text-decoration: none;
+    font-family: sans-serif;
+    font-weight: bold;
+}

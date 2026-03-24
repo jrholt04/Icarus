@@ -74,3 +74,6 @@ end
 def backupDatabase(db)
 	
 end
+
+puts describeDatabase(icarusDB)
+puts describeAllTables(icarusDB)

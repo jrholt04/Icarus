@@ -23,20 +23,15 @@ def createUser(username, password, email, db)
     if emailExists(db, email)
         return false
     end
-    db.query("INSERT INTO Users (username, pswd, email) VALUES ('#{db.escape(username)}', '#{db.escape(passwordHash)}', '#{db.escape(email)}');")
+    db.query("INSERT INTO Users (usr_name, pswd, email) VALUES ('#{db.escape(username)}', '#{db.escape(passwordHash)}', '#{db.escape(email)}');")
     return true 
 end
 
 # Function to verify a user's password by comparing the provided password with the stored hashed password in the database.
 def verifyPassword(password, usr_name, db)
-    hassedPassword = BCrypt::Password.new(password)
-    usr_id_row = db.query("SELECT usr_id FROM Users WHERE usr_name = '#{db.escape(usr_name)}';").first
-    storedPass = db.query("SELECT pswd FROM Users WHERE id = #{db.escape(usr_id.to_s)};").first
-    if storedPass == hassedPassword
-        return true
-    else
-        return false
-    end
+    user_row = db.query("SELECT pswd FROM Users WHERE usr_name = '#{db.escape(usr_name)}';").first
+    stored_password_hash = BCrypt::Password.new(user_row['pswd'])
+    return stored_password_hash == password
 end
 
 # Function to sign in a user by verifying their password. It returns true if the password is correct, and false otherwise.
@@ -56,7 +51,7 @@ end
 
 # Function to check if a user with the given username already exists in the database. It returns true if the user exists, and false otherwise.
 def userExists(db, username)
-    result = db.query("SELECT COUNT(*) AS count FROM Users WHERE username = '#{db.escape(username)}';").first
+    result = db.query("SELECT COUNT(*) AS count FROM Users WHERE usr_name = '#{db.escape(username)}';").first
     return result && result['count'] > 0
 end
 
