@@ -46,7 +46,7 @@ a.logo {
 .nav-links a {
     color: black;
     text-decoration: none;
-    font-family: sans-serif; /* Need to change to Canva Sans */
+    font-family: sans-serif;
 }
 
 .nav-links a:hover {
@@ -65,6 +65,7 @@ a.logo {
     color: black;
     text-decoration: none;
     font-family: sans-serif;
+    font-size: inherit;
     cursor: pointer;
 }
 
@@ -492,11 +493,18 @@ html {
     text-decoration: none;
     font-family: sans-serif;
     display: inline-block;
-    margin-left: 5%;
+    margin-left: 3%;
 }
 .sign-in-links:hover {
     color: black;
     text-decoration: none;
     font-family: sans-serif;
     font-weight: bold;
+}
+
+.profile-divider {
+    border: none;
+    border-top: 4px solid black;
+    width: 100%;
+    margin: 0 0 20px 0;
 }

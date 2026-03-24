@@ -78,15 +78,18 @@ puts "            </ul>"
 puts "        </nav>"
 end
 if usrName == ""
-    puts "        <h1>you're not signed in!</h1>"
+    puts "        <h1>Profile</h1>"
+    puts "        <hr class=\"profile-divider\">"
     puts "        <a class=\"sign-in-links\" href=\"signIn.cgi\">Sign in</a>"
     puts "        <br>"
     puts "        <a class=\"sign-in-links\" href=\"singUp.cgi\">Create an account</a>"
 else
     user = db.query("SELECT * FROM Users WHERE usr_name = '#{db.escape(usrName)}';").first  
-    puts "        <h1>Welcome, #{user['usr_name']}!</h1>"
+    puts "        <h1>Profile</h1>"
+    puts "        <hr class=\"profile-divider\">"
+    puts "        <h1>Username: #{CGI.escapeHTML(usrName)}</h1>"
     puts "        <h1>Email: #{user['email']}</h1>"
-    puts "        <a href=\"account.cgi\">Sign out</a>"
+    puts "        <a class=\"sign-in-links\" href=\"account.cgi\">Sign out</a>"
 end
 puts "    </body>"
 puts "</html>"
