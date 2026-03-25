@@ -1,7 +1,5 @@
 #spec/auth_spec.rb
-require_relative '../backend/authenication'
 require 'spec_helper'
-require 'bcrypt'
 require_relative '../backend/authenication'
 
 #my first test
