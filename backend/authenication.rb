@@ -12,8 +12,6 @@ require 'stringio'
 
 require_relative '../env_loader'
 
-icarusDB = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.fetch('ICARUS_DB_USER'), :password => ENV.fetch('ICARUS_DB_PASSWORD'), :database => ENV.fetch('ICARUS_DB_NAME'))
-
 # Function to create a new user with a hashed password. It checks if the username or email already exists before inserting the new user into the database.
 def createUser(username, password, email, db)
     passwordHash = createPasswordHash(password)
