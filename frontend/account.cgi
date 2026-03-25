@@ -1,9 +1,9 @@
 #!/usr/bin/ruby
-#File: book.cgi
+#File: account.cgi
 #Azalea Flynn, Erin Kendall, Jackson Holt, Transy U
 #Dr. Moorman, Icarus
         
-#   This is the book page for Icarus
+#   This is the sign-in/user profile page for Icarus
 
 $stdout.sync = true 
 $stderr.reopen $stdout 
@@ -12,7 +12,6 @@ print "Content-type: text/html\n\n"
 
 require 'mysql2'
 require 'cgi'
-require 'stringio'
 require 'net/http'
 require 'json'
 
@@ -22,20 +21,8 @@ db = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.f
 
 #get info from html forms
 cgi = CGI.new("html5")
+
 usrName = cgi['usrName'].to_s.strip
-
-bookId = cgi['book_id']
-book = db.query("SELECT * FROM Books WHERE book_id = #{bookId};").first
-
-# Get authors
-authorIDs = db.query("SELECT auth_id FROM BookAuth WHERE book_id = #{bookId};")
-
-if book.nil?
-    puts "Content-type: text/html\n\n"
-    puts "<!DOCTYPE html>"
-    puts "<html><body><h1>Book not found</h1></body></html>"
-    exit
-end
 
 puts "<!DOCTYPE html>"
 puts "<html>"
@@ -90,41 +77,19 @@ puts "                </li>"
 puts "            </ul>"
 puts "        </nav>"
 end
-puts "        <div class=\"book-page-container\">"
-puts "            <div class=\"book-info\">"
-puts "                <div class=\"book-left\">"
-puts "                    <img src=\"#{book['cover_img']}\" alt=\"#{book['title']}\">"
-                            if book['isbn'] == '9999999999999' # checks if isbn is placeholder
-                                puts "<div class=\"book-isbn\">ISBN: N/A</div>"
-                            else
-                                puts "<div class=\"book-isbn\">ISBN: #{book['isbn']}</div>"
-                            end
-puts "                    <div class=\"book-author\">by " 
-                                authorIDs.each do |author|
-                                authorDBQuery = db.query("SELECT auth_id, name FROM Authors WHERE auth_id = #{author["auth_id"]};").first
-puts "                      <form action=\"author.cgi\" method=\"POST\" >"
-puts "                          <input type=\"hidden\" name=\"auth_id\" value=#{authorDBQuery['auth_id']}>"
-puts "                              <button type=\"submit\">"
-if usrName != ""
-puts "                                  <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+if usrName == ""
+    puts "        <h1>Profile</h1>"
+    puts "        <hr class=\"profile-divider\">"
+    puts "        <a class=\"sign-in-links\" href=\"signIn.cgi\">Sign in</a>"
+    puts "        <br>"
+    puts "        <a class=\"sign-in-links\" href=\"singUp.cgi\">Create an account</a>"
+else
+    user = db.query("SELECT * FROM Users WHERE usr_name = '#{db.escape(usrName)}';").first  
+    puts "        <h1>Profile</h1>"
+    puts "        <hr class=\"profile-divider\">"
+    puts "        <h1>Username: #{CGI.escapeHTML(usrName)}</h1>"
+    puts "        <h1>Email: #{user['email']}</h1>"
+    puts "        <a class=\"sign-in-links\" href=\"account.cgi\">Sign out</a>"
 end
-puts                                    "<a>#{authorDBQuery['name']} </a>"
-puts "                              </button>"
-puts "                      </form>"
-                                end 
-puts                      "</div>"
-puts "                </div>"
-puts "                <div class=\"book-right\">"
-puts "                    <h1 class=\"book-title\">#{book['title']}</h1>"
-puts "                    <div class=\"book-desc\">#{book['description']}</div>"
-puts "                    <h1 class=\"logo\">Borrow Or Buy</h1>"
-puts "                    <div class=\"book-buy-borrow-list\">"
-puts "                        <p><a class=\"book-buy-borrow\" href=\"https://www.amazon.com/s?k=#{book['isbn']}\">Amazon</a></p>"
-puts "                        <p><a class=\"book-buy-borrow\" href=\"https://www.worldcat.org/search?q=#{book['isbn']}\">Library</a></p>"
-puts "                    </div>"
-puts "                    <h1 class=\"logo\">Notes</h1>"
-puts "                </div>"
-puts "            </div>"
-puts "        </div>"
 puts "    </body>"
-puts "</html>"  
+puts "</html>"

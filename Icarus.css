@@ -46,11 +46,43 @@ a.logo {
 .nav-links a {
     color: black;
     text-decoration: none;
-    font-family: sans-serif; /* Need to change to Canva Sans */
+    font-family: sans-serif;
 }
 
 .nav-links a:hover {
     font-weight: bold;
+}
+
+.nav-post-form {
+    display: inline;
+    margin: 0;
+}
+
+.nav-post-button {
+    background: none;
+    border: none;
+    padding: 0;
+    color: black;
+    text-decoration: none;
+    font-family: sans-serif;
+    font-size: inherit;
+    cursor: pointer;
+}
+
+.nav-post-button:hover {
+    font-weight: bold;
+}
+
+.nav-logo-button {
+    background: none;
+    border: none;
+    padding: 0;
+    color: black;
+    font-family: Impact, sans-serif;
+    font-size: 45px;
+    font-weight: bold;
+    text-decoration: none !important;
+    cursor: pointer;
 }
 
 /* Horizontal scrollable image list - Adapted from: https://raddy.dev/blog/netflix-carousel-using-css/ */
@@ -315,6 +347,65 @@ html {
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
+/* Sign In Page Styles */
+.signin-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 40px;
+}
+
+.signin-wrapper h1 {
+    padding-left: 0;
+}
+
+.signin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 300px;
+}
+
+.signin-form label {
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+}
+
+.signin-form input[type="text"],
+.signin-form input[type="email"],
+.signin-form input[type="password"] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid black;
+    border-radius: 30px;
+    background-color: white;
+    font-size: 15px;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.signin-form input[type="text"]:focus,
+.signin-form input[type="email"]:focus,
+.signin-form input[type="password"]:focus {
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.2);
+}
+
+.signin-submit {
+    margin-top: 6px;
+    padding: 10px 18px;
+    font-size: 16px;
+    border: black solid 1px;
+    border-radius: 30px;
+    color: white;
+    background-color: black;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+}
+
+.signin-submit:hover {
+    background-color: #333;
+}
+
 /* Search Page Styles */
 .search-container {
     max-width: 1000px;
@@ -453,4 +544,26 @@ html {
     padding: 40px 20px;
     color: #999;
     font-size: 18px;
+}
+
+/* Sign In and Sign Up Page Styles */
+.sign-in-links {
+    color: black;
+    text-decoration: none;
+    font-family: sans-serif;
+    display: inline-block;
+    margin-left: 3%;
+}
+.sign-in-links:hover {
+    color: black;
+    text-decoration: none;
+    font-family: sans-serif;
+    font-weight: bold;
+}
+
+.profile-divider {
+    border: none;
+    border-top: 4px solid black;
+    width: 100%;
+    margin: 0 0 20px 0;
 }
