@@ -95,6 +95,9 @@ end
 puts "        <div class=\"search-container\">"
 puts "            <form action=\"search.cgi\" method=\"POST\" class=\"search-form\">"
 puts "                <input type=\"hidden\" name=\"searchType\" value=\"#{searchType}\">"
+if usrName != ""
+puts "                    <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+end
 puts "                <input type=\"text\" name=\"searchQuery\" class=\"search-input\" placeholder=\"#{searchPlaceholder}\" value=\"#{searchQuery}\">"
 puts "                <button type=\"submit\" class=\"search-button\">Search</button>"
 puts "            </form>"
