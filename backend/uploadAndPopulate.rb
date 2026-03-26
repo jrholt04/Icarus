@@ -102,6 +102,7 @@ Need to figure out whether the tables exist before deleting them
 Delete tables
 massInsertDB.query("DROP TABLE FavAuthors;")
 massInsertDB.query("DROP TABLE ReadingLog;")
+massInsertDB.query("DROP TABLE Notes;")
 massInsertDB.query("DROP TABLE Wishlist;")
 massInsertDB.query("DROP TABLE BookAuth;")
 massInsertDB.query("DROP TABLE NewYorkBS;")
@@ -146,6 +147,16 @@ massInsertDB.query(
     book_id INT NOT NULL,
     notes VARCHAR(1000),
     PRIMARY KEY (usr_id, book_id),
+    FOREIGN KEY (usr_id) REFERENCES Users(usr_id),
+    FOREIGN KEY (book_id) REFERENCES Books(book_id)
+  );")
+
+massInsertDB.query(
+  "CREATE TABLE Notes (
+    note_id INT PRIMARY KEY AUTO_INCREMENT,
+    usr_id INT NOT NULL,
+    book_id INT NOT NULL,
+    note VARCHAR(1000),
     FOREIGN KEY (usr_id) REFERENCES Users(usr_id),
     FOREIGN KEY (book_id) REFERENCES Books(book_id)
   );")
