@@ -25,10 +25,11 @@ db = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.f
 cgi = CGI.new("html5")
 usrName = cgi['usrName'].to_s.strip
 
-searchType = cgi['searchType'] || 'books'
+searchResponse = cgi['searchType']
+searchType = searchResponse == '' ? 'books' : searchResponse
 searchQuery = cgi['searchQuery'] || ''
 searchResults = []
-searchPlaceholder = searchType == 'authors' ? 'Search for authors...' : 'Search for books...'
+searchPlaceholder = searchType == 'books' ? 'Search for books...' : 'Search for authors...'
 
 
 if searchQuery && !searchQuery.strip.empty?
@@ -128,6 +129,9 @@ if searchQuery
       puts "                <div class=\"search-result-item\">"
       puts "                    <form action=\"author.cgi\" method=\"POST\">"
       puts "                        <input type=\"hidden\" name=\"auth_id\" value=\"#{authorRecord['auth_id']}\">"
+      if usrName != ""
+        puts "                        <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+      end
       puts "                        <button type=\"submit\" style=\"border: none; background: none; padding: 0; cursor: pointer;\">"
       puts "                            <img src=\"#{headshotUrl}\" alt=\"#{authorRecord['name']}\" class=\"search-result-image search-result-image-author\">"
       puts "                        </button>"
@@ -143,6 +147,9 @@ if searchQuery
       puts "                <div class=\"search-result-item\">"
       puts "                    <form action=\"book.cgi\" method=\"POST\">"
       puts "                        <input type=\"hidden\" name=\"book_id\" value=\"#{book['book_id']}\">"
+      if usrName != ""
+      puts "                        <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+      end
       puts "                        <button type=\"submit\" style=\"border: none; background: none; padding: 0; cursor: pointer;\">"
       puts "                            <img src=\"#{book['cover_img']}\" alt=\"#{book['title']}\" class=\"search-result-image\">"
       puts "                        </button>"
