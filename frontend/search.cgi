@@ -25,10 +25,11 @@ db = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.f
 cgi = CGI.new("html5")
 usrName = cgi['usrName'].to_s.strip
 
-searchType = cgi['searchType'] || 'books'
+searchResponse = cgi['searchType']
+searchType = searchResponse == '' ? 'books' : searchResponse
 searchQuery = cgi['searchQuery'] || ''
 searchResults = []
-searchPlaceholder = searchType == 'authors' ? 'Search for authors...' : 'Search for books...'
+searchPlaceholder = searchType == 'books' ? 'Search for books...' : 'Search for authors...'
 
 
 if searchQuery && !searchQuery.strip.empty?
