@@ -128,6 +128,9 @@ if searchQuery
       puts "                <div class=\"search-result-item\">"
       puts "                    <form action=\"author.cgi\" method=\"POST\">"
       puts "                        <input type=\"hidden\" name=\"auth_id\" value=\"#{authorRecord['auth_id']}\">"
+      if usrName != ""
+        puts "                        <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+      end
       puts "                        <button type=\"submit\" style=\"border: none; background: none; padding: 0; cursor: pointer;\">"
       puts "                            <img src=\"#{headshotUrl}\" alt=\"#{authorRecord['name']}\" class=\"search-result-image search-result-image-author\">"
       puts "                        </button>"
@@ -143,6 +146,9 @@ if searchQuery
       puts "                <div class=\"search-result-item\">"
       puts "                    <form action=\"book.cgi\" method=\"POST\">"
       puts "                        <input type=\"hidden\" name=\"book_id\" value=\"#{book['book_id']}\">"
+      if usrName != ""
+      puts "                        <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+      end
       puts "                        <button type=\"submit\" style=\"border: none; background: none; padding: 0; cursor: pointer;\">"
       puts "                            <img src=\"#{book['cover_img']}\" alt=\"#{book['title']}\" class=\"search-result-image\">"
       puts "                        </button>"
