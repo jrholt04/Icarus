@@ -10,6 +10,7 @@ $stdout.sync = true
 $stderr.reopen $stdout
 
 require 'cgi'
+require 'date'
 require 'mysql2'
 require 'stringio'
 
@@ -18,7 +19,8 @@ require_relative '../env_loader'
 icarusDB = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.fetch('ICARUS_DB_USER'), :password => ENV.fetch('ICARUS_DB_PASSWORD'), :database => ENV.fetch('ICARUS_DB_NAME'))
 
 def createNote(user_id, book_id, content, db)
-    db.query("INSERT INTO Notes (usr_id, book_id, note) VALUES (#{user_id.to_i}, #{book_id.to_i}, '#{db.escape(content)}');")
+    dated_content = "Note #{Date.today}:<br>#{content.to_s.strip}"
+    db.query("INSERT INTO Notes (usr_id, book_id, note) VALUES (#{user_id.to_i}, #{book_id.to_i}, '#{db.escape(dated_content)}');")
 end
 
 def deleteNote(note_id, db)
