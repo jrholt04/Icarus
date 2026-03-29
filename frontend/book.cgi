@@ -35,13 +35,37 @@ notes = []
 if usrName != ""
     userId = findUserId(usrName, db)
     if !userId.nil?
-        notes = db.query("SELECT note FROM Notes WHERE usr_id = #{userId.to_i} AND book_id = #{bookId.to_i};")
+        notes = db.query("SELECT note, note_id FROM Notes WHERE usr_id = #{userId.to_i} AND book_id = #{bookId.to_i};")
     end
 end
 
 # a hidden form that auto submits after a note has been added
 if cgi['note'] != ""
     createNote(userId, bookId, cgi['note'], db) if !userId.nil?
+    puts "<!DOCTYPE html>"
+    puts "<html>"
+    puts "  <head>"
+    puts "    <title>Redirecting...</title>"
+    puts "  </head>"
+    puts "  <body onload=\"document.getElementById('autoSubmitForm').submit();\">"
+    puts "<form id=\"autoSubmitForm\" action=\"book.cgi\" method=\"POST\" style=\"display:none;\">"
+    puts "    <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+    puts "    <input type=\"hidden\" name=\"book_id\" value=\"#{bookId}\">"
+    puts "</form>"
+    puts "    <noscript>"
+    puts "      <button type=\"submit\" form=\"autoSubmitForm\">Continue to book</button>"
+    puts "    </noscript>"
+    puts "  </body>"
+    puts "</html>"
+    exit
+end
+
+if cgi['delete_note_id'] != ""
+    if !userId.nil?
+        noteId = cgi['delete_note_id'].to_i
+        noteToDelete = db.query("SELECT note_id FROM Notes WHERE note_id = #{noteId} AND usr_id = #{userId.to_i} AND book_id = #{bookId.to_i};").first
+        deleteNote(noteToDelete['note_id'], db) if !noteToDelete.nil?
+    end
     puts "<!DOCTYPE html>"
     puts "<html>"
     puts "  <head>"
@@ -163,7 +187,15 @@ if usrName != ""
     puts "                            <input type=\"submit\" class=\"signin-submit\" value=\"Save Note\">"
     puts "                        </form>"
     notes.each do |note|
-        puts "                        <p>#{note['note']}</p>"
+        puts "                        <div class=\"book-note-item\">"
+        puts "                            <p>#{CGI.escapeHTML(note['note'].to_s)}</p>"
+        puts "                            <form class=\"book-note-delete-form\" action=\"book.cgi\" method=\"POST\">"
+        puts "                                <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+        puts "                                <input type=\"hidden\" name=\"book_id\" value=\"#{bookId}\">"
+        puts "                                <input type=\"hidden\" name=\"delete_note_id\" value=\"#{note['note_id']}\">"
+        puts "                                <button type=\"submit\" class=\"book-note-delete\" aria-label=\"Delete note\">X</button>"
+        puts "                            </form>"
+        puts "                        </div>"
     end
     puts "                    </div>"
 else 

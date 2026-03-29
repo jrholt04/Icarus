@@ -415,6 +415,30 @@ html {
     margin-bottom: 20px;
 }
 
+.book-note-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.book-note-item p {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #222;
+}
+
+.book-note-delete {
+    background: none;
+    border: none;
+    color: black;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+}
+
 .signin-submit {
     margin-top: 6px;
     padding: 10px 18px;
