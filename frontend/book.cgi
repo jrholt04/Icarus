@@ -17,6 +17,7 @@ require 'net/http'
 require 'json'
 
 require_relative '../env_loader'
+require_relative '../backend/notes.rb'
 
 db = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.fetch('ICARUS_DB_USER'), :password => ENV.fetch('ICARUS_DB_PASSWORD'), :database => ENV.fetch('ICARUS_DB_NAME'))
 
@@ -29,6 +30,59 @@ book = db.query("SELECT * FROM Books WHERE book_id = #{bookId};").first
 
 # Get authors
 authorIDs = db.query("SELECT auth_id FROM BookAuth WHERE book_id = #{bookId};")
+
+notes = []
+if usrName != ""
+    userId = findUserId(usrName, db)
+    if !userId.nil?
+        notes = db.query("SELECT note, note_id FROM Notes WHERE usr_id = #{userId.to_i} AND book_id = #{bookId.to_i};")
+    end
+end
+
+# a hidden form that auto submits after a note has been added
+if cgi['note'] != ""
+    createNote(userId, bookId, cgi['note'], db) if !userId.nil?
+    puts "<!DOCTYPE html>"
+    puts "<html>"
+    puts "  <head>"
+    puts "    <title>Redirecting...</title>"
+    puts "  </head>"
+    puts "  <body onload=\"document.getElementById('autoSubmitForm').submit();\">"
+    puts "<form id=\"autoSubmitForm\" action=\"book.cgi\" method=\"POST\" style=\"display:none;\">"
+    puts "    <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+    puts "    <input type=\"hidden\" name=\"book_id\" value=\"#{bookId}\">"
+    puts "</form>"
+    puts "    <noscript>"
+    puts "      <button type=\"submit\" form=\"autoSubmitForm\">Continue to book</button>"
+    puts "    </noscript>"
+    puts "  </body>"
+    puts "</html>"
+    exit
+end
+
+if cgi['delete_note_id'] != ""
+    if !userId.nil?
+        noteId = cgi['delete_note_id'].to_i
+        noteToDelete = db.query("SELECT note_id FROM Notes WHERE note_id = #{noteId} AND usr_id = #{userId.to_i} AND book_id = #{bookId.to_i};").first
+        deleteNote(noteToDelete['note_id'], db) if !noteToDelete.nil?
+    end
+    puts "<!DOCTYPE html>"
+    puts "<html>"
+    puts "  <head>"
+    puts "    <title>Redirecting...</title>"
+    puts "  </head>"
+    puts "  <body onload=\"document.getElementById('autoSubmitForm').submit();\">"
+    puts "<form id=\"autoSubmitForm\" action=\"book.cgi\" method=\"POST\" style=\"display:none;\">"
+    puts "    <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+    puts "    <input type=\"hidden\" name=\"book_id\" value=\"#{bookId}\">"
+    puts "</form>"
+    puts "    <noscript>"
+    puts "      <button type=\"submit\" form=\"autoSubmitForm\">Continue to book</button>"
+    puts "    </noscript>"
+    puts "  </body>"
+    puts "</html>"
+    exit
+end
 
 if book.nil?
     puts "Content-type: text/html\n\n"
@@ -123,6 +177,32 @@ puts "                        <p><a class=\"book-buy-borrow\" href=\"https://www
 puts "                        <p><a class=\"book-buy-borrow\" href=\"https://www.worldcat.org/search?q=#{book['isbn']}\">Library</a></p>"
 puts "                    </div>"
 puts "                    <h1 class=\"logo\">Notes</h1>"
+if usrName != ""
+    puts "                    <div class=\"book-notes\">"
+    puts "                        <form class=\"signin-form book-note-form\" action=\"book.cgi\" method=\"POST\">"
+    puts "                            <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+    puts "                            <input type=\"hidden\" name=\"book_id\" value=\"#{bookId}\">"
+    puts "                            <label for=\"note\">Add Note:</label>"
+    puts "                            <textarea id=\"note\" name=\"note\" rows=\"5\" maxlength=\"1000\" required></textarea>"
+    puts "                            <input type=\"submit\" class=\"signin-submit\" value=\"Save Note\">"
+    puts "                        </form>"
+    notes.each do |note|
+        puts "                        <div class=\"book-note-item\">"
+        puts "                            <p>#{note['note']}</p>"
+        puts "                            <form class=\"book-note-delete-form\" action=\"book.cgi\" method=\"POST\">"
+        puts "                                <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+        puts "                                <input type=\"hidden\" name=\"book_id\" value=\"#{bookId}\">"
+        puts "                                <input type=\"hidden\" name=\"delete_note_id\" value=\"#{note['note_id']}\">"
+        puts "                                <button type=\"submit\" class=\"book-note-delete\" aria-label=\"Delete note\">X</button>"
+        puts "                            </form>"
+        puts "                        </div>"
+    end
+    puts "                    </div>"
+else 
+    puts "                    <div class=\"book-notes\">"
+    puts "                        <p class=\"book-desc\">Please sign in to view notes.</p>"
+    puts "                    </div>"
+end
 puts "                </div>"
 puts "            </div>"
 puts "        </div>"
