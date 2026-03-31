@@ -28,7 +28,7 @@ booksFile = IO.readlines(ARGV[0])
 booksFile = booksFile.drop(1)
 
 # Google API to get the description of the book.
-def getTopBooksDescription(title)
+def getBooksDescription(title)
     #checks and corrects names in all caps
     if title == title.upcase
         title = title.downcase().split.map(&:capitalize).join(' ')
@@ -98,14 +98,15 @@ def fillAuthorTable(db, allAuthors, book_id)
   end
 end
 
-Need to figure out whether the tables exist before deleting them
-Delete tables
+# Need to figure out whether the tables exist before deleting them
+# Delete tables
 massInsertDB.query("DROP TABLE FavAuthors;")
 massInsertDB.query("DROP TABLE ReadingLog;")
 massInsertDB.query("DROP TABLE Notes;")
 massInsertDB.query("DROP TABLE Wishlist;")
 massInsertDB.query("DROP TABLE BookAuth;")
 massInsertDB.query("DROP TABLE NewYorkBS;")
+massInsertDB.query("DROP TABLE Users;")
 massInsertDB.query("DROP TABLE Books;")
 massInsertDB.query("DROP TABLE Authors;")
 
@@ -130,6 +131,14 @@ massInsertDB.query(
     name VARCHAR(100) NOT NULL,
     bio VARCHAR(10000),
     headshot VARCHAR(511)
+  );")
+
+massInsertDB.query(
+  "CREATE TABLE Users (
+    usr_id INT PRIMARY KEY AUTO_INCREMENT,
+    usr_name VARCHAR(100) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    pswd VARCHAR(255) NOT NULL
   );")
 
 massInsertDB.query(
@@ -201,7 +210,7 @@ booksFile.each do |book|
   cover_img = splitBookRow[21].strip()
   publish_date = splitBookRow[14].strip()
 
-  description = getTopBooksDescription(title)
+  description = getBooksDescription(title)
   if description != nil
     description = description.gsub("'", "\\\\'")
     description = description.gsub('"', '\\\\"')

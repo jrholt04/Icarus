@@ -99,7 +99,7 @@ puts "                <input type=\"hidden\" name=\"searchType\" value=\"#{searc
 if usrName != ""
 puts "                    <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
 end
-puts "                <input type=\"text\" name=\"searchQuery\" class=\"search-input\" placeholder=\"#{searchPlaceholder}\" value=\"#{searchQuery}\">"
+puts "                <input type=\"text\" name=\"searchQuery\" class=\"search-input\" maxlength=\"255\" placeholder=\"#{searchPlaceholder}\" value=\"#{searchQuery}\">"
 puts "                <button type=\"submit\" class=\"search-button\">Search</button>"
 puts "            </form>"
 puts "            <div class=\"search-mode-links\">"
