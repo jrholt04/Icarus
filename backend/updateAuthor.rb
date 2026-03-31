@@ -181,4 +181,5 @@ allAuthors.each do |author|
 
     icarusDB.query("UPDATE Authors SET bio = '" + cleanBio[0,10000] + "' WHERE auth_id = '" + author["auth_id"].to_s() + "';")
     sleep(2)
+    puts "Updated bio for " + author["name"]
 end
