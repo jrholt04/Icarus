@@ -24,6 +24,8 @@ db = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.f
 #get info from html forms
 cgi = CGI.new("html5")
 usrName = cgi['usrName'].to_s.strip
+addingToLog = cgi['addingToLog'] == 'true' || cgi['addintToLog'] == 'true'
+deleteLogEntry = cgi['deleteLogEntry'] == 'true'
 
 bookId = cgi['book_id']
 book = db.query("SELECT * FROM Books WHERE book_id = #{bookId};").first
@@ -31,12 +33,69 @@ book = db.query("SELECT * FROM Books WHERE book_id = #{bookId};").first
 # Get authors
 authorIDs = db.query("SELECT auth_id FROM BookAuth WHERE book_id = #{bookId};")
 
+#if User is signed in, get their notes for this book and display them on the page
 notes = []
 if usrName != ""
     userId = findUserId(usrName, db)
     if !userId.nil?
         notes = db.query("SELECT note, note_id FROM Notes WHERE usr_id = #{userId.to_i} AND book_id = #{bookId.to_i};")
     end
+end
+
+#check if usr is signed in and if the book is in the users reading log.
+if usrName != "" && !userId.nil?
+    readingLogEntry = db.query("SELECT * FROM ReadingLog WHERE usr_id = #{userId.to_i} AND book_id = #{bookId.to_i};").first
+    inReadingLog = !readingLogEntry.nil?
+end
+
+def addReadingLogEntry(userId, bookId, db)
+    db.query("INSERT INTO ReadingLog (usr_id, book_id) VALUES (#{userId.to_i}, #{bookId.to_i});")
+end
+
+def deleteReadingLogEntry(userId, bookId, db)
+    db.query("DELETE FROM ReadingLog WHERE usr_id = #{userId.to_i} AND book_id = #{bookId.to_i};")
+end
+
+#if the user just added the book to their reading log, add it and then redirect back to the book page so that the "Add to Reading Log" button is replaced with a message saying it's in their reading log and so that the notes section appears
+if addingToLog && !userId.nil?
+    addReadingLogEntry(userId, bookId, db)
+    puts "<!DOCTYPE html>"
+    puts "<html>"
+    puts "  <head>"
+    puts "    <title>Redirecting...</title>"
+    puts "  </head>"
+    puts "  <body onload=\"document.getElementById('readingLogForm').submit();\">"
+    puts "    <form id=\"readingLogForm\" method=\"post\" action=\"book.cgi\">"
+    puts "      <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+    puts "       <input type=\"hidden\" name=\"book_id\" value=\"#{bookId}\">"
+    puts "    </form>"
+    puts "    <noscript>"
+    puts "      <button type=\"submit\" form=\"readingLogForm\">Continue to book page</button>"
+    puts "    </noscript>"
+    puts "  </body>"
+    puts "</html>"
+    exit
+end
+
+#if the user is signed in and wants to remove book from reading log this removes it and then reloads the page
+if deleteLogEntry && !userId.nil?
+    deleteReadingLogEntry(userId, bookId, db)
+    puts "<!DOCTYPE html>"
+    puts "<html>"
+    puts "  <head>"
+    puts "    <title>Redirecting...</title>"
+    puts "  </head>"
+    puts "  <body onload=\"document.getElementById('readingLogForm').submit();\">"
+    puts "    <form id=\"readingLogForm\" method=\"post\" action=\"book.cgi\">"
+    puts "      <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+    puts "       <input type=\"hidden\" name=\"book_id\" value=\"#{bookId}\">"
+    puts "    </form>"
+    puts "    <noscript>"
+    puts "      <button type=\"submit\" form=\"readingLogForm\">Continue to book page</button>"
+    puts "    </noscript>"
+    puts "  </body>"
+    puts "</html>"
+    exit
 end
 
 # a hidden form that auto submits after a note has been added
@@ -60,6 +119,7 @@ if cgi['note'] != ""
     exit
 end
 
+# a hidden form that auto submits after a note has been deleted
 if cgi['delete_note_id'] != ""
     if !userId.nil?
         noteId = cgi['delete_note_id'].to_i
@@ -175,7 +235,25 @@ puts                      "</div>"
 puts "                </div>"
 puts "                <div class=\"book-right\">"
 puts "                    <h1 class=\"book-title\">#{book['title']}</h1>"
-puts "                    <div class=\"book-desc\">#{book['description']}</div>"
+puts "                    <div class=\"book-desc\">#{book['description']}"
+if usrName != ""
+    if inReadingLog
+        puts "                      <form class=\"signin-form book-note-form\" action=\"book.cgi\" method=\"POST\">"
+        puts "                          <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+        puts "                          <input type=\"hidden\" name=\"book_id\" value=\"#{bookId}\">"
+        puts "                          <input type=\"hidden\" name=\"deleteLogEntry\" value=\"true\">"
+        puts "                          <input type=\"submit\" class=\"signin-submit\" value=\"Remove From Reading Log\">"
+        puts "                      </form>"
+    else
+        puts "                      <form class=\"signin-form book-note-form\" action=\"book.cgi\" method=\"POST\">"
+        puts "                          <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+        puts "                          <input type=\"hidden\" name=\"book_id\" value=\"#{bookId}\">"
+        puts "                          <input type=\"hidden\" name=\"addingToLog\" value=\"true\">"
+        puts "                          <input type=\"submit\" class=\"signin-submit\" value=\"Add To Reading Log\">"
+        puts "                      </form>"
+    end
+end
+puts "                    </div>"
 puts "                    <h1 class=\"logo\">Borrow Or Buy</h1>"
 puts "                    <div class=\"book-buy-borrow-list\">"
 puts "                        <p><a class=\"book-buy-borrow\" href=\"https://www.amazon.com/s?k=#{book['isbn']}\">Amazon</a></p>"
@@ -205,7 +283,7 @@ if usrName != ""
     puts "                    </div>"
 else 
     puts "                    <div class=\"book-notes\">"
-    puts "                        <p class=\"book-desc\">Please sign in to view notes.</p>"
+    puts "                        <p class=\"book-desc\">Please sign in to view notes and add books to reading log.</p>"
     puts "                    </div>"
 end
 puts "                </div>"
