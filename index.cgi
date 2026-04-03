@@ -56,11 +56,6 @@ def getTopSelfHelp(db)
     return books
 end
 
-#returns top 10 books for user (if they are signed in) (THIS IS NOT DONE)
-def getTopBooksUser(bookData, userId)
-
-end
-
 
 topBooksFic= getTopFic(db)
 topBooksNonFic = getTopNonFic(db)
