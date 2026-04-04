@@ -28,7 +28,7 @@ booksFile = IO.readlines(ARGV[0])
 booksFile = booksFile.drop(1)
 
 # Google API to get the description of the book.
-def getTopBooksDescription(title)
+def getBooksDescription(title)
     #checks and corrects names in all caps
     if title == title.upcase
         title = title.downcase().split.map(&:capitalize).join(' ')
@@ -98,13 +98,15 @@ def fillAuthorTable(db, allAuthors, book_id)
   end
 end
 
-Need to figure out whether the tables exist before deleting them
-Delete tables
+# Need to figure out whether the tables exist before deleting them
+# Delete tables
 massInsertDB.query("DROP TABLE FavAuthors;")
 massInsertDB.query("DROP TABLE ReadingLog;")
+massInsertDB.query("DROP TABLE Notes;")
 massInsertDB.query("DROP TABLE Wishlist;")
 massInsertDB.query("DROP TABLE BookAuth;")
 massInsertDB.query("DROP TABLE NewYorkBS;")
+massInsertDB.query("DROP TABLE Users;")
 massInsertDB.query("DROP TABLE Books;")
 massInsertDB.query("DROP TABLE Authors;")
 
@@ -132,6 +134,14 @@ massInsertDB.query(
   );")
 
 massInsertDB.query(
+  "CREATE TABLE Users (
+    usr_id INT PRIMARY KEY AUTO_INCREMENT,
+    usr_name VARCHAR(100) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    pswd VARCHAR(255) NOT NULL
+  );")
+
+massInsertDB.query(
   "CREATE TABLE FavAuthors (
     usr_id INT NOT NULL,
     auth_id INT NOT NULL,
@@ -146,6 +156,16 @@ massInsertDB.query(
     book_id INT NOT NULL,
     notes VARCHAR(1000),
     PRIMARY KEY (usr_id, book_id),
+    FOREIGN KEY (usr_id) REFERENCES Users(usr_id),
+    FOREIGN KEY (book_id) REFERENCES Books(book_id)
+  );")
+
+massInsertDB.query(
+  "CREATE TABLE Notes (
+    note_id INT PRIMARY KEY AUTO_INCREMENT,
+    usr_id INT NOT NULL,
+    book_id INT NOT NULL,
+    note VARCHAR(1000),
     FOREIGN KEY (usr_id) REFERENCES Users(usr_id),
     FOREIGN KEY (book_id) REFERENCES Books(book_id)
   );")
@@ -190,7 +210,7 @@ booksFile.each do |book|
   cover_img = splitBookRow[21].strip()
   publish_date = splitBookRow[14].strip()
 
-  description = getTopBooksDescription(title)
+  description = getBooksDescription(title)
   if description != nil
     description = description.gsub("'", "\\\\'")
     description = description.gsub('"', '\\\\"')
