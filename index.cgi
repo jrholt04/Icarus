@@ -56,11 +56,6 @@ def getTopSelfHelp(db)
     return books
 end
 
-#returns top 10 books for user (if they are signed in) (THIS IS NOT DONE)
-def getTopBooksUser(bookData, userId)
-
-end
-
 
 topBooksFic= getTopFic(db)
 topBooksNonFic = getTopNonFic(db)
@@ -88,7 +83,7 @@ puts "            <nav><a class=\"logo\" href=index.cgi>Icarus</a></nav>"
 puts "            <ul class=\"nav-links\">"
 puts "                <li><a href=index.cgi>Top Books</a></li>"
 puts "                <li><a href=\"frontend/search.cgi\">Search</a></li>"
-puts "                <li><a href=\"#reading-log\">Reading Log</a></li>"
+puts "                <li><a href=\"frontend/readingLog.cgi\">Reading Log</a></li>"
 puts "                <li><a href=\"frontend/account.cgi\">Sign In</a></li>"
 puts "            </ul>"
 puts "        </nav>"
@@ -108,7 +103,12 @@ puts "                        <input type=\"hidden\" name=\"usrName\" value=\"#{
 puts "                        <button type=\"submit\" class=\"nav-post-button\">Search</button>"
 puts "                    </form>"
 puts "                </li>"
-puts "                <li><a href=\"#reading-log\">Reading Log</a></li>"
+puts "                <li>"
+puts "                    <form class=\"nav-post-form\" action=\"frontend/readingLog.cgi\" method=\"POST\">"
+puts "                        <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+puts "                        <button type=\"submit\" class=\"nav-post-button\">Reading Log</button>"
+puts "                    </form>"
+puts "                </li>"
 puts "                <li>"
 puts "                    <form class=\"nav-post-form\" action=\"frontend/account.cgi\" method=\"POST\">"
 puts "                        <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
