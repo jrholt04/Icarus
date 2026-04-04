@@ -22,22 +22,28 @@ cgi = CGI.new("html5")
 usrName = cgi['usrName'].to_s.strip
 removeFromLog = cgi['removeFromLog'] == 'true'
 removeBookId = cgi['book_id'].to_i
+searchQuery = cgi['searchQuery'].to_s.strip
 
 readingLogBooks = []
 
 if usrName != ""
-	user = db.query("SELECT usr_id FROM Users WHERE usr_name = '#{db.escape(usrName)}';").first
-	if !user.nil?
+    user = db.query("SELECT usr_id FROM Users WHERE usr_name = '#{db.escape(usrName)}';").first
+    if !user.nil?
         if removeFromLog && removeBookId > 0
             db.query("DELETE FROM ReadingLog WHERE usr_id = #{user['usr_id'].to_i} AND book_id = #{removeBookId};")
         end
 
-		readingLogRows = db.query("SELECT book_id FROM ReadingLog WHERE usr_id = #{user['usr_id'].to_i};")
-		readingLogRows.each do |row|
-			book = db.query("SELECT * FROM Books WHERE book_id = #{row['book_id'].to_i};").first
-			readingLogBooks << book if !book.nil?
-		end
-	end
+        if searchQuery == ''
+            readingLogQuery = db.query("SELECT b.* FROM ReadingLog rl JOIN Books b ON rl.book_id = b.book_id WHERE rl.usr_id = #{user['usr_id'].to_i};")
+        else
+            searchLike = db.escape("%#{searchQuery}%")
+            readingLogQuery = db.query("SELECT DISTINCT b.* FROM ReadingLog rl JOIN Books b ON rl.book_id = b.book_id WHERE rl.usr_id = #{user['usr_id'].to_i} AND (b.title LIKE '#{searchLike}' OR b.description LIKE '#{searchLike}');")
+        end
+
+        readingLogQuery.each do |book|
+            readingLogBooks << book
+        end
+    end
 end
 
 puts "<!DOCTYPE html>"
@@ -58,48 +64,55 @@ puts "        </script>"
 puts "    </head>"
 puts "    <body>"
 if usrName == ""
-puts "        <nav>"
-puts "            <nav><a class=\"logo\" href=../index.cgi>Icarus</a></nav>"
-puts "            <ul class=\"nav-links\">"
-puts "                <li><a href=../index.cgi>Top Books</a></li>"
-puts "                <li><a href=\"search.cgi\">Search</a></li>"
-puts "                <li><a href=\"readingLog.cgi\">Reading Log</a></li>"
-puts "                <li><a href=\"account.cgi\">Sign In</a></li>"
-puts "            </ul>"
-puts "        </nav>"
+    puts "        <nav>"
+    puts "            <nav><a class=\"logo\" href=../index.cgi>Icarus</a></nav>"
+    puts "            <ul class=\"nav-links\">"
+    puts "                <li><a href=../index.cgi>Top Books</a></li>"
+    puts "                <li><a href=\"search.cgi\">Search</a></li>"
+    puts "                <li><a href=\"readingLog.cgi\">Reading Log</a></li>"
+    puts "                <li><a href=\"account.cgi\">Sign In</a></li>"
+    puts "            </ul>"
+    puts "        </nav>"
 else
-puts "        <nav>"
-puts "            <nav><form class=\"nav-post-form\" action=\"../index.cgi\" method=\"POST\"><input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\"><button type=\"submit\" class=\"nav-logo-button\">Icarus</button></form></nav>"
-puts "            <ul class=\"nav-links\">"
-puts "                <li>"
-puts "                    <form class=\"nav-post-form\" action=\"../index.cgi\" method=\"POST\">"
-puts "                        <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
-puts "                        <button type=\"submit\" class=\"nav-post-button\">Top Books</button>"
-puts "                    </form>"
-puts "                </li>"
-puts "                <li>"
-puts "                    <form class=\"nav-post-form\" action=\"search.cgi\" method=\"POST\">"
-puts "                        <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
-puts "                        <button type=\"submit\" class=\"nav-post-button\">Search</button>"
-puts "                    </form>"
-puts "                </li>"
-puts "                <li>"
-puts "                    <form class=\"nav-post-form\" action=\"readingLog.cgi\" method=\"POST\">"
-puts "                        <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
-puts "                        <button type=\"submit\" class=\"nav-post-button\">Reading Log</button>"
-puts "                    </form>"
-puts "                </li>"
-puts "                <li>"
-puts "                    <form class=\"nav-post-form\" action=\"account.cgi\" method=\"POST\">"
-puts "                        <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
-puts "                        <button type=\"submit\" class=\"nav-post-button\">#{CGI.escapeHTML(usrName)}</button>"
-puts "                    </form>"
-puts "                </li>"
-puts "            </ul>"
-puts "        </nav>"
+    puts "        <nav>"
+    puts "            <nav><form class=\"nav-post-form\" action=\"../index.cgi\" method=\"POST\"><input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\"><button type=\"submit\" class=\"nav-logo-button\">Icarus</button></form></nav>"
+    puts "            <ul class=\"nav-links\">"
+    puts "                <li>"
+    puts "                    <form class=\"nav-post-form\" action=\"../index.cgi\" method=\"POST\">"
+    puts "                        <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+    puts "                        <button type=\"submit\" class=\"nav-post-button\">Top Books</button>"
+    puts "                    </form>"
+    puts "                </li>"
+    puts "                <li>"
+    puts "                    <form class=\"nav-post-form\" action=\"search.cgi\" method=\"POST\">"
+    puts "                        <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+    puts "                        <button type=\"submit\" class=\"nav-post-button\">Search</button>"
+    puts "                    </form>"
+    puts "                </li>"
+    puts "                <li>"
+    puts "                    <form class=\"nav-post-form\" action=\"readingLog.cgi\" method=\"POST\">"
+    puts "                        <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+    puts "                        <button type=\"submit\" class=\"nav-post-button\">Reading Log</button>"
+    puts "                    </form>"
+    puts "                </li>"
+    puts "                <li>"
+    puts "                    <form class=\"nav-post-form\" action=\"account.cgi\" method=\"POST\">"
+    puts "                        <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+    puts "                        <button type=\"submit\" class=\"nav-post-button\">#{CGI.escapeHTML(usrName)}</button>"
+    puts "                    </form>"
+    puts "                </li>"
+    puts "            </ul>"
+    puts "        </nav>"
 end
 puts "        <div class=\"search-container\">"
 puts "        <h1>Reading Log</h1>"
+puts "            <form action=\"readingLog.cgi\" method=\"POST\" class=\"search-form\">"
+if usrName != ""
+puts "                <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+end
+puts "                <input type=\"text\" name=\"searchQuery\" class=\"search-input\" maxlength=\"255\" placeholder=\"Search your reading log...\" value=\"#{CGI.escapeHTML(searchQuery)}\">"
+puts "                <button type=\"submit\" class=\"search-button\">Search</button>"
+puts "            </form>"
 
 if usrName == ""
 puts "            <div class=\"book-notes\">"
@@ -107,7 +120,11 @@ puts "                <p class=\"book-desc\">Please sign in to view your reading
 puts "            </div>"
 elsif readingLogBooks.empty?
 puts "            <div class=\"book-notes\">"
-puts "                <p class=\"book-desc\">No books in your reading log yet.</p>"
+    if searchQuery == ''
+        puts "                <p class=\"book-desc\">No books in your reading log yet.</p>" 
+    else
+        puts "                <p class=\"book-desc\">No matching books found in your reading log.</p>"
+    end
 puts "            </div>"
 else
 puts "            <div class=\"search-results\">"
