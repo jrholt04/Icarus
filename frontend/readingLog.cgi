@@ -70,7 +70,7 @@ if usrName == ""
     puts "                <li><a href=../index.cgi>Top Books</a></li>"
     puts "                <li><a href=\"search.cgi\">Search</a></li>"
     puts "                <li><a href=\"readingLog.cgi\">Reading Log</a></li>"
-    puts "                <li><a href=\"account.cgi\">Sign In</a></li>"
+    puts "                <li><a href=\"signIn.cgi\">Sign In</a></li>"
     puts "            </ul>"
     puts "        </nav>"
 else

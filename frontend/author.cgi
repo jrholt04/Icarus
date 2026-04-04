@@ -56,7 +56,7 @@ puts "            <ul class=\"nav-links\">"
 puts "                <li><a href=../index.cgi>Top Books</a></li>"
 puts "                <li><a href=\"../frontend/search.cgi\">Search</a></li>"
 puts "                <li><a href=\"../frontend/readingLog.cgi\">Reading Log</a></li>"
-puts "                <li><a href=\"account.cgi\">Sign In</a></li>"
+puts "                <li><a href=\"signIn.cgi\">Sign In</a></li>"
 puts "            </ul>"
 puts "        </nav>"
 else
