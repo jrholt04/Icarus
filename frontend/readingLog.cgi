@@ -19,17 +19,17 @@ db = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.f
 
 # get info from html forms
 cgi = CGI.new("html5")
-usrName = cgi['usrName'].to_s.strip
+usrName = cgi['usrName']
 removeFromLog = cgi['removeFromLog'] == 'true'
-removeBookId = cgi['book_id'].to_i
-searchQuery = cgi['searchQuery'].to_s.strip
+removeBookId = cgi['book_id']
+searchQuery = cgi['searchQuery']
 
 readingLogBooks = []
 
 if usrName != ""
     user = db.query("SELECT usr_id FROM Users WHERE usr_name = '#{db.escape(usrName)}';").first
     if !user.nil?
-        if removeFromLog && removeBookId > 0
+        if removeFromLog
             db.query("DELETE FROM ReadingLog WHERE usr_id = #{user['usr_id'].to_i} AND book_id = #{removeBookId};")
         end
 
@@ -37,7 +37,7 @@ if usrName != ""
             readingLogQuery = db.query("SELECT b.* FROM ReadingLog rl JOIN Books b ON rl.book_id = b.book_id WHERE rl.usr_id = #{user['usr_id'].to_i};")
         else
             searchLike = db.escape("%#{searchQuery}%")
-            readingLogQuery = db.query("SELECT DISTINCT b.* FROM ReadingLog rl JOIN Books b ON rl.book_id = b.book_id WHERE rl.usr_id = #{user['usr_id'].to_i} AND (b.title LIKE '#{searchLike}' OR b.description LIKE '#{searchLike}');")
+            readingLogQuery = db.query("SELECT b.* FROM ReadingLog rl JOIN Books b ON rl.book_id = b.book_id WHERE rl.usr_id = #{user['usr_id'].to_i} AND (b.title LIKE '#{searchLike}');")
         end
 
         readingLogQuery.each do |book|
@@ -108,26 +108,26 @@ puts "        <div class=\"search-container\">"
 puts "        <h1>Reading Log</h1>"
 puts "            <form action=\"readingLog.cgi\" method=\"POST\" class=\"search-form\">"
 if usrName != ""
-puts "                <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+    puts "                <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
 end
 puts "                <input type=\"text\" name=\"searchQuery\" class=\"search-input\" maxlength=\"255\" placeholder=\"Search your reading log...\" value=\"#{CGI.escapeHTML(searchQuery)}\">"
 puts "                <button type=\"submit\" class=\"search-button\">Search</button>"
 puts "            </form>"
 
 if usrName == ""
-puts "            <div class=\"book-notes\">"
-puts "                <p class=\"book-desc\">Please sign in to view your reading log.</p>"
-puts "            </div>"
+    puts "            <div class=\"book-notes\">"
+    puts "                <p class=\"book-desc\">Please sign in to view your reading log.</p>"
+    puts "            </div>"
 elsif readingLogBooks.empty?
-puts "            <div class=\"book-notes\">"
-    if searchQuery == ''
-        puts "                <p class=\"book-desc\">No books in your reading log yet.</p>" 
-    else
-        puts "                <p class=\"book-desc\">No matching books found in your reading log.</p>"
-    end
-puts "            </div>"
+    puts "            <div class=\"book-notes\">"
+        if searchQuery == ''
+            puts "                <p class=\"book-desc\">No books in your reading log yet.</p>" 
+        else
+            puts "                <p class=\"book-desc\">No matching books found in your reading log.</p>"
+        end
+    puts "            </div>"
 else
-puts "            <div class=\"search-results\">"
+    puts "            <div class=\"search-results\">"
     readingLogBooks.each do |book|
         puts "                <div class=\"search-result-item\">"
         puts "                    <form action=\"book.cgi\" method=\"POST\">"
