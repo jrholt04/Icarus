@@ -251,6 +251,10 @@ html {
     background-color: black;
 }
 
+.book-buy-borrow:hover {
+    background-color: #333;
+}
+
 .book-buy-borrow-list {
     margin-left: 3%;
     display: flex;
@@ -271,14 +275,14 @@ html {
 
 .author-left {
     flex: 0 0 45%;
-    max-width: 520px;
+    max-width: 540px;
 }
 
 .author-photo {
-    width: min(45vw, 520px);
-    height: min(45vw, 520px);
+    width: min(45vw, 540px);
+    height: min(45vw, 540px);
     border-radius: 50%;
-    object-fit: cover;
+    object-fit: contain;
     display: block;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
 }
@@ -400,7 +404,7 @@ html {
     font-family: Arial, sans-serif;
     box-sizing: border-box;
     outline: none;
-    resize: vertical;
+    resize: none;
 }
 
 .signin-form textarea:focus {
@@ -415,12 +419,24 @@ html {
     margin-bottom: 20px;
 }
 
+.book-notes-list {
+    max-height: 320px;
+    max-width: 400px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
 .book-note-item {
     display: flex;
+    flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
-    gap: 6px;
+    gap: 4px;
     margin-bottom: 12px;
+}
+
+.book-note-delete-form {
+    margin: 0;
 }
 
 .book-note-item p {
@@ -430,13 +446,19 @@ html {
 }
 
 .book-note-delete {
-    background: none;
-    border: none;
-    color: black;
-    font-family: Arial, sans-serif;
-    font-size: 16px;
-    line-height: 1;
+    padding: 6px 12px;
+    font-size: 14px;
+    border: black solid 1px;
+    border-radius: 30px;
+    color: white;
+    background-color: black;
     cursor: pointer;
+    font-family: Arial, sans-serif;
+    line-height: 1;
+}
+
+.book-note-delete:hover {
+    background-color: #333;
 }
 
 .signin-submit {

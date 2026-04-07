@@ -58,7 +58,10 @@ end
 
 #if the user just added the book to their reading log, add it and then redirect back to the book page so that the "Add to Reading Log" button is replaced with a message saying it's in their reading log and so that the notes section appears
 if addingToLog && !userId.nil?
-    addReadingLogEntry(userId, bookId, db)
+    existingLogEntries = db.query("SELECT book_id FROM ReadingLog WHERE usr_id = #{userId.to_i} AND book_id = #{bookId.to_i};").to_a
+    if existingLogEntries.length == 0
+        addReadingLogEntry(userId, bookId, db)
+    end
     puts "<!DOCTYPE html>"
     puts "<html>"
     puts "  <head>"
@@ -175,7 +178,7 @@ puts "            <ul class=\"nav-links\">"
 puts "                <li><a href=../index.cgi>Top Books</a></li>"
 puts "                <li><a href=\"../frontend/search.cgi\">Search</a></li>"
 puts "                <li><a href=\"../frontend/readingLog.cgi\">Reading Log</a></li>"
-puts "                <li><a href=\"account.cgi\">Sign In</a></li>"
+puts "                <li><a href=\"signIn.cgi\">Sign In</a></li>"
 puts "            </ul>"
 puts "        </nav>"
 else
@@ -256,8 +259,13 @@ end
 puts "                    </div>"
 puts "                    <h1 class=\"logo\">Borrow Or Buy</h1>"
 puts "                    <div class=\"book-buy-borrow-list\">"
-puts "                        <p><a class=\"book-buy-borrow\" href=\"https://www.amazon.com/s?k=#{book['isbn']}\">Amazon</a></p>"
-puts "                        <p><a class=\"book-buy-borrow\" href=\"https://www.worldcat.org/search?q=#{book['isbn']}\">Library</a></p>"
+if book['isbn'] == '9999999999999'
+    puts "                      <p><a class=\"book-buy-borrow\" href=\"https://www.amazon.com/s?k=#{book['title']}\" target=\"_blank\">Amazon</a></p>"
+    puts "                      <p><a class=\"book-buy-borrow\" href=\"https://www.worldcat.org/search?q=#{book['title']}\" target=\"_blank\">Library</a></p>"
+else 
+    puts "                      <p><a class=\"book-buy-borrow\" href=\"https://www.amazon.com/s?k=#{book['isbn']}\" target=\"_blank\">Amazon</a></p>"
+    puts "                      <p><a class=\"book-buy-borrow\" href=\"https://www.worldcat.org/search?q=#{book['isbn']}\" target=\"_blank\">Library</a></p>"
+end
 puts "                    </div>"
 puts "                    <h1 class=\"logo\">Notes</h1>"
 if usrName != ""
@@ -266,20 +274,22 @@ if usrName != ""
     puts "                            <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
     puts "                            <input type=\"hidden\" name=\"book_id\" value=\"#{bookId}\">"
     puts "                            <label for=\"note\">Add Note:</label>"
-    puts "                            <textarea id=\"note\" name=\"note\" rows=\"5\" maxlength=\"1000\" required></textarea>"
+    puts "                            <textarea id=\"note\" name=\"note\" rows=\"8\" maxlength=\"1000\" required></textarea>"
     puts "                            <input type=\"submit\" class=\"signin-submit\" value=\"Save Note\">"
     puts "                        </form>"
+    puts "                        <div class=\"book-notes-list\">"
     notes.each do |note|
         puts "                        <div class=\"book-note-item\">"
-        puts "                            <p>#{note['note']}</p>"
+        puts "                            <p>#{note['note'].gsub(/\r\n/, "<br>").gsub(/\n/, "<br>")}</p>"
         puts "                            <form class=\"book-note-delete-form\" action=\"book.cgi\" method=\"POST\">"
         puts "                                <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
         puts "                                <input type=\"hidden\" name=\"book_id\" value=\"#{bookId}\">"
         puts "                                <input type=\"hidden\" name=\"delete_note_id\" value=\"#{note['note_id']}\">"
-        puts "                                <button type=\"submit\" class=\"book-note-delete\" aria-label=\"Delete note\">X</button>"
+        puts "                                <button type=\"submit\" class=\"book-note-delete\" aria-label=\"Delete note\">Delete</button>"
         puts "                            </form>"
         puts "                        </div>"
     end
+    puts "                        </div>"
     puts "                    </div>"
 else 
     puts "                    <div class=\"book-notes\">"

@@ -31,8 +31,16 @@ searchQuery = cgi['searchQuery'] || ''
 searchResults = []
 searchPlaceholder = searchType == 'books' ? 'Search for books...' : 'Search for authors...'
 
+def truncateText(text, maxLen)
+  cleanText = text
+  if cleanText.length <= maxLen
+    return cleanText
+  end
+  return cleanText[0...maxLen].rstrip + '...'
+end
 
-if searchQuery && !searchQuery.strip.empty?
+
+if searchQuery && !searchQuery.empty?
   if searchType == 'authors'
     searchResults = findAuthors(db, searchQuery).to_a
   else
@@ -64,7 +72,7 @@ puts "            <ul class=\"nav-links\">"
 puts "                <li><a href=../index.cgi>Top Books</a></li>"
 puts "                <li><a href=\"search.cgi\">Search</a></li>"
 puts "                <li><a href=\"../frontend/readingLog.cgi\">Reading Log</a></li>"
-puts "                <li><a href=\"account.cgi\">Sign In</a></li>"
+puts "                <li><a href=\"signIn.cgi\">Sign In</a></li>"
 puts "            </ul>"
 puts "        </nav>"
 else
@@ -143,7 +151,7 @@ if searchQuery
       puts "                    </form>"
       puts "                    <div class=\"search-result-content\">"
       puts "                        <div class=\"search-result-title search-result-title-author\">#{authorRecord['name']}</div>"
-      puts "                        <div class=\"search-result-description\">#{authorRecord['bio'] || ''}</div>"
+      puts "                        <div class=\"search-result-description\">#{truncateText(authorRecord['bio'], 400)}</div>"
       puts "                    </div>"
       puts "                </div>"
     end
@@ -173,7 +181,7 @@ if searchQuery
         puts "                        <div class=\"search-result-author\">by #{authors.join(', ')}</div>"
       end
       
-      puts "                        <div class=\"search-result-description\">#{book['description'] || ''}</div>"
+      puts "                        <div class=\"search-result-description\">#{truncateText(book['description'], 400)}</div>"
       puts "                    </div>"
       puts "                </div>"
     end
