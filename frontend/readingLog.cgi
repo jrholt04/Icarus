@@ -34,10 +34,10 @@ if usrName != ""
         end
 
         if searchQuery == ''
-            readingLogQuery = db.query("SELECT b.* FROM ReadingLog rl JOIN Books b ON rl.book_id = b.book_id WHERE rl.usr_id = #{user['usr_id'].to_i};")
+            readingLogQuery = db.query("SELECT b.* FROM ReadingLog rl JOIN Books b ON rl.book_id = b.book_id WHERE rl.usr_id = #{user['usr_id'].to_i} ORDER BY b.title ASC;")
         else
             searchLike = db.escape("%#{searchQuery}%")
-            readingLogQuery = db.query("SELECT b.* FROM ReadingLog rl JOIN Books b ON rl.book_id = b.book_id WHERE rl.usr_id = #{user['usr_id'].to_i} AND (b.title LIKE '#{searchLike}');")
+            readingLogQuery = db.query("SELECT b.* FROM ReadingLog rl JOIN Books b ON rl.book_id = b.book_id WHERE rl.usr_id = #{user['usr_id'].to_i} AND (b.title LIKE '#{searchLike}') ORDER BY b.title ASC;")
         end
 
         readingLogQuery.each do |book|
