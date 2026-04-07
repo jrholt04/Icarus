@@ -404,7 +404,7 @@ html {
     font-family: Arial, sans-serif;
     box-sizing: border-box;
     outline: none;
-    resize: vertical;
+    resize: none;
 }
 
 .signin-form textarea:focus {
@@ -421,10 +421,15 @@ html {
 
 .book-note-item {
     display: flex;
+    flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
-    gap: 6px;
+    gap: 4px;
     margin-bottom: 12px;
+}
+
+.book-note-delete-form {
+    margin: 0;
 }
 
 .book-note-item p {
@@ -434,13 +439,19 @@ html {
 }
 
 .book-note-delete {
-    background: none;
-    border: none;
-    color: black;
-    font-family: Arial, sans-serif;
-    font-size: 16px;
-    line-height: 1;
+    padding: 6px 12px;
+    font-size: 14px;
+    border: black solid 1px;
+    border-radius: 30px;
+    color: white;
+    background-color: black;
     cursor: pointer;
+    font-family: Arial, sans-serif;
+    line-height: 1;
+}
+
+.book-note-delete:hover {
+    background-color: #333;
 }
 
 .signin-submit {
