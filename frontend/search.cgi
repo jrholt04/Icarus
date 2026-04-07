@@ -31,6 +31,14 @@ searchQuery = cgi['searchQuery'] || ''
 searchResults = []
 searchPlaceholder = searchType == 'books' ? 'Search for books...' : 'Search for authors...'
 
+def truncateText(text, maxLen)
+  cleanText = text
+  if cleanText.length <= maxLen
+    return cleanText
+  end
+  return cleanText[0...maxLen].rstrip + '...'
+end
+
 
 if searchQuery && !searchQuery.empty?
   if searchType == 'authors'
@@ -143,7 +151,7 @@ if searchQuery
       puts "                    </form>"
       puts "                    <div class=\"search-result-content\">"
       puts "                        <div class=\"search-result-title search-result-title-author\">#{authorRecord['name']}</div>"
-      puts "                        <div class=\"search-result-description\">#{authorRecord['bio'] || ''}</div>"
+      puts "                        <div class=\"search-result-description\">#{truncateText(authorRecord['bio'], 400)}</div>"
       puts "                    </div>"
       puts "                </div>"
     end
@@ -173,7 +181,7 @@ if searchQuery
         puts "                        <div class=\"search-result-author\">by #{authors.join(', ')}</div>"
       end
       
-      puts "                        <div class=\"search-result-description\">#{book['description'] || ''}</div>"
+      puts "                        <div class=\"search-result-description\">#{truncateText(book['description'], 260)}</div>"
       puts "                    </div>"
       puts "                </div>"
     end
