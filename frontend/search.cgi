@@ -181,7 +181,7 @@ if searchQuery
         puts "                        <div class=\"search-result-author\">by #{authors.join(', ')}</div>"
       end
       
-      puts "                        <div class=\"search-result-description\">#{truncateText(book['description'], 260)}</div>"
+      puts "                        <div class=\"search-result-description\">#{truncateText(book['description'], 400)}</div>"
       puts "                    </div>"
       puts "                </div>"
     end
