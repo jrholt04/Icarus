@@ -256,8 +256,13 @@ end
 puts "                    </div>"
 puts "                    <h1 class=\"logo\">Borrow Or Buy</h1>"
 puts "                    <div class=\"book-buy-borrow-list\">"
-puts "                        <p><a class=\"book-buy-borrow\" href=\"https://www.amazon.com/s?k=#{book['isbn']}\" target=\"_blank\">Amazon</a></p>"
-puts "                        <p><a class=\"book-buy-borrow\" href=\"https://www.worldcat.org/search?q=#{book['isbn']}\" target=\"_blank\">Library</a></p>"
+if book['isbn'] == '9999999999999'
+    puts "                      <p><a class=\"book-buy-borrow\" href=\"https://www.amazon.com/s?k=#{book['title']}\" target=\"_blank\">Amazon</a></p>"
+    puts "                      <p><a class=\"book-buy-borrow\" href=\"https://www.worldcat.org/search?q=#{book['title']}\" target=\"_blank\">Library</a></p>"
+else 
+    puts "                      <p><a class=\"book-buy-borrow\" href=\"https://www.amazon.com/s?k=#{book['isbn']}\" target=\"_blank\">Amazon</a></p>"
+    puts "                      <p><a class=\"book-buy-borrow\" href=\"https://www.worldcat.org/search?q=#{book['isbn']}\" target=\"_blank\">Library</a></p>"
+end
 puts "                    </div>"
 puts "                    <h1 class=\"logo\">Notes</h1>"
 if usrName != ""
