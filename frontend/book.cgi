@@ -271,7 +271,7 @@ if usrName != ""
     puts "                        </form>"
     notes.each do |note|
         puts "                        <div class=\"book-note-item\">"
-        puts "                            <p>#{note['note']}</p>"
+        puts "                            <p>#{note['note'].gsub(/\r\n/, "<br>").gsub(/\n/, "<br>")}</p>"
         puts "                            <form class=\"book-note-delete-form\" action=\"book.cgi\" method=\"POST\">"
         puts "                                <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
         puts "                                <input type=\"hidden\" name=\"book_id\" value=\"#{bookId}\">"

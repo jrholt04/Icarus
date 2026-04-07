@@ -32,7 +32,7 @@ searchResults = []
 searchPlaceholder = searchType == 'books' ? 'Search for books...' : 'Search for authors...'
 
 
-if searchQuery && !searchQuery.strip.empty?
+if searchQuery && !searchQuery.empty?
   if searchType == 'authors'
     searchResults = findAuthors(db, searchQuery).to_a
   else

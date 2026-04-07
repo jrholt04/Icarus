@@ -251,6 +251,10 @@ html {
     background-color: black;
 }
 
+.book-buy-borrow:hover {
+    background-color: #333;
+}
+
 .book-buy-borrow-list {
     margin-left: 3%;
     display: flex;
