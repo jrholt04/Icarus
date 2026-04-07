@@ -58,7 +58,10 @@ end
 
 #if the user just added the book to their reading log, add it and then redirect back to the book page so that the "Add to Reading Log" button is replaced with a message saying it's in their reading log and so that the notes section appears
 if addingToLog && !userId.nil?
-    addReadingLogEntry(userId, bookId, db)
+    existingLogEntries = db.query("SELECT book_id FROM ReadingLog WHERE usr_id = #{userId.to_i} AND book_id = #{bookId.to_i};").to_a
+    if existingLogEntries.length == 0
+        addReadingLogEntry(userId, bookId, db)
+    end
     puts "<!DOCTYPE html>"
     puts "<html>"
     puts "  <head>"
