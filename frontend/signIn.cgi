@@ -46,6 +46,7 @@ if cgi.request_method == 'POST'
 		exit
 	else
 		error_message = 'Incorrect username or password.'
+		usr_name = ''
 	end
 end
 
