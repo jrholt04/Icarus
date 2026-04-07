@@ -269,6 +269,7 @@ if usrName != ""
     puts "                            <textarea id=\"note\" name=\"note\" rows=\"8\" maxlength=\"1000\" required></textarea>"
     puts "                            <input type=\"submit\" class=\"signin-submit\" value=\"Save Note\">"
     puts "                        </form>"
+    puts "                        <div class=\"book-notes-list\">"
     notes.each do |note|
         puts "                        <div class=\"book-note-item\">"
         puts "                            <p>#{note['note'].gsub(/\r\n/, "<br>").gsub(/\n/, "<br>")}</p>"
@@ -280,6 +281,7 @@ if usrName != ""
         puts "                            </form>"
         puts "                        </div>"
     end
+    puts "                        </div>"
     puts "                    </div>"
 else 
     puts "                    <div class=\"book-notes\">"
