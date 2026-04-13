@@ -49,6 +49,7 @@ if cgi.request_method == 'POST'
 			exit
 		else
 			error_message = 'Username or email already exists.'
+			usr_name = ''
 		end
 	end
 end
