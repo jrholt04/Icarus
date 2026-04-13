@@ -186,6 +186,12 @@ if searchQuery
       if authors.length > 1
         puts "                        <div class=\"search-result-author\">by #{CGI.escapeHTML(authors.join(', '))}</div>"
       end
+       if authors.length == 1
+        puts "                        <div class=\"search-result-author\">by #{CGI.escapeHTML(authors.first)}</div>"
+      end
+      if authors.length == 0
+        puts "                        <div class=\"search-result-author\">by Unknown</div>"
+      end
       
       puts "                        <div class=\"search-result-description\">#{safeBookDesc}</div>"
       puts "                    </div>"
