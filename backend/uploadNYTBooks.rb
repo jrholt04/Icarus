@@ -95,7 +95,7 @@ def getBookPublishDate(title)
 end
 
 # Put author(s) in Authors table and BookAuth table if they do not already exist
-def fillAuthorTable(db, author, book_id)
+def fillAuthorTable(db, author, bookId)
     authorInDB = db.query("SELECT auth_id FROM Authors WHERE name = '" + author + "';")
     isAuthor = 0
     authorInDB.each do |a|
@@ -107,10 +107,10 @@ def fillAuthorTable(db, author, book_id)
       db.query("INSERT INTO Authors (name) VALUES('" + author + "');")
       authorID = db.query("SELECT auth_id FROM Authors WHERE name = '" + author + "';")
       authorID.each do |id|
-        db.query("INSERT IGNORE INTO BookAuth (book_id, auth_id) VALUES('" + book_id.to_s() + "', '" + id["auth_id"].to_s() + "');")
+                db.query("INSERT IGNORE INTO BookAuth (book_id, auth_id) VALUES('" + bookId.to_s() + "', '" + id["auth_id"].to_s() + "');")
       end
     else
-        db.query("INSERT IGNORE INTO BookAuth (book_id, auth_id) VALUES('" + book_id.to_s() + "', '" + isAuthor["auth_id"].to_s() + "');")
+                db.query("INSERT IGNORE INTO BookAuth (book_id, auth_id) VALUES('" + bookId.to_s() + "', '" + isAuthor["auth_id"].to_s() + "');")
     end
 end
 
