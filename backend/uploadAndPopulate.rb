@@ -49,7 +49,7 @@ def getBooksDescription(title)
     req.body = { query: query }.to_json
 
     res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(req) }
-    last_request_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    lastRequestTime = Process.clock_gettime(Process::CLOCK_MONOTONIC)
     
     payload = JSON.parse(res.body)
     description = payload.dig('data', 'books', 0, 'description') 
@@ -67,7 +67,7 @@ def getBookISBN(title)
 end
 
 # Put author(s) in Authors table and BookAuth table if they do not already exist
-def fillAuthorTable(db, allAuthors, book_id)
+def fillAuthorTable(db, allAuthors, bookId)
   authors = allAuthors.split(",")
   authors.each do |author|
     authorSplit = author.split(" ")
@@ -90,10 +90,10 @@ def fillAuthorTable(db, allAuthors, book_id)
       db.query("INSERT INTO Authors (name) VALUES('" + cleanAuthor + "');")
       authorID = db.query("SELECT auth_id FROM Authors WHERE name = '" + cleanAuthor + "';")
       authorID.each do |id|
-        db.query("INSERT INTO BookAuth (book_id, auth_id) VALUES('" + book_id.to_s() + "', '" + id["auth_id"].to_s() + "');")
+        db.query("INSERT INTO BookAuth (book_id, auth_id) VALUES('" + bookId.to_s() + "', '" + id["auth_id"].to_s() + "');")
       end
     else
-      db.query("INSERT INTO BookAuth (book_id, auth_id) VALUES('" + book_id.to_s() + "', '" + isAuthor["auth_id"].to_s() + "');")
+      db.query("INSERT INTO BookAuth (book_id, auth_id) VALUES('" + bookId.to_s() + "', '" + isAuthor["auth_id"].to_s() + "');")
     end
   end
 end
@@ -204,11 +204,11 @@ booksFile.each do |book|
   title = splitBookRow[1].strip().gsub("'", "\\\\'")
   allAuthors = splitBookRow[3].strip()
   rating = splitBookRow[4].strip().to_f()
-  lang_code = splitBookRow[6].strip()
+  langCode = splitBookRow[6].strip()
   isbn = splitBookRow[7].strip().to_i()
-  pg_nums = splitBookRow[12].strip().to_i()
-  cover_img = splitBookRow[21].strip()
-  publish_date = splitBookRow[14].strip()
+  pgNums = splitBookRow[12].strip().to_i()
+  coverImg = splitBookRow[21].strip()
+  publishDate = splitBookRow[14].strip()
 
   description = getBooksDescription(title)
   if description != nil
@@ -229,6 +229,6 @@ booksFile.each do |book|
     isbn = 9999999999999
   end
 
-  massInsertDB.query("INSERT INTO Books (title, lang_code, isbn, pg_nums, publish_date, cover_img, rating, description) VALUES('" + title + "', '" + lang_code + "', '" + isbn.to_s() + "', '" + pg_nums.to_s() + "', '" + publish_date + "', '" + cover_img + "', '" + rating.to_s() + "', '" + description + "');")
+  massInsertDB.query("INSERT INTO Books (title, lang_code, isbn, pg_nums, publish_date, cover_img, rating, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + pgNums.to_s() + "', '" + publishDate + "', '" + coverImg + "', '" + rating.to_s() + "', '" + description + "');")
   fillAuthorTable(massInsertDB, allAuthors, bookID)
 end
