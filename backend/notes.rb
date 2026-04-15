@@ -18,13 +18,13 @@ require_relative '../env_loader'
 
 icarusDB = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.fetch('ICARUS_DB_USER'), :password => ENV.fetch('ICARUS_DB_PASSWORD'), :database => ENV.fetch('ICARUS_DB_NAME'))
 
-def createNote(user_id, book_id, content, db)
-    dated_content = "Note #{Date.today}:<br>#{content.to_s.strip}"
-    db.query("INSERT INTO Notes (usr_id, book_id, note) VALUES (#{user_id.to_i}, #{book_id.to_i}, '#{db.escape(dated_content)}');")
+def createNote(userId, bookId, content, db)
+    datedContent = "Note #{Date.today}:<br>#{content.to_s.strip}"
+    db.query("INSERT INTO Notes (usr_id, book_id, note) VALUES (#{userId.to_i}, #{bookId.to_i}, '#{db.escape(datedContent)}');")
 end
 
-def deleteNote(note_id, db)
-    db.query("DELETE FROM Notes WHERE note_id = #{note_id.to_i}")
+def deleteNote(noteId, db)
+    db.query("DELETE FROM Notes WHERE note_id = #{noteId.to_i}")
 end
 
 def findUserId(usrName, db)

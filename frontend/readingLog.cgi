@@ -147,9 +147,15 @@ else
             authors << author['name'] if author
         end
 
-        if authors.length > 1
-            puts "                        <div class=\"search-result-author\">by #{authors.join(', ')}</div>"
-        end
+       if authors.length > 1
+        puts "                        <div class=\"search-result-author\">by #{CGI.escapeHTML(authors.join(', '))}</div>"
+      end
+       if authors.length == 1
+        puts "                        <div class=\"search-result-author\">by #{CGI.escapeHTML(authors.first)}</div>"
+      end
+      if authors.length == 0
+        puts "                        <div class=\"search-result-author\">by Unknown</div>"
+      end
 
         puts "                        <div class=\"search-result-description\">#{book['description'] || ''}</div>"
         puts "                        <form class=\"signin-form book-note-form\" action=\"readingLog.cgi\" method=\"POST\">"

@@ -19,10 +19,10 @@ db = Mysql2::Client.new(:host => ENV.fetch('ICARUS_DB_HOST'), :username => ENV.f
 authors = db.query("SELECT auth_id, name FROM Authors;")
 
 imgUrl = nil
-last_request_time = nil
+lastRequestTime = nil
 for author in authors
-    if last_request_time
-        elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - last_request_time
+    if lastRequestTime
+        elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - lastRequestTime
         sleep(1.0 - elapsed) if elapsed < 1.0
     end
     
@@ -41,7 +41,7 @@ for author in authors
     req.body = { query: query }.to_json
 
     res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(req) }
-    last_request_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    lastRequestTime = Process.clock_gettime(Process::CLOCK_MONOTONIC)
     
     payload = JSON.parse(res.body)
     imgUrl = payload.dig('data', 'authors', 0, 'image', 'url') 
@@ -71,7 +71,7 @@ for author in authors
             req.body = { query: query }.to_json
 
             res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(req) }
-            last_request_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+            lastRequestTime = Process.clock_gettime(Process::CLOCK_MONOTONIC)
             
             payload = JSON.parse(res.body)
 

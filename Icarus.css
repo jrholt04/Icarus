@@ -556,12 +556,14 @@ html {
     display: flex;
     flex-direction: column;
     gap: 30px;
+    width: 100%;
 }
 
 .search-result-item {
     display: flex;
     gap: 25px;
     align-items: flex-start;
+    width: 100%;
 }
 
 .search-result-image {
