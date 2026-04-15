@@ -29,6 +29,7 @@ a.logo {
     font-size: 45px;
     font-weight: bold;
     text-decoration: none !important;
+    text-transform: uppercase;
 }
 
 .nav-links {
@@ -82,6 +83,7 @@ a.logo {
     font-size: 45px;
     font-weight: bold;
     text-decoration: none !important;
+    text-transform: uppercase;
     cursor: pointer;
 }
 
