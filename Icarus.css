@@ -638,3 +638,82 @@ html {
     width: 100%;
     margin: 0 0 20px 0;
 }
+
+/* About Page Styles */
+.about-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+    padding: 24px 40px;
+}
+
+.about-sidebar {
+    width: 260px;
+    position: sticky;
+    top: 16px;
+    align-self: flex-start;
+    background-color: #e3e6ee;
+    border-radius: 8px;
+    padding: 12px 14px;
+}
+
+.about-menu-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+}
+
+.about-menu-table td {
+    padding: 2px 0;
+}
+
+.about-menu-table a {
+    color: #111;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    display: block;
+    font-weight: 400;
+}
+
+.about-menu-table a:hover {
+    font-weight: bold;
+}
+
+.about-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.about-section {
+    margin-bottom: 40px;
+    padding-top: 6px;
+}
+
+.about-copy {
+    margin-left: 3%;
+    color: #222;
+    line-height: 1.5;
+    font-family: Arial, sans-serif;
+}
+
+.about-doc-frame {
+    width: 100%;
+    min-height: 640px;
+    border: 1px solid #c8ccd6;
+    border-radius: 8px;
+    background: #fff;
+}
+
+@media (max-width: 900px) {
+    .about-layout {
+        flex-direction: column;
+        gap: 20px;
+        padding: 18px 20px;
+    }
+
+    .about-sidebar {
+        width: 100%;
+        position: static;
+    }
+}
