@@ -16,6 +16,20 @@ cgi = CGI.new("html5")
 usrName = cgi['usrName'].to_s.strip
 envLoaderCode = File.read(File.expand_path('../env_loader.rb', __dir__))
 workflowCode = File.read(File.expand_path('../.github/workflows/publish.yml', __dir__))
+hashingCode = <<~'RUBY'
+        require 'bcrypt'
+
+        def createPasswordHash(password)
+            newPass = BCrypt::Password.create(password)
+            return newPass.to_s
+        end
+
+        def verifyPassword(password, usrName, db)
+            userRow = db.query("SELECT pswd FROM Users WHERE usr_name = '#{db.escape(usrName)}';").first
+            storedPasswordHash = BCrypt::Password.new(userRow['pswd'])
+            return storedPasswordHash == password
+        end
+RUBY
 unitTestsCode = <<~'RUBY'
         RSpec.describe 'authenication helpers' do
             describe '#userExists' do
@@ -252,6 +266,7 @@ puts "                <table class=\"about-menu-table\">"
 puts "                    <tr><td><a href=\"#env-var-setup\">.env Var Setup</a></td></tr>"
 puts "                    <tr><td><a href=\"#ci-cd\">Runner and CI/CD Workflow</a></td></tr>"
 puts "                    <tr><td><a href=\"#sign-in-flow\">Sign In and Nav Flow</a></td></tr>"
+puts "                    <tr><td><a href=\"#hashing\">Hashing</a></td></tr>"
 puts "                    <tr><td><a href=\"#notes\">Notes</a></td></tr>"
 puts "                    <tr><td><a href=\"#reading-log\">Reading Log</a></td></tr>"
 puts "                    <tr><td><a href=\"#search\">Search</a></td></tr>"
@@ -286,6 +301,13 @@ puts "                    <pre class=\"about-code\" data-file=\"signIn.cgi\"><co
 puts "                    <p class=\"about-copy\">That usrName value is how the site tracks the current user across pages. When no user is signed in, the nav bar uses ordinary anchor links. When usrName is present, the nav bar switches to POST forms so each navigation action can carry usrName forward as a hidden input.</p>"
 puts "                    <pre class=\"about-code\" data-file=\"navbar <li>\"><code>#{CGI.escapeHTML(navBar)}</code></pre>"
 puts "                    <p class=\"about-copy\">The same pattern is used in other page-to-page actions such as opening books, authors, the reading log, search, and the account page. Instead of using cookie-based sessions, the project keeps the active username moving through forms and hidden fields.</p>"
+puts "                </section>"
+
+puts "                <section id=\"hashing\" class=\"about-section\">"
+puts "                    <h1>Hashing</h1>"
+puts "                    <p class=\"about-copy\">Hashing is the process of turning a plain-text password into a one-way protected value before saving it. Instead of storing the original password in the database, the application stores only the hashed version, so even if the database is exposed the real password is not directly readable.</p>"
+puts "                    <p class=\"about-copy\">This project uses the Ruby <a href=\"https://rubygems.org/gems/bcrypt\">bcrypt</a> gem for password hashing. When a user signs up, createPasswordHash generates a bcrypt hash for the password, and when the user signs in, verifyPassword rebuilds a BCrypt password object from the stored hash and compares it against the password they entered.</p>"
+puts "                    <pre class=\"about-code\" data-file=\"backend/authenication.rb\"><code>#{CGI.escapeHTML(hashingCode)}</code></pre>"
 puts "                </section>"
 
 puts "                <section id=\"notes\" class=\"about-section\">"
