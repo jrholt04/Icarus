@@ -16,6 +16,35 @@ cgi = CGI.new("html5")
 usrName = cgi['usrName'].to_s.strip
 envLoaderCode = File.read(File.expand_path('../env_loader.rb', __dir__))
 workflowCode = File.read(File.expand_path('../.github/workflows/publish.yml', __dir__))
+unitTestsCode = <<~'RUBY'
+        RSpec.describe 'authenication helpers' do
+            describe '#userExists' do
+                let(:db) { instance_double('Mysql2::Client') }
+
+                it 'returns true when count is greater than 0' do
+                    allow(db).to receive(:escape).with('alice').and_return('alice')
+                    allow(db).to receive(:query).and_return([{ 'count' => 1 }])
+
+                    expect(userExists(db, 'alice')).to be(true)
+                end
+            end
+        end
+
+        RSpec.describe 'search helpers' do
+            describe '#findBooks' do
+                let(:db) { instance_double('Mysql2::Client') }
+
+                it 'queries Books by title and returns rows on success' do
+                    rows = [{ 'id' => 1, 'title' => 'Dune' }]
+                    expect(db).to receive(:query)
+                        .with("SELECT * FROM Books WHERE title LIKE '%Dune%';")
+                        .and_return(rows)
+
+                    expect(findBooks(db, 'Dune')).to eq(rows)
+                end
+            end
+        end
+RUBY
 signInFlowCode = <<~'RUBY'
     if cgi.request_method == 'POST'
         if usrName.empty? || password.empty?
@@ -228,6 +257,7 @@ puts "                    <tr><td><a href=\"#reading-log\">Reading Log</a></td><
 puts "                    <tr><td><a href=\"#search\">Search</a></td></tr>"
 puts "                    <tr><td><a href=\"#icon\">Icon</a></td></tr>"
 puts "                    <tr><td><a href=\"#unit-tests\">Unit Tests</a></td></tr>"
+puts "                    <tr><td><a href=\"#our-prd\">PRD</a></td></tr>"
 puts "                    <tr><td><a href=\"#our-paper\">Paper</a></td></tr>"
 puts "                </table>"
 puts "            </aside>"
@@ -243,7 +273,7 @@ puts "                </section>"
 
 puts "                <section id=\"ci-cd\" class=\"about-section\">"
 puts "                    <h1>Runner and CI/CD Workflow</h1>"
-puts "                    <p class=\"about-copy\">Deployment is defined in the GitHub Actions workflow at .github/workflows/publish.yml. The workflow listens for pushes to the main branch, so the deployment process begins when changes are merged or pushed to main.</p>"
+puts "                    <p class=\"about-copy\">Deployment is defined in the GitHub Actions workflow at .github/workflows/publish.yml. The workflow listens for pushes to the main branch, so the deployment process begins when changes are merged or pushed to main. In our GitHub setup, contributors cannot push directly to main and instead must open a pull request first. That review step reduces errors by requiring changes to be checked before they reach the branch that triggers deployment.</p>"
 puts "                    <pre class=\"about-code\" data-file=\"publis.yml\"><code>#{CGI.escapeHTML(workflowCode)}</code></pre>"
 puts "                    <p class=\"about-copy\">The job runs on a self-hosted (<a href=\"https://docs.github.com/en/actions/concepts/runners/self-hosted-runners\">self-hosted runner</a>) labeled Icarus-prod instead of a standard GitHub-hosted machine. That runner lives on the production host, which means the workflow can update the live site directly through local filesystem access.</p>"
 puts "                    <p class=\"about-copy\">During deployment, the runner changes into the deployed checkout at /home/Icarus/public_html/Icarus, fetches origin, checks out main, and hard-resets the server copy to origin/main. In effect, GitHub Actions is being used to trigger a pull-and-publish flow on the production machine, so whatever lands on main becomes the version the runner publishes.</p>"
@@ -293,13 +323,21 @@ puts "                </section>"
 puts "                <section id=\"unit-tests\" class=\"about-section\">"
 puts "                    <h1>Unit Tests</h1>"
 puts "                    <p class=\"about-copy\">The project includes a suite of unit tests to ensure the correctness of the backend logic. These tests cover various scenarios and edge cases, helping to maintain code quality and reliability.</p>"
-puts "                    <pre class=\"about-code\" data-file=\"backend/tests.rb\"><code>#{CGI.escapeHTML(unitTestsCode)}</code></pre>"
+puts "                    <p class=\"about-copy\">RSpec works by organizing tests into readable groups and examples. A describe block names the class or method being tested, each it block describes one expected behavior, and expectation statements such as expect(value).to eq(...) check whether the real result matches the expected one. When the test suite runs, RSpec executes each example and reports which behaviors passed or failed, which makes it easier to isolate bugs and confirm that changes did not break existing code. <a href=\"https://www.theodinproject.com/lessons/ruby-introduction-to-rspec\">Learn more</a></p>"
+puts "                    <p class=\"about-copy\">These examples showcase some handwritten text as well as test generated using GitHub Copilot. You can use /tests to have copilot generate additional tests (<a href=\"https://docs.github.com/en/copilot/tutorials/write-tests\">/tests</a>).</p>"
+puts "                    <pre class=\"about-code\" data-file=\"spec/auth_spec.rb + spec/search_spec.rb\"><code>#{CGI.escapeHTML(unitTestsCode)}</code></pre>"
+puts "                </section>"
+
+puts "                <section id=\"our-prd\" class=\"about-section\">"
+puts "                    <h1>PRD</h1>"
+puts "                    <iframe class=\"about-doc-frame\" src=\"https://docs.google.com/document/d/1CQrW7G7LL3khShGsUTKj_l3CqsZWKiM6Y1NKFLCcMBE/preview\" title=\"cannot find paper\"></iframe>"
 puts "                </section>"
 
 puts "                <section id=\"our-paper\" class=\"about-section\">"
 puts "                    <h1>Paper</h1>"
 puts "                    <iframe class=\"about-doc-frame\" src=\"https://docs.google.com/document/d/1aNxy3xsNyGdMSp5sdDC2JnRSPKpAC11t4ImpzOUZrow/preview\" title=\"cannot find paper\"></iframe>"
 puts "                </section>"
+
 puts "            </main>"
 puts "        </div>"
 
