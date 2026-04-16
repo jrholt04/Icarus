@@ -28,7 +28,7 @@ booksFile = IO.readlines(ARGV[0])
 booksFile = booksFile.drop(1)
 
 # Google API to get the description of the book.
-def getTopBooksDescription(title)
+def getBooksDescription(title)
     #checks and corrects names in all caps
     if title == title.upcase
         title = title.downcase().split.map(&:capitalize).join(' ')
@@ -49,7 +49,7 @@ def getTopBooksDescription(title)
     req.body = { query: query }.to_json
 
     res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(req) }
-    last_request_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    lastRequestTime = Process.clock_gettime(Process::CLOCK_MONOTONIC)
     
     payload = JSON.parse(res.body)
     description = payload.dig('data', 'books', 0, 'description') 
@@ -67,7 +67,7 @@ def getBookISBN(title)
 end
 
 # Put author(s) in Authors table and BookAuth table if they do not already exist
-def fillAuthorTable(db, allAuthors, book_id)
+def fillAuthorTable(db, allAuthors, bookId)
   authors = allAuthors.split(",")
   authors.each do |author|
     authorSplit = author.split(" ")
@@ -90,22 +90,23 @@ def fillAuthorTable(db, allAuthors, book_id)
       db.query("INSERT INTO Authors (name) VALUES('" + cleanAuthor + "');")
       authorID = db.query("SELECT auth_id FROM Authors WHERE name = '" + cleanAuthor + "';")
       authorID.each do |id|
-        db.query("INSERT INTO BookAuth (book_id, auth_id) VALUES('" + book_id.to_s() + "', '" + id["auth_id"].to_s() + "');")
+        db.query("INSERT INTO BookAuth (book_id, auth_id) VALUES('" + bookId.to_s() + "', '" + id["auth_id"].to_s() + "');")
       end
     else
-      db.query("INSERT INTO BookAuth (book_id, auth_id) VALUES('" + book_id.to_s() + "', '" + isAuthor["auth_id"].to_s() + "');")
+      db.query("INSERT INTO BookAuth (book_id, auth_id) VALUES('" + bookId.to_s() + "', '" + isAuthor["auth_id"].to_s() + "');")
     end
   end
 end
 
-Need to figure out whether the tables exist before deleting them
-Delete tables
+# Need to figure out whether the tables exist before deleting them
+# Delete tables
 massInsertDB.query("DROP TABLE FavAuthors;")
 massInsertDB.query("DROP TABLE ReadingLog;")
 massInsertDB.query("DROP TABLE Notes;")
 massInsertDB.query("DROP TABLE Wishlist;")
 massInsertDB.query("DROP TABLE BookAuth;")
 massInsertDB.query("DROP TABLE NewYorkBS;")
+massInsertDB.query("DROP TABLE Users;")
 massInsertDB.query("DROP TABLE Books;")
 massInsertDB.query("DROP TABLE Authors;")
 
@@ -130,6 +131,14 @@ massInsertDB.query(
     name VARCHAR(100) NOT NULL,
     bio VARCHAR(10000),
     headshot VARCHAR(511)
+  );")
+
+massInsertDB.query(
+  "CREATE TABLE Users (
+    usr_id INT PRIMARY KEY AUTO_INCREMENT,
+    usr_name VARCHAR(100) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    pswd VARCHAR(255) NOT NULL
   );")
 
 massInsertDB.query(
@@ -195,13 +204,13 @@ booksFile.each do |book|
   title = splitBookRow[1].strip().gsub("'", "\\\\'")
   allAuthors = splitBookRow[3].strip()
   rating = splitBookRow[4].strip().to_f()
-  lang_code = splitBookRow[6].strip()
+  langCode = splitBookRow[6].strip()
   isbn = splitBookRow[7].strip().to_i()
-  pg_nums = splitBookRow[12].strip().to_i()
-  cover_img = splitBookRow[21].strip()
-  publish_date = splitBookRow[14].strip()
+  pgNums = splitBookRow[12].strip().to_i()
+  coverImg = splitBookRow[21].strip()
+  publishDate = splitBookRow[14].strip()
 
-  description = getTopBooksDescription(title)
+  description = getBooksDescription(title)
   if description != nil
     description = description.gsub("'", "\\\\'")
     description = description.gsub('"', '\\\\"')
@@ -220,6 +229,6 @@ booksFile.each do |book|
     isbn = 9999999999999
   end
 
-  massInsertDB.query("INSERT INTO Books (title, lang_code, isbn, pg_nums, publish_date, cover_img, rating, description) VALUES('" + title + "', '" + lang_code + "', '" + isbn.to_s() + "', '" + pg_nums.to_s() + "', '" + publish_date + "', '" + cover_img + "', '" + rating.to_s() + "', '" + description + "');")
+  massInsertDB.query("INSERT INTO Books (title, lang_code, isbn, pg_nums, publish_date, cover_img, rating, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + pgNums.to_s() + "', '" + publishDate + "', '" + coverImg + "', '" + rating.to_s() + "', '" + description + "');")
   fillAuthorTable(massInsertDB, allAuthors, bookID)
 end

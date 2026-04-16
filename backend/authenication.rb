@@ -26,10 +26,13 @@ def createUser(username, password, email, db)
 end
 
 # Function to verify a user's password by comparing the provided password with the stored hashed password in the database.
-def verifyPassword(password, usr_name, db)
-    user_row = db.query("SELECT pswd FROM Users WHERE usr_name = '#{db.escape(usr_name)}';").first
-    stored_password_hash = BCrypt::Password.new(user_row['pswd'])
-    return stored_password_hash == password
+def verifyPassword(password, usrName, db)
+    if !userExists(db, usrName) || usrName.nil? || usrName.strip.empty?
+        return false
+    end
+    userRow = db.query("SELECT pswd FROM Users WHERE usr_name = '#{db.escape(usrName)}';").first
+    storedPasswordHash = BCrypt::Password.new(userRow['pswd'])
+    return storedPasswordHash == password
 end
 
 # Function to sign in a user by verifying their password. It returns true if the password is correct, and false otherwise.

@@ -31,8 +31,16 @@ searchQuery = cgi['searchQuery'] || ''
 searchResults = []
 searchPlaceholder = searchType == 'books' ? 'Search for books...' : 'Search for authors...'
 
+def truncateText(text, maxLen)
+  cleanText = text
+  if cleanText.length <= maxLen
+    return cleanText
+  end
+  return cleanText[0...maxLen].rstrip + '...'
+end
 
-if searchQuery && !searchQuery.strip.empty?
+
+if searchQuery && !searchQuery.empty?
   if searchType == 'authors'
     searchResults = findAuthors(db, searchQuery).to_a
   else
@@ -63,8 +71,8 @@ puts "            <nav><a class=\"logo\" href=../index.cgi>Icarus</a></nav>"
 puts "            <ul class=\"nav-links\">"
 puts "                <li><a href=../index.cgi>Top Books</a></li>"
 puts "                <li><a href=\"search.cgi\">Search</a></li>"
-puts "                <li><a href=\"#reading-log\">Reading Log</a></li>"
-puts "                <li><a href=\"account.cgi\">Sign In</a></li>"
+puts "                <li><a href=\"../frontend/readingLog.cgi\">Reading Log</a></li>"
+puts "                <li><a href=\"signIn.cgi\">Sign In</a></li>"
 puts "            </ul>"
 puts "        </nav>"
 else
@@ -83,7 +91,12 @@ puts "                        <input type=\"hidden\" name=\"usrName\" value=\"#{
 puts "                        <button type=\"submit\" class=\"nav-post-button\">Search</button>"
 puts "                    </form>"
 puts "                </li>"
-puts "                <li><a href=\"#reading-log\">Reading Log</a></li>"
+puts "                <li>"
+puts "                    <form class=\"nav-post-form\" action=\"../frontend/readingLog.cgi\" method=\"POST\">"
+puts "                        <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
+puts "                        <button type=\"submit\" class=\"nav-post-button\">Reading Log</button>"
+puts "                    </form>"
+puts "                </li>"
 puts "                <li>"
 puts "                    <form class=\"nav-post-form\" action=\"account.cgi\" method=\"POST\">"
 puts "                        <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
@@ -99,13 +112,13 @@ puts "                <input type=\"hidden\" name=\"searchType\" value=\"#{searc
 if usrName != ""
 puts "                    <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
 end
-puts "                <input type=\"text\" name=\"searchQuery\" class=\"search-input\" placeholder=\"#{searchPlaceholder}\" value=\"#{searchQuery}\">"
+puts "                <input type=\"text\" name=\"searchQuery\" class=\"search-input\" maxlength=\"255\" placeholder=\"#{searchPlaceholder}\" value=\"#{searchQuery}\">"
 puts "                <button type=\"submit\" class=\"search-button\">Search</button>"
 puts "            </form>"
 puts "            <div class=\"search-mode-links\">"
 puts "                <form action=\"search.cgi\" method=\"POST\" class=\"search-mode-form\">"
 puts "                    <input type=\"hidden\" name=\"searchType\" value=\"books\">"
-puts "                    <input type=\"hidden\" name=\"searchQuery\" value=\"#{searchQuery}\">"
+puts "                    <input type=\"hidden\" name=\"searchQuery\" value=\"#{CGI.escapeHTML(searchQuery)}\">"
 if usrName != ""
 puts "                    <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
 end
@@ -113,7 +126,7 @@ puts "                    <button type=\"submit\" class=\"search-mode-link#{sear
 puts "                </form>"
 puts "                <form action=\"search.cgi\" method=\"POST\" class=\"search-mode-form\">"
 puts "                    <input type=\"hidden\" name=\"searchType\" value=\"authors\">"
-puts "                    <input type=\"hidden\" name=\"searchQuery\" value=\"#{searchQuery}\">"
+puts "                    <input type=\"hidden\" name=\"searchQuery\" value=\"#{CGI.escapeHTML(searchQuery)}\">"
 if usrName != ""
 puts "                    <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
 end
@@ -126,6 +139,9 @@ if searchQuery
   if searchType == 'authors'
     searchResults.each do |authorRecord|
       headshotUrl = authorRecord['headshot'] && !authorRecord['headshot'].strip.empty? ? authorRecord['headshot'] : '../defaultAuth.png'
+      safeHeadshotUrl = CGI.escapeHTML(headshotUrl.to_s)
+      safeAuthorName = CGI.escapeHTML(authorRecord['name'].to_s)
+      safeAuthorBio = CGI.escapeHTML(truncateText(authorRecord['bio'].to_s, 400))
       puts "                <div class=\"search-result-item\">"
       puts "                    <form action=\"author.cgi\" method=\"POST\">"
       puts "                        <input type=\"hidden\" name=\"auth_id\" value=\"#{authorRecord['auth_id']}\">"
@@ -133,17 +149,20 @@ if searchQuery
         puts "                        <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
       end
       puts "                        <button type=\"submit\" style=\"border: none; background: none; padding: 0; cursor: pointer;\">"
-      puts "                            <img src=\"#{headshotUrl}\" alt=\"#{authorRecord['name']}\" class=\"search-result-image search-result-image-author\">"
+      puts "                            <img src=\"#{safeHeadshotUrl}\" alt=\"#{safeAuthorName}\" class=\"search-result-image search-result-image-author\">"
       puts "                        </button>"
       puts "                    </form>"
       puts "                    <div class=\"search-result-content\">"
-      puts "                        <div class=\"search-result-title search-result-title-author\">#{authorRecord['name']}</div>"
-      puts "                        <div class=\"search-result-description\">#{authorRecord['bio'] || ''}</div>"
+      puts "                        <div class=\"search-result-title search-result-title-author\">#{safeAuthorName}</div>"
+      puts "                        <div class=\"search-result-description\">#{safeAuthorBio}</div>"
       puts "                    </div>"
       puts "                </div>"
     end
   else
     searchResults.each do |book|
+      safeBookTitle = CGI.escapeHTML(book['title'].to_s)
+      safeBookCover = CGI.escapeHTML(book['cover_img'].to_s)
+      safeBookDesc = CGI.escapeHTML(truncateText(book['description'].to_s, 400))
       puts "                <div class=\"search-result-item\">"
       puts "                    <form action=\"book.cgi\" method=\"POST\">"
       puts "                        <input type=\"hidden\" name=\"book_id\" value=\"#{book['book_id']}\">"
@@ -151,11 +170,11 @@ if searchQuery
       puts "                        <input type=\"hidden\" name=\"usrName\" value=\"#{CGI.escapeHTML(usrName)}\">"
       end
       puts "                        <button type=\"submit\" style=\"border: none; background: none; padding: 0; cursor: pointer;\">"
-      puts "                            <img src=\"#{book['cover_img']}\" alt=\"#{book['title']}\" class=\"search-result-image\">"
+      puts "                            <img src=\"#{safeBookCover}\" alt=\"#{safeBookTitle}\" class=\"search-result-image\">"
       puts "                        </button>"
       puts "                    </form>"
       puts "                    <div class=\"search-result-content\">"
-      puts "                        <div class=\"search-result-title\">#{book['title']}</div>"
+      puts "                        <div class=\"search-result-title\">#{safeBookTitle}</div>"
       
       authorIds = db.query("SELECT auth_id FROM BookAuth WHERE book_id = #{book['book_id']};")
       authors = []
@@ -165,10 +184,16 @@ if searchQuery
       end
       
       if authors.length > 1
-        puts "                        <div class=\"search-result-author\">by #{authors.join(', ')}</div>"
+        puts "                        <div class=\"search-result-author\">by #{CGI.escapeHTML(authors.join(', '))}</div>"
+      end
+       if authors.length == 1
+        puts "                        <div class=\"search-result-author\">by #{CGI.escapeHTML(authors.first)}</div>"
+      end
+      if authors.length == 0
+        puts "                        <div class=\"search-result-author\">by Unknown</div>"
       end
       
-      puts "                        <div class=\"search-result-description\">#{book['description'] || ''}</div>"
+      puts "                        <div class=\"search-result-description\">#{safeBookDesc}</div>"
       puts "                    </div>"
       puts "                </div>"
     end

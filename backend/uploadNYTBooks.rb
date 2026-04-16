@@ -95,7 +95,7 @@ def getBookPublishDate(title)
 end
 
 # Put author(s) in Authors table and BookAuth table if they do not already exist
-def fillAuthorTable(db, author, book_id)
+def fillAuthorTable(db, author, bookId)
     authorInDB = db.query("SELECT auth_id FROM Authors WHERE name = '" + author + "';")
     isAuthor = 0
     authorInDB.each do |a|
@@ -107,10 +107,10 @@ def fillAuthorTable(db, author, book_id)
       db.query("INSERT INTO Authors (name) VALUES('" + author + "');")
       authorID = db.query("SELECT auth_id FROM Authors WHERE name = '" + author + "';")
       authorID.each do |id|
-        db.query("INSERT INTO BookAuth (book_id, auth_id) VALUES('" + book_id.to_s() + "', '" + id["auth_id"].to_s() + "');")
+                db.query("INSERT IGNORE INTO BookAuth (book_id, auth_id) VALUES('" + bookId.to_s() + "', '" + id["auth_id"].to_s() + "');")
       end
     else
-      db.query("INSERT INTO BookAuth (book_id, auth_id) VALUES('" + book_id.to_s() + "', '" + isAuthor["auth_id"].to_s() + "');")
+                db.query("INSERT IGNORE INTO BookAuth (book_id, auth_id) VALUES('" + bookId.to_s() + "', '" + isAuthor["auth_id"].to_s() + "');")
     end
 end
 
@@ -165,14 +165,15 @@ nonFicBooks.each() do |book|
         else
             fillAuthorTable(icarusDB, author, book["book_id"])
         end
-    existingBookId = findExistingBookId(icarusDB, isbn)
-    if existingBookId
-        fillAuthorTable(icarusDB, author, existingBookId)
-    else
-        icarusDB.query("INSERT INTO Books (title, lang_code, isbn, publish_date, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + publishDate.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
-        bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
-        bookID.each do |book|
-            fillAuthorTable(icarusDB, author, book["book_id"])
+        existingBookId = findExistingBookId(icarusDB, isbn)
+        if existingBookId
+            fillAuthorTable(icarusDB, author, existingBookId)
+        else
+            icarusDB.query("INSERT INTO Books (title, lang_code, isbn, publish_date, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + publishDate.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
+            bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
+            bookID.each do |book|
+                fillAuthorTable(icarusDB, author, book["book_id"])
+            end
         end
     end
 end
@@ -257,24 +258,23 @@ howToBooks.each() do |book|
     else
         icarusDB.query("INSERT INTO Books (title, lang_code, isbn, publish_date, cover_img, review, description) VALUES('" + title + "', '" + langCode + "', '" + isbn.to_s() + "', '" + publishDate.to_s() + "', '" + coverImage + "', '" + review + "', '" + description + "');")
         bookID = icarusDB.query("SELECT book_id FROM Books WHERE isbn = '" + isbn.to_s() + "';")
-        
     # Fill in the author's table, checking for multiple authors
-    wordAnd = /\sand\s/
-    wordWith = /\swith\s/
-    bookID.each do |book|
+        wordAnd = /\sand\s/
+        wordWith = /\swith\s/
+        bookID.each do |book|
             if wordAnd.match(author)
             authors = author.split(" and ")
-            authors.each do |a|
-                fillAuthorTable(icarusDB, a, book["book_id"])
+                authors.each do |a|
+                    fillAuthorTable(icarusDB, a, book["book_id"])
+                end
+            elsif wordWith.match(author)
+                authors = author.split(" with ")
+                authors.each do |a|
+                    fillAuthorTable(icarusDB, a, book["book_id"])
+                end
+            else
+                fillAuthorTable(icarusDB, author, book["book_id"])
             end
-        elsif wordWith.match(author)
-            authors = author.split(" with ")
-            authors.each do |a|
-                fillAuthorTable(icarusDB, a, book["book_id"])
-            end
-        else
-            fillAuthorTable(icarusDB, author, book["book_id"])
-        end
         end
     end
 end

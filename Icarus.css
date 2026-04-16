@@ -251,6 +251,10 @@ html {
     background-color: black;
 }
 
+.book-buy-borrow:hover {
+    background-color: #333;
+}
+
 .book-buy-borrow-list {
     margin-left: 3%;
     display: flex;
@@ -271,14 +275,14 @@ html {
 
 .author-left {
     flex: 0 0 45%;
-    max-width: 520px;
+    max-width: 540px;
 }
 
 .author-photo {
-    width: min(45vw, 520px);
-    height: min(45vw, 520px);
+    width: min(45vw, 540px);
+    height: min(45vw, 540px);
     border-radius: 50%;
-    object-fit: cover;
+    object-fit: contain;
     display: block;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
 }
@@ -390,6 +394,73 @@ html {
     box-shadow: 0 0 0 2px rgba(0,0,0,0.2);
 }
 
+.signin-form textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid black;
+    border-radius: 20px;
+    background-color: white;
+    font-size: 15px;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+    outline: none;
+    resize: none;
+}
+
+.signin-form textarea:focus {
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.2);
+}
+
+.book-notes {
+    margin-left: 3%;
+}
+
+.book-note-form {
+    margin-bottom: 20px;
+}
+
+.book-notes-list {
+    max-height: 320px;
+    max-width: 400px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.book-note-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+.book-note-delete-form {
+    margin: 0;
+}
+
+.book-note-item p {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #222;
+}
+
+.book-note-delete {
+    padding: 6px 12px;
+    font-size: 14px;
+    border: black solid 1px;
+    border-radius: 30px;
+    color: white;
+    background-color: black;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+    line-height: 1;
+}
+
+.book-note-delete:hover {
+    background-color: #333;
+}
+
 .signin-submit {
     margin-top: 6px;
     padding: 10px 18px;
@@ -485,12 +556,14 @@ html {
     display: flex;
     flex-direction: column;
     gap: 30px;
+    width: 100%;
 }
 
 .search-result-item {
     display: flex;
     gap: 25px;
     align-items: flex-start;
+    width: 100%;
 }
 
 .search-result-image {

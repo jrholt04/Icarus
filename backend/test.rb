@@ -40,7 +40,7 @@ def getTopBooksDescription(title)
     req.body = { query: query }.to_json
 
     res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(req) }
-    last_request_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    lastRequestTime = Process.clock_gettime(Process::CLOCK_MONOTONIC)
     
     payload = JSON.parse(res.body)
     description = payload.dig('data', 'books', 0, 'description') 
