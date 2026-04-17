@@ -85,7 +85,6 @@ signInFlowCode = <<~'RUBY'
         end
     end
 RUBY
-
 navBar = <<~'RUBY'
     puts "                <li>"
     puts "                    <form class=\"nav-post-form\" action=\"readingLog.cgi\" method=\"POST\">"
@@ -94,7 +93,6 @@ navBar = <<~'RUBY'
     puts "                    </form>"
     puts "                </li>"
 RUBY
-
 notes = <<~'RUBY'
     if cgi['note'] != ""
         createNote(userId, bookId, cgi['note'], db) if !userId.nil?
@@ -116,7 +114,6 @@ notes = <<~'RUBY'
         exit
     end
 RUBY
-
 readingLogBookActionsCode = <<~'RUBY'
     if usrName != ""
         if inReadingLog
@@ -136,7 +133,6 @@ readingLogBookActionsCode = <<~'RUBY'
         end
     end
 RUBY
-
 readingLogPageCode = <<~'RUBY'
     if removeFromLog
         db.query("DELETE FROM ReadingLog WHERE usr_id = #{user['usr_id'].to_i} AND book_id = #{removeBookId};")
@@ -156,7 +152,6 @@ readingLogPageCode = <<~'RUBY'
     puts "                            <input type=\"submit\" class=\"signin-submit\" value=\"Remove From Reading Log\">"
     puts "                        </form>"
 RUBY
-
 searchPageCode = <<~'RUBY'
         searchResponse = cgi['searchType']
         searchType = searchResponse == '' ? 'books' : searchResponse
@@ -178,7 +173,6 @@ searchPageCode = <<~'RUBY'
         puts "                <button type=\"submit\" class=\"search-button\">Search</button>"
         puts "            </form>"
 RUBY
-
 searchBackendCode = <<~'RUBY'
         def findBooks(db, userString)
                 return db.query("SELECT * FROM Books WHERE title LIKE '%" + userString.to_s().gsub("'", "''").strip + "%';")
@@ -188,7 +182,6 @@ searchBackendCode = <<~'RUBY'
                 return db.query("SELECT * FROM Authors WHERE name LIKE '%" + userString.to_s().gsub("'", "''").strip + "%';")
         end
 RUBY
-
 icon = <<~'RUBY'
     <script>
         function updateFavicon() {
