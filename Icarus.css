@@ -29,6 +29,7 @@ a.logo {
     font-size: 45px;
     font-weight: bold;
     text-decoration: none !important;
+    text-transform: uppercase;
 }
 
 .nav-links {
@@ -82,6 +83,7 @@ a.logo {
     font-size: 45px;
     font-weight: bold;
     text-decoration: none !important;
+    text-transform: uppercase;
     cursor: pointer;
 }
 
@@ -639,4 +641,118 @@ html {
     border-top: 4px solid black;
     width: 100%;
     margin: 0 0 20px 0;
+}
+
+/* About Page Styles */
+.about-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+    padding: 24px 40px;
+}
+
+.about-sidebar {
+    width: 260px;
+    position: sticky;
+    top: 16px;
+    align-self: flex-start;
+    background-color: #e3e6ee;
+    border-radius: 8px;
+    padding: 12px 14px;
+}
+
+.about-menu-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+}
+
+.about-menu-table td {
+    padding: 2px 0;
+}
+
+.about-menu-table a {
+    color: #111;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    display: block;
+    font-weight: 400;
+}
+
+.about-menu-table a:hover {
+    font-weight: bold;
+}
+
+.about-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.about-section {
+    margin-bottom: 40px;
+    padding-top: 6px;
+}
+
+.about-copy {
+    margin-left: 3%;
+    color: #222;
+    line-height: 1.5;
+    font-family: Arial, sans-serif;
+}
+
+.about-code {
+    margin: 22px 0 0 3%;
+    padding: 18px 20px;
+    border: 1px solid #1f2937;
+    border-radius: 12px;
+    background:
+        linear-gradient(180deg, #000 0, #000 44px, #050505 44px, #050505 100%);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.16);
+    color: #e5eefc;
+    overflow-x: auto;
+    white-space: pre;
+    position: relative;
+}
+
+.about-code::before {
+    content: attr(data-file);
+    position: sticky;
+    left: 0;
+    display: block;
+    margin: -18px -20px 14px -20px;
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.24);
+    color: #cbd5e1;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+}
+
+.about-code code {
+    display: block;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.about-doc-frame {
+    width: 100%;
+    min-height: 640px;
+    border: 1px solid #c8ccd6;
+    border-radius: 8px;
+    background: #fff;
+}
+
+@media (max-width: 900px) {
+    .about-layout {
+        flex-direction: column;
+        gap: 20px;
+        padding: 18px 20px;
+    }
+
+    .about-sidebar {
+        width: 100%;
+        position: static;
+    }
 }

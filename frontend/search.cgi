@@ -141,7 +141,7 @@ if searchQuery
       headshotUrl = authorRecord['headshot'] && !authorRecord['headshot'].strip.empty? ? authorRecord['headshot'] : '../defaultAuth.png'
       safeHeadshotUrl = CGI.escapeHTML(headshotUrl.to_s)
       safeAuthorName = CGI.escapeHTML(authorRecord['name'].to_s)
-      safeAuthorBio = CGI.escapeHTML(truncateText(authorRecord['bio'].to_s, 400))
+      safeAuthorBio = truncateText(authorRecord['bio'].to_s, 400).gsub("<i>", '"').gsub("</i>", '"')
       puts "                <div class=\"search-result-item\">"
       puts "                    <form action=\"author.cgi\" method=\"POST\">"
       puts "                        <input type=\"hidden\" name=\"auth_id\" value=\"#{authorRecord['auth_id']}\">"
